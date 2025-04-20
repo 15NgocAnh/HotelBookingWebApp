@@ -13,18 +13,18 @@ namespace HotelBooking.Domain.Repository
         {
         }
 
-        public async Task<PostModel> AddPostAsync(UserModel userpost, PostModel post)
+        public async Task<PostModel> AddPostAsync(UserModel user, PostModel post)
         {
-            if (userpost.posts == null)
-                userpost.posts = new List<PostModel>();
-            userpost.posts.Add(post);
+            if (user.Posts == null)
+                user.Posts = new List<PostModel>();
+            user.Posts.Add(post);
             await _context.SaveChangesAsync();
             return post;
         }
 
         public async Task<PostModel> UpdateAsync(int id, PostDTO postDTO)
         {
-            var post = _context.posts.FirstOrDefault(p => p.id == id);
+            var post = _context.Posts.FirstOrDefault(p => p.Id == id);
             if (post != null)
             {
                 post = _mapper.Map(postDTO, post);
@@ -33,67 +33,65 @@ namespace HotelBooking.Domain.Repository
             return post;
         }
 
-        public async Task DeleteAsync(int post_id)
+        public async Task DeleteAsync(int postId)
         {
-            var post = _context.posts.Where(p => p.is_deleted == false).FirstOrDefault(p => p.id == post_id);
+            var post = _context.Posts.Where(p => p.IsDeleted == false).FirstOrDefault(p => p.Id == postId);
             if (post != null)
             {
-                post.is_deleted = true;
+                post.IsDeleted = true;
                 await _context.SaveChangesAsync();
             }
         }
 
-        public async Task ActiveAsync(int post_id)
+        public async Task ActiveAsync(int postId)
         {
-            var post = _context.posts.Where(p => p.is_deleted == false && p.is_actived == false).FirstOrDefault(p => p.id == post_id);
+            var post = _context.Posts.Where(p => p.IsDeleted == false && p.IsActived == false).FirstOrDefault(p => p.Id == postId);
             if (post != null)
             {
-                post.is_actived = true;
+                post.IsActived = true;
                 await _context.SaveChangesAsync();
             }
         }
 
         public IQueryable<PostModel> GetUserPosts(int userId)
         {
-            return _context.posts.Where(p => p.is_deleted == false)
-                .Where(c => c.user.Id == userId);
+            return _context.Posts.Where(p => p.IsDeleted == false)
+                .Where(c => c.User.Id == userId);
         }
 
         public IQueryable<PostModel> GetPosts()
         {
-            return _context.posts.Where(p => p.is_deleted == false);
+            return _context.Posts.Where(p => p.IsDeleted == false);
         }
 
         public IQueryable<PostModel> GetPostNotDeleted()
         {
-            var posts = _context.posts.AsQueryable();
-            posts = _context.posts.Where(p => p.is_deleted == false);
-            return posts;
+            return _context.Posts.Where(p => p.IsDeleted == false);
         }
 
         public IQueryable<PostModel> GetPostNotApproved()
         {
-            var posts = _context.posts.AsQueryable();
-            posts = _context.posts.Where(p => p.is_deleted == false).Where(p => p.is_actived == false);
-            return posts;
+            return _context.Posts.Where(p => p.IsDeleted == false)
+                .Where(p => p.IsActived == false);
         }
 
-        public async Task addJobToPostAsync(int jobId, PostModel post)
+        public async Task AddJobToPostAsync(int jobId, PostModel post)
         {
-            post.job_id = jobId;
+            post.JobId = jobId;
             await _context.SaveChangesAsync();
         }
 
         public PostModel GetPostById(int id)
         {
-            return _context.posts.IgnoreQueryFilters().Where(p => p.id == id).FirstOrDefault();
+            return _context.Posts.IgnoreQueryFilters()
+                .Where(p => p.Id == id)
+                .FirstOrDefault();
         }
 
         public async Task UndoDeletedAsync(PostModel post)
         {
-            post.is_deleted = false;
+            post.IsDeleted = false;
             await _context.SaveChangesAsync();
         }
-
     }
 }

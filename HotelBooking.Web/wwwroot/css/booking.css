@@ -1,0 +1,70 @@
+.booking-form {
+    padding: 20px;
+}
+
+.booking-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.booking-form label {
+    font-weight: 600;
+    color: #333;
+}
+
+.booking-form .form-control {
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+}
+
+.booking-form .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.booking-form textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.booking-form .btn-primary {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.booking-form .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.booking-form .alert {
+    margin-bottom: 1.5rem;
+    border-radius: 4px;
+}
+
+.booking-form .text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Date and time input styling */
+.booking-form input[type="date"],
+.booking-form input[type="time"] {
+    font-family: inherit;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .booking-form {
+        padding: 15px;
+    }
+    
+    .booking-form .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+} 

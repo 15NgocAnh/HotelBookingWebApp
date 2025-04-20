@@ -1,0 +1,101 @@
+@page
+@using HotelBooking.Data.Models
+@model HotelBooking.Web.Pages.MyBookingsModel
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">My Bookings</h2>
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    @Model.ErrorMessage
+                </div>
+            }
+            else if (!Model.Bookings.Any())
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    You haven't made any bookings yet.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Room ID</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Total Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var booking in Model.Bookings)
+                            {
+                                <tr>
+                                    <td>@booking.BookingID</td>
+                                    <td>@booking.RoomId</td>
+                                    <td>
+                                        <div>@booking.ArrivalDate.ToShortDateString()</div>
+                                        <small class="text-muted">@booking.EstArrivalTime.ToString(@"hh\:mm")</small>
+                                    </td>
+                                    <td>
+                                        <div>@booking.DepartureDate.ToShortDateString()</div>
+                                        <small class="text-muted">@booking.EstDepartureTime.ToString(@"hh\:mm")</small>
+                                    </td>
+                                    <td>@Model.GetTotalPrice(booking)</td>
+                                    <td>
+                                        <span class="badge bg-@(booking.Status.ToString().ToLower() == "pending" ? "warning" : 
+                                                             booking.Status.ToString().ToLower() == "confirmed" ? "success" : 
+                                                             booking.Status.ToString().ToLower() == "cancelled" ? "danger" : 
+                                                             "info")">
+                                            @booking.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/BookingConfirmation?bookingId=@booking.BookingID" 
+                                               class="btn btn-sm btn-info" 
+                                               title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            @if (booking.Status == BookingStatus.Pending)
+                                            {
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-danger" 
+                                                        title="Cancel Booking"
+                                                        onclick="confirmCancelBooking(@booking.BookingID)">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmCancelBooking(bookingId) {
+            if (confirm('Are you sure you want to cancel this booking?')) {
+                window.location.href = `/BookingConfirmation?bookingId=${bookingId}&action=cancel`;
+            }
+        }
+    </script>
+} 

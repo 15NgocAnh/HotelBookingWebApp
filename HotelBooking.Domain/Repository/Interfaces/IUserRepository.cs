@@ -1,18 +1,17 @@
 ﻿using HotelBooking.Domain.DTOs.User;
-using HotelBooking.Data;
 using HotelBooking.Data.Models;
 
 namespace HotelBooking.Domain.Repository.Interfaces
 {
     public interface IUserRepository : IGenericRepository<UserModel>
     {
-        Task<UserModel> getUserByEmail(string email);
-        Task<bool> updateAvatar(string? userid, string avatar);
-        Task<bool> changPasswordAsync(string newPassword, UserModel user);
-        Task<UserModel> updateAsync(UserInfoDTO userDTO, UserModel userModel);
-        Task<UserModel> findUserPostAsync(int user_id);
-        Task<UserModel> GetDetailsUserAsync(int id);
+        Task<UserModel> GetUserByEmail(string email);
+        Task<bool> UpdateAvatar(string? userId, string avatar);
+        Task<bool> ChangePasswordAsync(string newPassword, UserModel user);
+        Task<UserModel> UpdateAsync(UserInfoDTO userDTO, UserModel userModel);
+        Task<UserModel> FindUserPostAsync(int userId);
+        Task<UserModel> GetDetailsUserAsync(int userId);
         Task<UserModel> GetUserNotIsAdminAsync(int id);
-        public int GetRoleByUserId(int id);
+        int GetRoleByUserId(int id);
     }
 }

@@ -1,16 +1,15 @@
 ﻿using AutoMapper;
 using HotelBooking.Data;
+using HotelBooking.Data.Models;
 using HotelBooking.Domain.Authentication;
 using HotelBooking.Domain.DTOs.Authentication;
 using HotelBooking.Domain.DTOs.User;
 using HotelBooking.Domain.Encryption;
 using HotelBooking.Domain.Repository.Interfaces;
 using HotelBooking.Domain.Response;
-using HotelBooking.Data;
+using HotelBooking.Domain.Services.Interfaces;
 using System.Security.Claims;
 using static HotelBooking.Domain.Response.EServiceResponseTypes;
-using HotelBooking.Domain.Services.Interfaces;
-using HotelBooking.Data.Models;
 
 namespace HotelBooking.Domain.Services
 {
@@ -39,7 +38,7 @@ namespace HotelBooking.Domain.Services
             var serviceResponse = new ServiceResponse<CredentialDTO>();
             try
             {
-                var user = await _userRepository.getUserByEmail(userdata.email);
+                var user = await _userRepository.GetUserByEmail(userdata.email);
                 if (user != null && _pwHasher.verify(userdata.password, user.PasswordHash))
                 {
                     var userDTO = _mapper.Map<UserModel, UserDTO>(user);
@@ -69,7 +68,7 @@ namespace HotelBooking.Domain.Services
         }
         public async Task verifyEmailAsync(string userid)
         {
-            var u = _userRepository.GetById(int.Parse(userid));
+            var u = await _userRepository.GetByIdAsync(int.Parse(userid));
             if (u == null || u.IsVerified == true)
             {
                 return;
@@ -87,7 +86,7 @@ namespace HotelBooking.Domain.Services
             {
                 var userid = claim.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
-                var user = _userRepository.GetById(int.Parse(userid));
+                var user = await _userRepository.GetByIdAsync(int.Parse(userid));
                 if (user == null)
                 {
                     serviceResponse.ResponseType = EResponseType.Unauthorized;
@@ -95,7 +94,6 @@ namespace HotelBooking.Domain.Services
                 }
                 else
                 {
-
                     var userDTO = _mapper.Map<UserModel, UserDTO>(user);
 
                     string? token = await _jWTHelper.GenerateJWTToken(user.Id, DateTime.UtcNow.AddMinutes(10), userDTO);
@@ -111,7 +109,6 @@ namespace HotelBooking.Domain.Services
                         _tokendto.Token = token;
                         serviceResponse.Data = _tokendto;
                     }
-
                 }
             }
             else
@@ -120,7 +117,6 @@ namespace HotelBooking.Domain.Services
                 serviceResponse.Message = "Could not found User from token.";
             }
             return serviceResponse;
-
         }
         public async Task<ServiceResponse<object>> activeEmailAsync(string Token)
         {
@@ -131,7 +127,7 @@ namespace HotelBooking.Domain.Services
                 var userid = claim.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value;
                 var action = claim.Claims.FirstOrDefault(c => c.Type == "action")!.Value;
 
-                var user = _userRepository.GetById(int.Parse(userid));
+                var user = await _userRepository.GetByIdAsync(int.Parse(userid));
                 if (user == null || action == null || user.IsVerified == true)
                 {
                     serviceResponse.ResponseType = EResponseType.Unauthorized;
@@ -142,10 +138,9 @@ namespace HotelBooking.Domain.Services
                 {
                     user.IsVerified = true;
                     _context.Update(user);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                     serviceResponse.ResponseType = EResponseType.Success;
                     serviceResponse.Message = "Activate Success.";
-
                 }
             }
             catch (Exception ex)
@@ -159,7 +154,7 @@ namespace HotelBooking.Domain.Services
             var serviceResponse = new ServiceResponse<object>();
             try
             {
-                var user = await _userRepository.getUserByEmail(useremail);
+                var user = await _userRepository.GetUserByEmail(useremail);
                 if (user == null)
                 {
                     serviceResponse.ResponseType = EResponseType.Unauthorized;
@@ -190,6 +185,38 @@ namespace HotelBooking.Domain.Services
             {
                 throw;
             }
+        }
+
+        public async Task<ServiceResponse<object>> resetPasswordAsync(string token, string newPassword)
+        {
+            var serviceResponse = new ServiceResponse<object>();
+            try
+            {
+                var claim = _jWTHelper.ValidateToken(token);
+                var userid = claim.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value;
+                var action = claim.Claims.FirstOrDefault(c => c.Type == "action")!.Value;
+
+                var user = await _userRepository.GetByIdAsync(int.Parse(userid));
+                if (user == null || action == null)
+                {
+                    serviceResponse.ResponseType = EResponseType.Unauthorized;
+                    serviceResponse.Message = "Could not found User.";
+                    return serviceResponse;
+                }
+                if (action == "forgot")
+                {
+                    user.PasswordHash = _pwHasher.Hash(newPassword);
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+                    serviceResponse.ResponseType = EResponseType.Success;
+                    serviceResponse.Message = "Reset Password Success.";
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return serviceResponse;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using HotelBooking.Data.Models;
-using HotelBooking.Domain.DTOs.Post;
 using HotelBooking.Domain.DTOs.Role;
+using HotelBooking.Domain.DTOs.Room;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,7 +20,7 @@ namespace HotelBooking.Domain.DTOs.User
         [Column(TypeName = "text")]
         public string? avatar { get; set; }
         public ICollection<RolesDTO> roles { get; set; }
-        public ICollection<PostDTO> posts { get; set; }
+        public ICollection<RoomDTO> posts { get; set; }
         public int followers { get; set; }
         public int following { get; set; }
     }

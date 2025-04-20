@@ -1,14 +1,11 @@
 ﻿using Asp.Versioning;
 using HotelBooking.Domain.DTOs.Authentication;
-using HotelBooking.Domain.DTOs.Common;
 using HotelBooking.Domain.DTOs.User;
-using HotelBooking.Domain.Services;
 using HotelBooking.Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Claims;
-using static HotelBooking.Domain.Response.EServiceResponseTypes;
 
 namespace HotelBooking.API.Controllers
 {
@@ -27,6 +24,7 @@ namespace HotelBooking.API.Controllers
             _userServices = userService;
             _authService = authService;
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -73,7 +71,7 @@ namespace HotelBooking.API.Controllers
         {
             var decode = WebUtility.UrlDecode(token);
             var serviceResponse = await _authService.activeEmailAsync(decode);
-            return Ok(serviceResponse.getMessage());
+            return Redirect($"https://localhost:7154/Account/Login");
         }
 
         [Route("refresh")]
@@ -84,13 +82,34 @@ namespace HotelBooking.API.Controllers
             var serviceResponse = await _authService.refreshTokenAsync(token.Token);
             return CreatedAtAction(nameof(refreshToken), new { version = "1" }, serviceResponse.getData());
         }
+
         [Route("forgot")]
         [Produces("application/json")]
         [HttpPost]
         public async Task<ActionResult> forgotPassword(string email)
         {
-
             var serviceResponse = await _authService.sendForgotEmailVerify(email);
+            return Ok(serviceResponse.getMessage());
+        }
+
+        [Route("forgot/{token}")]
+        [Produces("application/json")]
+        [HttpGet]
+        public IActionResult ForgotPasswordRedirect(string token)
+        {
+            // Giải mã token (nếu cần)
+            var decodedToken = WebUtility.UrlDecode(token);
+
+            // Chuyển hướng sang trang ResetPassword.cshtml với token trên URL
+            return Redirect($"https://localhost:7154/Account/ResetPassword?token={decodedToken}");
+        }
+
+        [Route("reset-password")]
+        [Produces("application/json")]
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO request)
+        {
+            var serviceResponse = await _authService.resetPasswordAsync(request.Token, request.NewPassword);
             return Ok(serviceResponse.getMessage());
         }
 

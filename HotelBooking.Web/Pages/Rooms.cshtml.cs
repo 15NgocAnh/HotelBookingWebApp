@@ -1,31 +1,51 @@
+using HotelBooking.Domain.DTOs.Room;
+using HotelBooking.Web.Pages.Abstract;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text.Json;
 
 namespace HotelBooking.Web.Pages
 {
-    public class RoomsModel : PageModel
+    public class RoomsModel : AbstractPageModel
     {
-        public List<Room> Rooms { get; set; } = new();
-
-        public void OnGet()
+        public RoomsModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor) : base(configuration, httpClientFactory, httpContextAccessor)
         {
-            Rooms = new List<Room>
-            {
-                new Room { Name = "King Room", ImageUrl = "images/room-6.jpg", Price = 120, Rating = 5, IsLeftAligned = true },
-                new Room { Name = "Suite Room", ImageUrl = "images/room-1.jpg", Price = 120, Rating = 5, IsLeftAligned = true },
-                new Room { Name = "Family Room", ImageUrl = "images/room-2.jpg", Price = 120, Rating = 5, IsLeftAligned = false },
-                new Room { Name = "Deluxe Room", ImageUrl = "images/room-3.jpg", Price = 120, Rating = 5, IsLeftAligned = false },
-                new Room { Name = "Luxury Room", ImageUrl = "images/room-4.jpg", Price = 120, Rating = 5, IsLeftAligned = true },
-                new Room { Name = "Superior Room", ImageUrl = "images/room-5.jpg", Price = 120, Rating = 5, IsLeftAligned = true }
-            };
         }
 
-        public class Room
+        public List<RoomDTO> Rooms { get; set; } = new();
+        public string? SearchMessage { get; set; }
+
+        public async Task OnGetAsync()
         {
-            public string Name { get; set; }
-            public string ImageUrl { get; set; }
-            public int Price { get; set; }
-            public int Rating { get; set; } = 5;
-            public bool IsLeftAligned { get; set; }
+            var tempData = TempData["RoomCondition"]?.ToString();
+            if (tempData != null)
+            {
+                var searchCondition = JsonSerializer.Deserialize<RoomCondition>(tempData);
+                if (searchCondition != null)
+                {
+                    // Build query string from condition
+                    var queryString = $"api/v1/room/search?checkInDate={searchCondition.CheckInDate:yyyy-MM-dd}&" +
+                                    $"checkOutDate={searchCondition.CheckOutDate:yyyy-MM-dd}&" +
+                                    $"roomType={searchCondition.RoomType}&" +
+                                    $"adultsCnt={searchCondition.AdultsCnt}&" +
+                                    $"childrenCnt={searchCondition.ChildrenCnt}";
+
+                    var response = await GetAsync<List<RoomDTO>>(queryString);
+                    if (response != null)
+                    {
+                        Rooms = response;
+                        SearchMessage = "Showing available rooms matching your criteria";
+                    }
+                    else
+                    {
+                        SearchMessage = "No rooms found matching your criteria";
+                        Rooms = await GetAsync<List<RoomDTO>>("api/v1/room") ?? new List<RoomDTO>();
+                    }
+                }
+            }
+            else
+            {
+                Rooms = await GetAsync<List<RoomDTO>>("api/v1/room") ?? new List<RoomDTO>();
+            }
         }
     }
 }

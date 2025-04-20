@@ -14,7 +14,6 @@ using Microsoft.Extensions.Logging;
 using static HotelBooking.Domain.Response.EServiceResponseTypes;
 using HotelBooking.Data.Models;
 
-
 namespace HotelBooking.Domain.Services
 {
     public class PostService : IPostService
@@ -41,7 +40,7 @@ namespace HotelBooking.Domain.Services
             var serviceResponse = new ServiceResponse<PostDTO>();
             try
             {
-                var user = await _userRepository.findUserPostAsync(userId);
+                var user = await _userRepository.FindUserPostAsync(userId);
                 newPost.file_url = $"{userId}/{CJConstant.POST_PATH}/{newPost.file_name}";
                 var post = _mapper.Map<PostModel>(newPost);
                 post = await _postRepository.AddPostAsync(user, post);
@@ -66,7 +65,7 @@ namespace HotelBooking.Domain.Services
             try
             {
                 serviceResponse.ResponseType = EResponseType.Success;
-                serviceResponse.Data = await _mapper.ProjectTo<PostDetailsDTO>(_postRepository.GetPosts())
+                serviceResponse.Data = await _mapper.ProjectTo<PostDetailsDTO>(_postRepository.GetAllQueryable())
                     .AsNoTracking()
                     .FirstAsync(c => c.id == id);
             }
@@ -84,7 +83,7 @@ namespace HotelBooking.Domain.Services
             try
             {
                 var post = await _postRepository.GetUserPosts(userId)
-                    .FirstOrDefaultAsync(c => c.id == id);
+                    .FirstOrDefaultAsync(c => c.Id == id);
                 if (post != null)
                 {
                     post = await _postRepository.UpdateAsync(id, postDTO);
@@ -111,10 +110,10 @@ namespace HotelBooking.Domain.Services
             try
             {
                 var post = await _postRepository.GetUserPosts(userId)
-                   .FirstOrDefaultAsync(c => c.id == id);
+                   .FirstOrDefaultAsync(c => c.Id == id);
                 if (post != null)
                 {
-                    await _postRepository.DeleteAsync(post.id);
+                    await _postRepository.DeleteAsync(post.Id);
                     serviceResponse.ResponseType = EResponseType.Success;
                     serviceResponse.Message = "Delete post successfully!";
                 }
@@ -137,10 +136,10 @@ namespace HotelBooking.Domain.Services
             var serviceResponse = new ServiceResponse<object>();
             try
             {
-                var post = _postRepository.GetById(id);
+                var post = await _postRepository.GetByIdAsync(id);
                 if (post != null)
                 {
-                    await _postRepository.DeleteAsync(post.id);
+                    await _postRepository.DeleteAsync(post.Id);
                     serviceResponse.ResponseType = EResponseType.Success;
                     serviceResponse.Message = "Delete post successfully!";
                 }
@@ -163,10 +162,10 @@ namespace HotelBooking.Domain.Services
             var serviceResponse = new ServiceResponse<object>();
             try
             {
-                var post = _postRepository.GetById(id); 
-                if (post != null && post.is_actived == false)
+                var post = await _postRepository.GetByIdAsync(id); 
+                if (post != null && post.IsActived == false)
                 {
-                    await _postRepository.ActiveAsync(post.id);
+                    await _postRepository.ActiveAsync(post.Id);
                     serviceResponse.ResponseType = EResponseType.Success;
                     serviceResponse.Message = "Post has been successfully approved.";
                 }
@@ -192,7 +191,7 @@ namespace HotelBooking.Domain.Services
                 var post = _postRepository.GetPostById(id);
                 if (post != null)
                 {
-                    if (post.is_deleted == true)
+                    if (post.IsDeleted == true)
                     {
                         await _postRepository.UndoDeletedAsync(post);
                         serviceResponse.ResponseType = EResponseType.Success;
@@ -228,7 +227,7 @@ namespace HotelBooking.Domain.Services
             var serviceResponse = new ServiceResponse<PagingReturnModel<PostDetailsDTO>>();
             try
             {
-                var posts = _mapper.ProjectTo<PostDetailsDTO>(_postRepository.GetPosts())
+                var posts = _mapper.ProjectTo<PostDetailsDTO>(_postRepository.GetAllQueryable())
                         .Where(predicate)
                         .AsNoTracking();
                 #region apply sorting and paging
@@ -260,10 +259,10 @@ namespace HotelBooking.Domain.Services
                 var posts = _mapper.ProjectTo<PostValidatorDTO>(_postRepository.GetPosts())
                         .IgnoreQueryFilters().Where(p => (!p.is_deleted) || (p.is_deleted && (p.changed_by == role_id || p.changed_by == 0)))
                         .Where(predicate)
-                        .AsNoTracking();
+                    .AsNoTracking();
                 #region filter status of post
                 if (status_filter == CJConstant.IS_DELETED)
-                    posts = _mapper.ProjectTo<PostValidatorDTO>(_postRepository.GetSoftDelete())
+                    posts = _mapper.ProjectTo<PostValidatorDTO>(await _postRepository.GetSoftDeleteAsync())
                         .Where(p => p.changed_by == role_id || p.changed_by == 0)
                         .Where(predicate)
                         .AsNoTracking();

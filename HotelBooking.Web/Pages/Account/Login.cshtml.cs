@@ -1,4 +1,7 @@
-﻿using HotelBooking.Domain.DTOs.Authentication;
+﻿using HotelBooking.Domain.Constant;
+using HotelBooking.Domain.DTOs.Authentication;
+using HotelBooking.Domain.DTOs.User;
+using HotelBooking.Web.Pages.Abstract;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -14,34 +17,23 @@ using System.Text.Json.Serialization;
 
 namespace HotelBooking.Web.Pages.Account
 {
-    public class LoginModel : PageModel
+    public class LoginModel : AbstractPageModel
     {
-        private readonly IConfiguration _configuration;
-        private readonly HttpClient _httpClient;
+        public LoginModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor) : base(configuration, httpClientFactory, httpContextAccessor)
+        {
+        }
 
         [BindProperty]
-        public LoginInput Input { get; set; }
+        public UserLoginDTO Input { get; set; } = new();
 
-        public string? ReturnUrl { get; set; }
         public string? ErrorMessage { get; set; }
+        public bool IsSuccess { get; set; }
+        public string? RedirectUrl { get; set; }
 
-        public LoginModel(IConfiguration configuration, IHttpClientFactory httpClientFactory)
+        public void OnGet() { }
+
+        public async Task<IActionResult> OnPostAsync()
         {
-            _configuration = configuration;
-            _httpClient = httpClientFactory.CreateClient("BackendApi");
-            _httpClient.BaseAddress = new Uri(_configuration["BackendApi"]);
-        }
-
-        public IActionResult OnGet(string returnUrl = null)
-        {
-            ReturnUrl = returnUrl;
-            return Page();
-        }
-
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
-        {
-            returnUrl ??= Url.Content("~/");
-
             if (!ModelState.IsValid)
             {
                 return Page();
@@ -49,86 +41,80 @@ namespace HotelBooking.Web.Pages.Account
 
             try
             {
-                return await Login(returnUrl);
+                var credential = await GetJWT(); // Gửi request đăng nhập đến API
+
+                // Kiểm tra nếu API trả về lỗi hoặc token trống
+                if (credential == null || string.IsNullOrEmpty(credential.Data.Token))
+                {
+                    ErrorMessage = "Invalid username or password";
+                    return Page();
+                }
+
+                var userInfo = GetUserInfoFromJWT(credential.Data.Token); // Giải mã JWT để lấy thông tin user
+
+                if (string.IsNullOrEmpty(userInfo.Id)) // Nếu không có ID, báo lỗi
+                {
+                    ErrorMessage = "Failed to retrieve user information.";
+                    return Page();
+                }
+
+                // Tạo danh sách quyền hạn (claims) cho user
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, userInfo.Id),
+                    new Claim(ClaimTypes.Role, userInfo.RoleName),
+                    new Claim(ClaimTypes.Email, userInfo.Email),
+                    new Claim("FirstName", userInfo.FirstName),
+                    new Claim("LastName", userInfo.LastName)
+                };
+
+                // Xác thực đăng nhập bằng Cookie
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties
+                {
+                    AllowRefresh = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(int.Parse(_configuration["Session:TimeOut"] ?? "30")),
+                    IsPersistent = false,
+                };
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    authProperties);
+
+                IsSuccess = true; // Cập nhật trạng thái đăng nhập thành công để hiển thị popup
+                // Kiểm tra nếu là Admin thì set URL redirect đến Dashboard
+                RedirectUrl = userInfo.RoleName == CJConstant.ADMIN ? "/Admin/Dashboard" : "/Index";
+                return Page();
             }
-            catch (Exception ex)
+            catch
             {
                 ErrorMessage = "An error occurred during login. Please try again.";
                 return Page();
             }
         }
-        private async Task<IActionResult> Login(string returnUrl)
-        {
-            var credential = await GetJWT();
-            if (credential == null || string.IsNullOrEmpty(credential.Data.Token))
-            {
-                ErrorMessage = "Invalid username or password";
-                return Page();
-            }
 
-            var userInfo = GetUserInfoFromJWT(credential.Data.Token);
-            if (string.IsNullOrEmpty(userInfo.Id))
-            {
-                ErrorMessage = "Failed to retrieve user information.";
-                return Page();
-            }
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, userInfo.Id),
-                new Claim(ClaimTypes.Name, userInfo.Username),
-                new Claim(ClaimTypes.Email, userInfo.Email),
-                new Claim("UserInfo", JsonSerializer.Serialize(userInfo))
-            };
-
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var authProperties = new AuthenticationProperties
-            {
-                AllowRefresh = true,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(int.Parse(_configuration["Session:TimeOut"] ?? "30")),
-                IsPersistent = false,
-                IssuedUtc = DateTime.UtcNow,
-                RedirectUri = returnUrl
-            };
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                authProperties);
-
-            return LocalRedirect(returnUrl);
-        }
-
+        /// <summary>
+        /// Gửi request đến API để lấy JWT token khi đăng nhập
+        /// </summary>
         private async Task<ApiResponse<CredentialDTO>?> GetJWT()
         {
             try
             {
-                Input.SessionId = Guid.NewGuid().ToString();
-                Input.IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+                // Chuyển dữ liệu Input (email, password) thành JSON để gửi lên API
+                var content = new StringContent(JsonSerializer.Serialize(Input), Encoding.UTF8, "application/json"); // Gửi request đến API
 
-                var content = new StringContent(JsonSerializer.Serialize(Input), Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync("api/v1/auth/login", content);
+                var response = await _httpClient.PostAsync("api/v1/auth/login", content); // Lấy dữ liệu phản hồi từ API
                 var responseText = await response.Content.ReadAsStringAsync();
 
-                if (!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode) // Nếu API trả về lỗi
                 {
-                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                    var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(responseText, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (errorResponse?.Errors != null)
                     {
-                        var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(responseText, new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
-
-                        if (errorResponse?.Errors != null)
-                        {
-                            foreach (var error in errorResponse.Errors)
-                            {
-                                ModelState.AddModelError(string.Empty, string.Join(", ", error.Value));
-                            }
-                        }
+                        // Gộp các lỗi lại thành một chuỗi và gán vào `ErrorMessage`
+                        ErrorMessage = string.Join("<br>", errorResponse.Errors.SelectMany(e => e.Value));
                     }
-
                     return null;
                 }
 
@@ -136,47 +122,44 @@ namespace HotelBooking.Web.Pages.Account
                 {
                     PropertyNameCaseInsensitive = true
                 });
-
-                if (credential != null)
+                
+                // Nếu API trả về lỗi hoặc không có dữ liệu token -> Không lưu vào cookie
+                if (credential == null || string.IsNullOrEmpty(credential.Data.Token))
                 {
-                    HttpContext.Response.Cookies.Append("JWT", credential.Data.Token, new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.Strict,
-                        Expires = DateTimeOffset.UtcNow.AddMinutes(int.Parse(_configuration["Session:TimeOut"] ?? "30"))
-                    });
-
-                    HttpContext.Response.Cookies.Append("RefreshToken", credential.Data.RefreshToken, new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.Strict,
-                        Expires = DateTimeOffset.UtcNow.AddDays(7) // Refresh Token thường có thời gian dài hơn
-                    });
+                    ErrorMessage = "Incorrect account or password!";
+                    return null;
                 }
+
+                // Lưu JWT vào Cookie để xác thực người dùng
+                HttpContext.Response.Cookies.Append("JWT", credential.Data.Token, new CookieOptions
+                {
+                    HttpOnly = true,  // Chống XSS
+                    Secure = true,    // Chỉ hoạt động trên HTTPS
+                    SameSite = SameSiteMode.Strict, // Chống CSRF
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(int.Parse(_configuration["Session:TimeOut"] ?? "30"))
+                });
+
+                // Lưu Refresh Token để tự động làm mới phiên đăng nhập
+                HttpContext.Response.Cookies.Append("RefreshToken", credential.Data.RefreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7) // Thời gian dài hơn JWT
+                });
 
                 return credential;
             }
             catch (Exception)
             {
-                ModelState.AddModelError(string.Empty, "Lỗi hệ thống, vui lòng thử lại.");
+                ModelState.AddModelError(string.Empty, "System error, please try again.");
                 return null;
             }
         }
 
-        public class ApiResponse<T>
-        {
-            [JsonPropertyName("data")]
-            public T Data { get; set; }
-        }
-
-
-        public class ErrorResponse
-        {
-            public Dictionary<string, List<string>> Errors { get; set; } = new();
-        }
-
+        /// <summary>
+        /// Giải mã JWT token để lấy thông tin user
+        /// </summary>
         private UserInfo GetUserInfoFromJWT(string jwt)
         {
             try
@@ -184,17 +167,13 @@ namespace HotelBooking.Web.Pages.Account
                 var handler = new JwtSecurityTokenHandler();
                 var jsonToken = handler.ReadToken(jwt) as JwtSecurityToken;
 
-                if (jsonToken == null)
-                {
-                    return new UserInfo();
-                }
-
                 return new UserInfo
                 {
-                    Id = jsonToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "",
-                    Username = jsonToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "",
-                    Email = jsonToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value ?? "",
-                    IsActive = true
+                    Id = jsonToken?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "",
+                    RoleName = jsonToken?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "",
+                    Email = jsonToken?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value ?? "",
+                    FirstName = jsonToken?.Claims.FirstOrDefault(c => c.Type == "FirstName")?.Value ?? "",
+                    LastName = jsonToken?.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value ?? ""
                 };
             }
             catch
@@ -265,41 +244,15 @@ namespace HotelBooking.Web.Pages.Account
 
             return credential.Token;
         }
-
     }
+
 
     public class UserInfo
     {
         public string Id { get; set; } = string.Empty;
-        public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public bool IsActive { get; set; }
-    }
-
-    public class ApiToken
-    {
-        [JsonPropertyName("token")]
-        public string Token { get; set; } = string.Empty;
-    }
-
-    public class LoginInput
-    {
-        [Display(Name = "Email")]
-        [Required(ErrorMessage = "Email is required.")]
-        [JsonPropertyName("email")]
-        [EmailAddress(ErrorMessage = "Invalid email format")]
-        public string Email { get; set; } = string.Empty;
-
-        [Display(Name = "Password")]
-        [Required(ErrorMessage = "Password is required.")]
-        [JsonPropertyName("password")]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
-
-        [JsonPropertyName("ipddress")] 
-        public string? IpAddress { get; set; }
-
-        [JsonPropertyName("sessionid")]
-        public string? SessionId { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string RoleName { get; set; } = CJConstant.CUSTOMER;
     }
 }

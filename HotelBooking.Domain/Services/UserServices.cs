@@ -84,11 +84,11 @@ namespace HotelBooking.Domain.Services
             try
             {
                 var toAdd = _mapper.Map<UserModel>(user);
-                var role = await _roleRepository.getRoleByName(CJConstant.JOB_SEEKER);
+                var role = await _roleRepository.getRoleByName(CJConstant.CUSTOMER);
                 await _userRoleRepository.AddAsync(new UserRoleModel()
                 {
-                    role = role,
-                    user = toAdd
+                    Role = role,
+                    User = toAdd
                 });
                 serviceResponse.Data = _mapper.Map<UserDTO>(toAdd);
                 serviceResponse.ResponseType = EResponseType.Created;
@@ -109,8 +109,8 @@ namespace HotelBooking.Domain.Services
             var serviceResponse = new ServiceResponse<UserDTO>();
             try
             {
-                var userModel = _userRepository.GetById(int.Parse(userid));
-                var userRole = _userRoleRepository.GetUserRoleAsync(userModel, selectedRole);
+                var userModel = await _userRepository.GetByIdAsync(int.Parse(userid));
+                var userRole = await _userRoleRepository.GetUserRoleAsync(userModel, selectedRole);
                 if (userRole != null)
                 {
                     serviceResponse.ResponseType = EResponseType.CannotUpdate;
@@ -120,8 +120,8 @@ namespace HotelBooking.Domain.Services
                 {
                     await _userRoleRepository.AddAsync(new UserRoleModel()
                     {
-                        role = selectedRole,
-                        user = userModel
+                        Role = selectedRole,
+                        User = userModel
                     });
                     serviceResponse.Data = _mapper.Map<UserDTO>(userModel);
                 }
@@ -139,8 +139,8 @@ namespace HotelBooking.Domain.Services
             var serviceResponse = new ServiceResponse<UserInfoDTO>();
             try
             {
-                var user = _userRepository.GetById(int.Parse(id));
-                user = await _userRepository.updateAsync(updateUser, user);
+                var user = await _userRepository.GetByIdAsync(int.Parse(id));
+                user = await _userRepository.UpdateAsync(updateUser, user);
                 serviceResponse.ResponseType = EResponseType.Success;
                 serviceResponse.Message = "Update user successfully!";
                 serviceResponse.Data = _mapper.Map<UserInfoDTO>(user);
@@ -157,11 +157,11 @@ namespace HotelBooking.Domain.Services
             var serviceResponse = new ServiceResponse<object>();
             try
             {
-                var userModel = _userRepository.GetById(int.Parse(id));
+                var userModel = await _userRepository.GetByIdAsync(int.Parse(id));
                 var checkPassword = _pwHasher.verify(passwordDTO.oldPassword, userModel.PasswordHash);
                 if (checkPassword)
                 {
-                    await _userRepository.changPasswordAsync(_pwHasher.Hash(passwordDTO.newPassword), userModel);
+                    await _userRepository.ChangePasswordAsync(_pwHasher.Hash(passwordDTO.newPassword), userModel);
                     serviceResponse.Message = "Change password successfully!";
                 }
                 else
@@ -182,7 +182,7 @@ namespace HotelBooking.Domain.Services
         {
             try
             {
-                await _userRepository.updateAvatar(id, $"{id}/{CJConstant.AVATAR_PATH}/{fileDTO.file_name}");
+                await _userRepository.UpdateAvatar(id, $"{id}/{CJConstant.AVATAR_PATH}/{fileDTO.file_name}");
             }
             catch (Exception ex)
             {

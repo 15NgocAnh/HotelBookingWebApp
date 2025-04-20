@@ -34,7 +34,7 @@
                             <div class="form-group align-self-stretch d-flex align-items-end">
                                 <div class="wrap align-self-stretch py-3 px-4">
                                     <label>Check-in Date</label>
-                                    <input type="date" class="form-control" asp-for="CheckInDate">
+                                    <input type="date" class="form-control" asp-for="Condition.CheckInDate">
                                 </div>
                             </div>
                         </div>
@@ -42,7 +42,7 @@
                             <div class="form-group align-self-stretch d-flex align-items-end">
                                 <div class="wrap align-self-stretch py-3 px-4">
                                     <label>Check-out Date</label>
-                                    <input type="date" class="form-control" asp-for="CheckOutDate">
+                                    <input type="date" class="form-control" asp-for="Condition.CheckOutDate">
                                 </div>
                             </div>
                         </div>
@@ -50,10 +50,11 @@
                             <div class="form-group align-self-stretch d-flex align-items-end">
                                 <div class="wrap align-self-stretch py-3 px-4">
                                     <label>Room</label>
-                                    <select class="form-control" asp-for="RoomType">
-                                        <option>Suite</option>
-                                        <option>Family Room</option>
-                                        <option>Deluxe Room</option>
+                                    <select asp-for="Condition.RoomType" class="form-control">
+                                        @foreach (var type in @Model.RoomType)
+                                        {
+                                            <option value="@type.Id">@type.Name</option>
+                                        }
                                     </select>
                                 </div>
                             </div>
@@ -61,8 +62,16 @@
                         <div class="col-md d-flex py-md-4">
                             <div class="form-group align-self-stretch d-flex align-items-end">
                                 <div class="wrap align-self-stretch py-3 px-4">
-                                    <label>Guests</label>
-                                    <input type="number" class="form-control" asp-for="Guests" min="1" max="6">
+                                    <label>Adults</label>
+                                    <input type="number" class="form-control" asp-for="Condition.AdultsCnt" min="1" max="6">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md d-flex py-md-4">
+                            <div class="form-group align-self-stretch d-flex align-items-end">
+                                <div class="wrap align-self-stretch py-3 px-4">
+                                    <label>Children</label>
+                                    <input type="number" class="form-control" asp-for="Condition.ChildrenCnt" min="0" max="6">
                                 </div>
                             </div>
                         </div>
@@ -222,12 +231,16 @@
             </div>
         </div>
         <div class="row no-gutters">
+            @{
+                var index = 0;
+            }
             @foreach (var room in Model.Rooms)
             {
+                index++;
                 <div class="col-lg-6">
                     <div class="room-wrap d-md-flex ftco-animate">
-                        <a href="#" class="img @(room.Reverse ? "order-md-last" : "")" style="background-image: url('/images/@room.Img');"></a>
-                        <div class="half @(room.Reverse ? "right-arrow" : "left-arrow") d-flex align-items-center">
+                        <a href="#" class="img @(index%2!=0 ? "order-md-last" : "")" style="background-image: url('/images/@room.ImageUrl');"></a>
+                        <div class="half @(index%2!=0 ? "right-arrow" : "left-arrow") d-flex align-items-center">
                             <div class="text p-4 text-center">
                                 <p class="star mb-0">
                                     <span class="ion-ios-star"></span>
@@ -236,9 +249,9 @@
                                     <span class="ion-ios-star"></span>
                                     <span class="ion-ios-star"></span>
                                 </p>
-                                <p class="mb-0"><span class="price mr-1">$@room.Price.00</span> <span class="per">per night</span></p>
-                                <h3 class="mb-3"><a href="rooms.html">@room.Name</a></h3>
-                                <p class="pt-1"><a href="room-single.html" class="btn-custom px-3 py-2 rounded">View Details <span class="icon-long-arrow-right"></span></a></p>
+                                <p class="mb-0"><span class="price mr-1">$@room.PricePerNight.00</span> <span class="per">per night</span></p>
+                                <h3 class="mb-3"><a asp-page="/RoomDetail" asp-route-id="@room.Id">@room.RoomNo</a></h3>
+                                <p class="pt-1"><a asp-page="/RoomDetail" asp-route-id="@room.Id" class="btn-custom px-3 py-2 rounded">View Details <span class="icon-long-arrow-right"></span></a></p>
                             </div>
                         </div>
                     </div>

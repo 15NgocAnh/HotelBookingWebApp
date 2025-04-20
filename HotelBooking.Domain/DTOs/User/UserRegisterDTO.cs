@@ -29,9 +29,10 @@ namespace HotelBooking.Domain.DTOs.User
         [RegularExpression(RegexUtils.PHONE_NUMBER, ErrorMessage = "Phone number is not valid format!")]
         [StringLength(11, MinimumLength = 9)]
         public string phone_number { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Gender is required")]
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Gender gender { get; set; }
+
         [Required]
         [DataType(DataType.Date)]
         [AgeRequirementAttribure(CJConstant.MIN_AGE)]

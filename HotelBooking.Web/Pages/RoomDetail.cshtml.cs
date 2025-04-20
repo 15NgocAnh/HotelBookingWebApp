@@ -1,16 +1,20 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using HotelBooking.Domain.DTOs.Room;
+using HotelBooking.Web.Pages.Abstract;
 
 namespace HotelBooking.Web.Pages
 {
-    public class RoomDetailModel : PageModel
+    public class RoomDetailModel : AbstractPageModel
     {
-        public RoomDetails Room { get; set; }
+        public RoomDetailModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor) : base(configuration, httpClientFactory, httpContextAccessor)
+        {
+        }
+
+        public RoomDetailsDTO Room { get; set; }
         public List<Rating> Ratings { get; set; }
         public List<BlogPost> RecentBlogs { get; set; }
         public List<Category> Categories { get; set; }
 
-        public void OnGet()
+        public async Task OnGetAsync(int id)
         {
             Categories = new List<Category>
             {
@@ -21,19 +25,7 @@ namespace HotelBooking.Web.Pages
                 new Category { Name = "Apartment", Count = 14 },
                 new Category { Name = "Condominium", Count = 140 }
             };
-            Room = new RoomDetails
-            {
-                Name = "Luxury Room",
-                AvailableRooms = 4,
-                Description = "When she reached the first hills of the Italic Mountains, she had a last view back on the skyline...",
-                MaxPersons = 3,
-                Size = 45,
-                View = "Sea View",
-                Bed = "1",
-                MainImage = "/images/room-4.jpg",
-                VideoUrl = "https://vimeo.com/45830194",
-                Images = new List<string> { "/images/room-4.jpg", "/images/room-5.jpg", "/images/room-6.jpg" }
-            };
+            Room = await GetAsync<RoomDetailsDTO>($"api/v1/room/{id}") ?? new();
 
             Ratings = new List<Rating>
             {
@@ -55,20 +47,6 @@ namespace HotelBooking.Web.Pages
         {
             public string Name { get; set; } = string.Empty;
             public int Count { get; set; } // S? l??ng bài vi?t ho?c danh m?c
-        }
-
-        public class RoomDetails
-        {
-            public string Name { get; set; } = string.Empty;
-            public int AvailableRooms { get; set; }
-            public string Description { get; set; } = string.Empty;
-            public int MaxPersons { get; set; }
-            public int Size { get; set; }
-            public string View { get; set; } = string.Empty;
-            public string Bed { get; set; } = string.Empty;
-            public string MainImage { get; set; } = string.Empty;
-            public string VideoUrl { get; set; } = string.Empty;
-            public List<string> Images { get; set; } = new List<string>();
         }
 
         public class Rating

@@ -1,0 +1,109 @@
+﻿@page
+@using HotelBooking.Data.Models
+@model HotelBooking.Web.Pages.Admin.Rooms.EditModel
+@{
+    ViewData["Title"] = "Edit Room";
+    Layout = "_AdminLayout";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fas fa-edit me-2"></i> Edit Room</h3>
+        </div>
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">@Model.ErrorMessage</div>
+            }
+
+            <form method="post">
+                <input type="hidden" asp-for="Room.Id" />
+
+                <!-- Room Number -->
+                <div class="mb-3">
+                    <label asp-for="Room.RoomNo" class="form-label">Room Number</label>
+                    <input asp-for="Room.RoomNo" class="form-control" readonly />
+                </div>
+
+                <!-- Room Description-->
+                <div class="mb-3">
+                    <label asp-for="Room.Description" class="form-label">Description</label>
+                    <textarea asp-for="Room.Description" class="form-control"></textarea>
+                </div>
+
+                <!-- Room Type -->
+                <div class="mb-3">
+                    <label asp-for="Room.RoomType" class="form-label">Room Type</label>
+                    <select asp-for="Room.RoomType" class="form-select">
+                        @foreach (var type in Model.RoomTypes)
+                        {
+                            <option value="@type.Id">@type.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Bed Count -->
+                <div class="mb-3">
+                    <label asp-for="Room.BedCount" class="form-label">Bed Count</label>
+                    <input asp-for="Room.BedCount" type="number" class="form-control" min="1" required />
+                </div>
+
+                <!-- Max Occupancy -->
+                <div class="mb-3">
+                    <label asp-for="Room.MaxOccupancy" class="form-label">Max Occupancy</label>
+                    <input asp-for="Room.MaxOccupancy" type="number" class="form-control" min="1" required />
+                </div>
+
+                <!-- Price Per Night -->
+                <div class="mb-3">
+                    <label asp-for="Room.PricePerNight" class="form-label">Price Per Night ($)</label>
+                    <input asp-for="Room.PricePerNight" type="number" class="form-control" step="0.01" min="1" required />
+                </div>
+
+                <!-- Area -->
+                <div class="mb-3">
+                    <label asp-for="Room.Area" class="form-label">Area (m²)</label>
+                    <input asp-for="Room.Area" type="number" class="form-control" min="10" required />
+                </div>
+
+                <!-- Facilities -->
+                <div class="mb-3">
+                    <label asp-for="Room.Facilities" class="form-label">Facilities</label>
+                    <div class="mb-3">
+                        @foreach (var facility in Enum.GetValues(typeof(Facility)).Cast<Facility>())
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="Room.Facilities" value="@facility" id="facility_@facility" 
+                                       checked="@Model.Room.Facilities?.Contains(facility)" />
+                                <label class="form-check-label" for="facility_@facility">
+                                    @facility.ToString()
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Room Image -->
+                <div class="mb-3">
+                    <label asp-for="Room.ImageUrl" class="form-label">Image URL</label>
+                    <input asp-for="Room.ImageUrl" class="form-control" placeholder="Room image URL" />
+                </div>
+
+                <!-- Save Button -->
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-2"></i> Save Changes
+                    </button>
+                    <a asp-page="./Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Back
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

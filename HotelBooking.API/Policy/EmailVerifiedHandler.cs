@@ -25,7 +25,7 @@ namespace HotelBooking.API.Policy
                 {
                     string userid = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                    var user = _context.users.FirstOrDefault(x => x.Id == int.Parse(userid));
+                    var user = _context.Users.FirstOrDefault(x => x.Id == int.Parse(userid));
                     if (user.IsVerified)
                         context.Succeed(requirement);
                 }

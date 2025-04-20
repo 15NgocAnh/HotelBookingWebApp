@@ -14,24 +14,24 @@ namespace HotelBooking.Domain.Repository
         public RoleRepository(AppDbContext context, IMapper mapper) : base(context, mapper)
         {
         }
-        public async Task<RoleModel> getRoleByLevel_NameAsync(int level, string roleName)
+        public async Task<RoleModel> getRoleByLevel_NameAsync(int level, string Name)
         {
-            return await _context.roles.FirstOrDefaultAsync(r => r.RoleName == roleName);
+            return await _context.Roles.FirstOrDefaultAsync(r => r.Name == Name);
         }
 
-        public async Task<RoleModel> getRoleByNameAsync(string roleName)
+        public async Task<RoleModel> getRoleByNameAsync(string Name)
         {
-            return await _context.roles.FirstOrDefaultAsync(r => r.RoleName == roleName);
+            return await _context.Roles.FirstOrDefaultAsync(r => r.Name == Name);
         }
 
-        public async Task<RoleModel> getRoleExceptAdmin(string roleName)
+        public async Task<RoleModel> getRoleExceptAdmin(string Name)
         {
-            return await _context.roles.Where(r => !r.RoleName.Equals(CJConstant.ADMIN, StringComparison.OrdinalIgnoreCase)).FirstOrDefaultAsync(r => r.RoleName == roleName);
+            return await _context.Roles.Where(r => !r.Name.Equals(CJConstant.ADMIN, StringComparison.OrdinalIgnoreCase)).FirstOrDefaultAsync(r => r.Name == Name);
         }
 
-        public async Task<RoleModel> getRoleByName(string roleName)
+        public async Task<RoleModel> getRoleByName(string Name)
         {
-            return _context.roles.FirstOrDefault(r => r.RoleName == roleName);
+            return _context.Roles.FirstOrDefault(r => r.Name == Name);
         }
     }
 }

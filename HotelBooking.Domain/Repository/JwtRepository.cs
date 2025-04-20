@@ -13,15 +13,15 @@ namespace HotelBooking.Domain.Repository
         }
         public async Task<JWTModel?> FindByValue(string token)
         {
-            return await _context.jwts.FirstOrDefaultAsync(x => x.token_hash_value == token && !x.is_deleted);
+            return await _context.Jwts.FirstOrDefaultAsync(x => x.TokenHashValue == token && !x.IsDeleted);
         }
 
         public async Task<bool> InvalidToken(string token)
         {
             try
             {
-                var jwt = await _context.jwts.FirstOrDefaultAsync(x => x.token_hash_value == token && x.is_deleted == false);
-                jwt.is_deleted = true;
+                var jwt = await _context.Jwts.FirstOrDefaultAsync(x => x.TokenHashValue == token && x.IsDeleted == false);
+                jwt.IsDeleted = true;
                 await _context.SaveChangesAsync();
             }
             catch

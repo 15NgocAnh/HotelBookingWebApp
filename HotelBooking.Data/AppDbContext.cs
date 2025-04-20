@@ -8,115 +8,112 @@ using System.Security.Claims;
 
 namespace HotelBooking.Data
 {
+    /// <summary>
+    /// Represents the database context for the Hotel Booking application.
+    /// Manages database connections and entity configurations.
+    /// </summary>
     public class AppDbContext : DbContext
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppDbContext"/> class.
+        /// </summary>
+        /// <param name="options">The options for this context.</param>
+        /// <param name="httpContextAccessor">The HTTP context accessor for accessing current user information.</param>
+        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) 
+            : base(options)
         {
             _httpContextAccessor = httpContextAccessor;
         }
 
+        #region DbSet Properties
+
+        /// <summary>
+        /// Gets or sets the users DbSet.
+        /// </summary>
+        public virtual DbSet<UserModel> Users { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user roles DbSet.
+        /// </summary>
+        public virtual DbSet<UserRoleModel> UserRoles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the roles DbSet.
+        /// </summary>
+        public virtual DbSet<RoleModel> Roles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the files DbSet.
+        /// </summary>
+        public virtual DbSet<FileModel> Files { get; set; }
+
+        /// <summary>
+        /// Gets or sets the JWTs DbSet.
+        /// </summary>
+        public virtual DbSet<JWTModel> Jwts { get; set; }
+
+        /// <summary>
+        /// Gets or sets the notifications DbSet.
+        /// </summary>
+        public virtual DbSet<NotificationModel> Notifications { get; set; }
+
+        /// <summary>
+        /// Gets or sets the posts DbSet.
+        /// </summary>
+        public virtual DbSet<PostModel> Posts { get; set; }
+
+        /// <summary>
+        /// Gets or sets the room types DbSet.
+        /// </summary>
+        public virtual DbSet<RoomTypeModel> RoomTypes { get; set; }
+
+        /// <summary>
+        /// Gets or sets the rooms DbSet.
+        /// </summary>
+        public virtual DbSet<RoomModel> Rooms { get; set; }
+
+        /// <summary>
+        /// Gets or sets the bookings DbSet.
+        /// </summary>
+        public virtual DbSet<BookingModel> Bookings { get; set; }
+
+        /// <summary>
+        /// Gets or sets the bills DbSet.
+        /// </summary>
+        public virtual DbSet<BillModel> Bills { get; set; }
+
+        #endregion
+
+        #region Override Methods
+
+        /// <summary>
+        /// Configures the database context options.
+        /// </summary>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.ConfigureWarnings(warnings =>
                 warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
         }
 
+        /// <summary>
+        /// Configures the model that was discovered by convention from the entity types.
+        /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UserModel>().HasIndex(p => p.Email).IsUnique();
-
-            modelBuilder.Entity<UserModel>()
-                .HasMany(e => e.user_roles)
-                .WithOne(e => e.user)
-                .HasForeignKey("user_id")
-                .IsRequired();
-
-            modelBuilder.Entity<RoleModel>()
-                .HasMany(e => e.UserRole)
-                .WithOne(e => e.role)
-                .HasForeignKey("role_id")
-                .IsRequired();
-            modelBuilder.Entity<UserModel>()
-                .HasMany(e => e.jwts)
-                .WithOne(e => e.user)
-                .HasForeignKey("user_id")
-                .IsRequired();
-
-            modelBuilder.Entity<UserModel>()
-                .HasMany(e => e.posts)
-                .WithOne(e => e.user)
-                .HasForeignKey("user_id");
-
-            modelBuilder.Entity<UserModel>()
-                .HasMany(e => e.from_user_notifications)
-                .WithOne(e => e.from_user_notification)
-                .HasForeignKey("from_user_notifi_id")
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<UserModel>()
-                .HasMany(u => u.posts)
-                .WithOne(u => u.user)
-                .HasForeignKey("user_id")
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<BookingModel>()
-                .HasOne(b => b.Hotel)
-                .WithMany()
-                .HasForeignKey(b => b.HotelCode)
-                .OnDelete(DeleteBehavior.Cascade); 
-
-            modelBuilder.Entity<BookingModel>()
-                .HasOne(b => b.Room)
-                .WithMany()
-                .HasForeignKey(b => b.RoomNo)
-                .OnDelete(DeleteBehavior.NoAction); 
-
-            modelBuilder.Entity<BookingModel>()
-                .HasOne(b => b.Guest)
-                .WithMany()
-                .HasForeignKey(b => b.GuestID)
-                .OnDelete(DeleteBehavior.NoAction); 
+            ConfigureUserModel(modelBuilder);
+            ConfigureRoleModel(modelBuilder);
+            ConfigureBookingModel(modelBuilder);
+            ConfigureSoftDelete(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
-            var entityTypes = modelBuilder.Model.GetEntityTypes();
-
-            foreach (var entityType in entityTypes)
-            {
-                var entityClrType = entityType.ClrType;
-
-                var isSoftDeleteEnabled = entityClrType.GetProperty("is_deleted") != null;
-
-                if (isSoftDeleteEnabled)
-                {
-                    var parameter = Expression.Parameter(entityClrType, "e");
-                    var property = Expression.Property(parameter, "is_deleted");
-                    var notDeleted = Expression.Not(property);
-                    var lambda = Expression.Lambda(notDeleted, parameter);
-
-                    entityType.SetQueryFilter(lambda);
-                }
-            }
             new DbInitializer(modelBuilder).Seed();
         }
 
-        #region DbSet implementation omitted
-        public virtual DbSet<UserModel> users { get; set; }
-        public virtual DbSet<UserRoleModel> user_roles { get; set; }
-        public virtual DbSet<RoleModel> roles { get; set; }
-        public virtual DbSet<FileModel> files { get; set; }
-        public virtual DbSet<JWTModel> jwts { get; set; }
-        public virtual DbSet<NotificationModel> notifications { get; set; }
-        public virtual DbSet<PostModel> posts { get; set; }
-        public virtual DbSet<RoomTypeModel> room_types { get; set; }
-        public virtual DbSet<RoomModel> room { get; set; }
-        public virtual DbSet<HotelModel> hotel { get; set; }
-        public virtual DbSet<BookingModel> booking { get; set; }
-        public virtual DbSet<BillModel> bill { get; set; }
-        #endregion
-
-        #region Auto add created-time, updated-time
+        /// <summary>
+        /// Saves all changes made in this context to the database.
+        /// </summary>
         public override int SaveChanges()
         {
             try
@@ -124,13 +121,18 @@ namespace HotelBooking.Data
                 AddTimestamps();
                 return base.SaveChanges();
             }
-            catch
+            catch (Exception ex)
             {
+                // Log the exception
+                Console.WriteLine($"Error saving changes: {ex.Message}");
                 throw;
             }
         }
 
-        public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        /// <summary>
+        /// Asynchronously saves all changes made in this context to the database.
+        /// </summary>
+        public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -139,38 +141,139 @@ namespace HotelBooking.Data
             }
             catch (Exception ex)
             {
+                // Log the exception
                 Console.WriteLine($"Error saving changes: {ex.Message}");
                 throw;
             }
         }
 
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Configures the UserModel entity.
+        /// </summary>
+        private static void ConfigureUserModel(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserModel>()
+                .HasIndex(p => p.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<UserModel>()
+                .HasMany(e => e.UserRoles)
+                .WithOne(e => e.User)
+                .HasForeignKey("UserId")
+                .IsRequired();
+
+            modelBuilder.Entity<UserModel>()
+                .HasMany(e => e.Jwts)
+                .WithOne(e => e.User)
+                .HasForeignKey("UserId")
+                .IsRequired();
+
+            modelBuilder.Entity<UserModel>()
+                .HasMany(e => e.Posts)
+                .WithOne(e => e.User)
+                .HasForeignKey("UserId");
+
+            modelBuilder.Entity<UserModel>()
+                .HasMany(e => e.FromUserNotifications)
+                .WithOne(e => e.FromUserNotification)
+                .HasForeignKey("FromUserNotificationId")
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+
+        /// <summary>
+        /// Configures the RoleModel entity.
+        /// </summary>
+        private static void ConfigureRoleModel(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<RoleModel>()
+                .HasMany(e => e.UserRoles)
+                .WithOne(e => e.Role)
+                .HasForeignKey("RoleId")
+                .IsRequired();
+        }
+
+        /// <summary>
+        /// Configures the BookingModel entity.
+        /// </summary>
+        private static void ConfigureBookingModel(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BookingModel>()
+                .HasOne(b => b.Room)
+                .WithMany()
+                .HasForeignKey(b => b.RoomId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<BookingModel>()
+                .HasOne(b => b.Guest)
+                .WithMany()
+                .HasForeignKey(b => b.GuestId)
+                .OnDelete(DeleteBehavior.NoAction);
+        }
+
+        /// <summary>
+        /// Configures soft delete for entities that implement it.
+        /// </summary>
+        private static void ConfigureSoftDelete(ModelBuilder modelBuilder)
+        {
+            var entityTypes = modelBuilder.Model.GetEntityTypes();
+
+            foreach (var entityType in entityTypes)
+            {
+                var entityClrType = entityType.ClrType;
+                var isSoftDeleteEnabled = entityClrType.GetProperty("IsDeleted") != null;
+
+                if (isSoftDeleteEnabled)
+                {
+                    var parameter = Expression.Parameter(entityClrType, "e");
+                    var property = Expression.Property(parameter, "IsDeleted");
+                    var notDeleted = Expression.Not(property);
+                    var lambda = Expression.Lambda(notDeleted, parameter);
+
+                    entityType.SetQueryFilter(lambda);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds timestamps to entities that inherit from BaseModel.
+        /// </summary>
         private void AddTimestamps()
         {
-            var Data = ChangeTracker.Entries()
-                .Where(x => x.Entity is BaseModel && (x.State == EntityState.Added || x.State == EntityState.Modified));
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var entities = ChangeTracker.Entries()
+                .Where(x => x.Entity is BaseModel && 
+                    (x.State == EntityState.Added || x.State == EntityState.Modified));
 
-            var currentUserId = !string.IsNullOrEmpty(userId)
-                ? userId
-                : "0";
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var currentUserId = !string.IsNullOrEmpty(userId) ? userId : "0";
 
-            foreach (var entity in Data)
+            foreach (var entity in entities)
             {
-                // Get the current UTC time
-                DateTime nowUtc = DateTime.UtcNow;  
-                // Get the time zone information for Asia Standard Time
-                TimeZoneInfo AsiaZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-                // Convert the UTC time to Asia Standard Time
-                DateTime now = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, AsiaZone);
-                var user = int.Parse(currentUserId); 
+                var now = GetCurrentTime();
+                var user = int.Parse(currentUserId);
+
                 if (entity.State == EntityState.Added)
                 {
-                    ((BaseModel)entity.Entity).created_at = now;
-                    ((BaseModel)entity.Entity).created_by = user;
+                    ((BaseModel)entity.Entity).CreatedAt = now;
+                    ((BaseModel)entity.Entity).CreatedBy = user;
                 }
-                ((BaseModel)entity.Entity).updated_at = now;
-                ((BaseModel)entity.Entity).changed_by = user;
+
+                ((BaseModel)entity.Entity).UpdatedAt = now;
+                ((BaseModel)entity.Entity).ChangedBy = user;
             }
+        }
+
+        /// <summary>
+        /// Gets the current time in the Asia Standard Time zone.
+        /// </summary>
+        private static DateTime GetCurrentTime()
+        {
+            var nowUtc = DateTime.UtcNow;
+            var asiaZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(nowUtc, asiaZone);
         }
 
         #endregion

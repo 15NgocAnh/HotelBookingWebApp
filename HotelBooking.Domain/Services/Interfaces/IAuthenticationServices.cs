@@ -47,5 +47,6 @@ namespace HotelBooking.Domain.Services.Interfaces
         /// </summary>
         /// <param name="reftoken">Long term token store in User storage.</param>
         Task<ServiceResponse<object>> logout(string reftoken);
+        Task<ServiceResponse<object>> resetPasswordAsync(string token, string newPassword);
     }
 }

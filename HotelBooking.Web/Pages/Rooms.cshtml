@@ -1,8 +1,13 @@
 ﻿@page
+@using HotelBooking.Domain.DTOs.Room
 @model RoomsModel
 @{
     ViewData["Title"] = "Our Rooms";
     Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/rooms.css" />
 }
 
 <div class="hero-wrap" style="background-image: url('images/bg_3.jpg');">
@@ -12,41 +17,98 @@
             <div class="col-md-9 ftco-animate text-center d-flex align-items-end justify-content-center">
                 <div class="text">
                     <p class="breadcrumbs mb-2"><span class="mr-2"><a asp-page="/Index">Home</a></span> <span>Rooms</span></p>
-                    <h1 class="mb-4 bread">Rooms</h1>
+                    <h1 class="mb-4 bread">Our Rooms</h1>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<section class="ftco-section ftco-no-pb ftco-room">
-    <div class="container-fluid px-0">
-        <div class="row no-gutters justify-content-center mb-5 pb-3">
-            <div class="col-md-7 heading-section text-center ftco-animate">
-                <span class="subheading">Harbor Lights Rooms</span>
-                <h2 class="mb-4">Hotel Master's Rooms</h2>
+<section class="ftco-section">
+    <div class="container">
+        @if (!string.IsNullOrEmpty(Model.SearchMessage))
+        {
+            <div class="alert alert-info mb-4">
+                @Model.SearchMessage
             </div>
-        </div>  
+        }
 
-        <div class="row no-gutters">
+        <div class="row">
             @foreach (var room in Model.Rooms)
             {
-                <div class="col-lg-6">
-                    <div class="room-wrap d-md-flex ftco-animate">
-                        <a href="#" class="img" style="background-image: url(@room.ImageUrl);"></a>
-                        <div class="half @(room.IsLeftAligned ? "left-arrow" : "right-arrow") d-flex align-items-center">
-                            <div class="text p-4 text-center">
-                                <p class="star mb-0">
-                                    @for (int i = 0; i < room.Rating; i++)
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="room-card">
+                        <div class="room-image" style="background-image: url(/images/@room.ImageUrl);">
+                            <div class="room-price">
+                                <span class="price">$@room.PricePerNight.ToString("N0")</span>
+                                <span class="per-night">per night</span>
+                            </div>
+                            <div class="room-status @room.Status.ToLower()">@room.Status</div>
+                        </div>
+                        <div class="room-content p-4">
+                            <h3 class="room-title mb-2">@room.RoomNo</h3>
+                            <p class="room-type mb-3">@room.RoomType</p>
+                            
+                            <div class="room-features mb-3">
+                                <div class="feature-item">
+                                    <i class="icon-user"></i>
+                                    <span>@room.MaxOccupancy Persons</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="icon-ruler"></i>
+                                    <span>@room.Area m²</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="icon-bed"></i>
+                                    <span>@room.BedCount Beds</span>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(room.Description))
+                            {
+                                <p class="room-description mb-3">@room.Description</p>
+                            }
+
+                            <div class="room-facilities mb-3">
+                                @if (room.Facilities != null && room.Facilities.Any())
+                                {
+                                    foreach (var facility in room.Facilities.Take(3))
                                     {
-                                        <span class="ion-ios-star"></span>
+                                        <span class="badge badge-info mr-1">@facility</span>
                                     }
-                                </p>
-                                <p class="mb-0">
-                                    <span class="price mr-1">$@room.Price</span> <span class="per">per night</span>
-                                </p>
-                                <h3 class="mb-3"><a asp-page="/RoomDetail">@room.Name</a></h3>
-                                <p class="pt-1"><a asp-page="/RoomDetail" class="btn-custom px-3 py-2 rounded">View Details <span class="icon-long-arrow-right"></span></a></p>
+                                    @if (room.Facilities.Count > 3)
+                                    {
+                                        <span class="badge badge-secondary">+@(room.Facilities.Count - 3) more</span>
+                                    }
+                                }
+                            </div>
+
+                            <div class="room-actions">
+                                <a asp-page="/RoomDetail" asp-route-id="@room.Id" class="btn btn-primary btn-block">
+                                    View Details
+                                </a>
+                                @{
+                                    var tempData = TempData["RoomCondition"]?.ToString();
+                                    var searchCondition = tempData != null ? System.Text.Json.JsonSerializer.Deserialize<RoomCondition>(tempData) : null;
+                                }
+                                @if (room.Status == "Available")
+                                {
+                                    <a asp-page="/Booking" 
+                                       asp-route-roomId="@room.Id"
+                                       asp-route-checkInDate="@(searchCondition?.CheckInDate.ToString("yyyy-MM-dd"))"
+                                       asp-route-checkOutDate="@(searchCondition?.CheckOutDate.ToString("yyyy-MM-dd"))"
+                                       asp-route-adultsCnt="@(searchCondition?.AdultsCnt ?? 1)"
+                                       asp-route-childrenCnt="@(searchCondition?.ChildrenCnt ?? 0)"
+                                       class="btn btn-success btn-block mt-2">
+                                        Book Now
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-secondary btn-block mt-2" disabled>
+                                        Not Available
+                                    </button>
+                                }
                             </div>
                         </div>
                     </div>

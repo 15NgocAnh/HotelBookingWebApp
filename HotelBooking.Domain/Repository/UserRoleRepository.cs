@@ -15,7 +15,7 @@ namespace HotelBooking.Domain.Repository
 
         public async Task<UserRoleModel> GetUserRoleAsync(UserModel user, RoleModel role)
         {
-            return await _context.user_roles.Where(x => x.user == user).Where(x => x.role == role).FirstOrDefaultAsync();
+            return await _context.UserRoles.Where(x => x.User == user).Where(x => x.Role == role).FirstOrDefaultAsync();
         }
     }
 }

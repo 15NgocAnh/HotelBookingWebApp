@@ -9,26 +9,27 @@ namespace HotelBooking.Domain.Repository
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         protected readonly AppDbContext _context;
-
         protected readonly IMapper _mapper;
+
         public GenericRepository(AppDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
+
         public async Task AddAsync(T entity)
         {
             try
             {
                 await _context.Set<T>().AddAsync(entity);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
                 throw;
             }
-
         }
+
         public async Task UpdateAsync(T entity)
         {
             try
@@ -41,50 +42,59 @@ namespace HotelBooking.Domain.Repository
                 throw;
             }
         }
-        public async Task AddRangeAsync(IEnumerable<T> Data)
+
+        public async Task AddRangeAsync(IEnumerable<T> entities)
         {
-            await _context.Set<T>().AddRangeAsync(Data);
-            _context.SaveChanges();
+            await _context.Set<T>().AddRangeAsync(entities);
+            await _context.SaveChangesAsync();
         }
-        public IEnumerable<T> Find(Expression<Func<T, bool>> expression)
+
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression)
         {
-            return _context.Set<T>().Where(expression);
+            return await _context.Set<T>().Where(expression).ToListAsync();
         }
-        public IEnumerable<T> GetAll()
+
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return _context.Set<T>().ToList();
+            return await _context.Set<T>().ToListAsync();
         }
-        public IQueryable<T> GetAllAsync()
+
+        public IQueryable<T> GetAllQueryable()
         {
             return _context.Set<T>();
         }
-        public T? GetById(int id)
+
+        public async Task<T?> GetByIdAsync(int id)
         {
-            return _context.Set<T>().Find(id);
+            return await _context.Set<T>().FindAsync(id);
         }
-        public Task RemoveAsync(T entity)
+
+        public async Task RemoveAsync(T entity)
         {
             _context.Set<T>().Remove(entity);
-            return _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
-        public Task RemoveRangeAsync(IEnumerable<T> Data)
+
+        public async Task RemoveRangeAsync(IEnumerable<T> entities)
         {
-            _context.Set<T>().RemoveRange(Data);
-            return _context.SaveChangesAsync();
+            _context.Set<T>().RemoveRange(entities);
+            await _context.SaveChangesAsync();
         }
-        public async Task SoftDelete(T entity)
+
+        public async Task SoftDeleteAsync(T entity)
         {
-            var propertyInfo = entity.GetType().GetProperty("is_deleted");
+            var propertyInfo = entity.GetType().GetProperty("IsDeleted");
 
             if (propertyInfo != null)
             {
                 propertyInfo.SetValue(entity, true);
-                await _context.SaveChangesAsync(); 
+                await _context.SaveChangesAsync();
             }
         }
-        public IQueryable<T> GetSoftDelete()
+
+        public async Task<IQueryable<T>> GetSoftDeleteAsync()
         {
-            return _context.Set<T>().IgnoreQueryFilters().Where(e => EF.Property<bool>(e, "is_deleted"));
+            return await Task.FromResult(_context.Set<T>().IgnoreQueryFilters().Where(e => EF.Property<bool>(e, "IsDeleted")));
         }
     }
 }

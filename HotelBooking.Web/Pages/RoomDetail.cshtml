@@ -5,6 +5,282 @@
     Layout = "_Layout";
 }
 
+@section Styles {
+    <style>
+        .hero-wrap {
+            position: relative;
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-wrap .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .hero-wrap .text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-wrap h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .breadcrumbs {
+            font-size: 1.1rem;
+        }
+
+        .breadcrumbs a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumbs a:hover {
+            color: #2980b9;
+        }
+
+        .room-img {
+            height: 500px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .room-single h2 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .room-single p {
+            color: #666;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .list li {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .list li span {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .block-16 {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .block-16 figure {
+            position: relative;
+            margin: 0;
+        }
+
+        .block-16 figure img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.5s ease;
+        }
+
+        .block-16:hover figure img {
+            transform: scale(1.05);
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .play-button:hover {
+            background: #3498db;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .play-button .icon-play {
+            color: #2c3e50;
+            font-size: 2rem;
+            transition: color 0.3s ease;
+        }
+
+        .play-button:hover .icon-play {
+            color: white;
+        }
+
+        .star-rating {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .star-rating .form-check {
+            margin-bottom: 15px;
+        }
+
+        .star-rating .rate {
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .star-rating .rate i {
+            color: #f1c40f;
+            margin-right: 5px;
+        }
+
+        .star-rating .rate i.icon-star-o {
+            color: #ddd;
+        }
+
+        .sidebar-box {
+            background: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .search-form {
+            position: relative;
+        }
+
+        .search-form .form-control {
+            padding: 15px 20px;
+            padding-left: 45px;
+            border-radius: 25px;
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .search-form .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.25);
+        }
+
+        .search-form .icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #95a5a6;
+        }
+
+        .categories h3 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .categories li {
+            list-style: none;
+            margin-bottom: 10px;
+        }
+
+        .categories li a {
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .categories li a:hover {
+            color: #3498db;
+        }
+
+        .block-21 {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .block-21 .blog-img {
+            width: 80px;
+            height: 80px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            margin-right: 15px;
+        }
+
+        .block-21 .text h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .block-21 .text h3 a {
+            color: #2c3e50;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .block-21 .text h3 a:hover {
+            color: #3498db;
+        }
+
+        .block-21 .meta {
+            font-size: 0.9rem;
+            color: #95a5a6;
+        }
+
+        .block-21 .meta a {
+            color: #95a5a6;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+
+        .block-21 .meta a:hover {
+            color: #3498db;
+        }
+
+        .block-21 .meta i {
+            margin-right: 5px;
+        }
+    </style>
+}
+
 <div class="hero-wrap" style="background-image: url('/images/bg_3.jpg');">
     <div class="overlay"></div>
     <div class="container">
@@ -30,7 +306,7 @@
                 <div class="row">
                     <div class="col-md-12 ftco-animate">
                         <div class="single-slider owl-carousel">
-                            @foreach (var image in Model.Room.Images)
+                            @foreach (var image in Model.Room.ImageUrl?.ToList())
                             {
                                 <div class="item">
                                     <div class="room-img" style="background-image: url(@image);"></div>
@@ -39,16 +315,16 @@
                         </div>
                     </div>
                     <div class="col-md-12 room-single mt-4 mb-5 ftco-animate">
-                        <h2 class="mb-4">@Model.Room.Name <span>- (@Model.Room.AvailableRooms Available rooms)</span></h2>
+                        <h2 class="mb-4">@Model.Room.RoomNo</h2>
                         <p>@Model.Room.Description</p>
                         <div class="d-md-flex mt-5 mb-5">
                             <ul class="list">
-                                <li><span>Max:</span> @Model.Room.MaxPersons Persons</li>
-                                <li><span>Size:</span> @Model.Room.Size m2</li>
+                                <li><span>Max:</span> @Model.Room.MaxOccupancy Persons</li>
+                                <li><span>Size:</span> @Model.Room.Area m2</li>
                             </ul>
                             <ul class="list ml-md-5">
-                                <li><span>View:</span> @Model.Room.View</li>
-                                <li><span>Bed:</span> @Model.Room.Bed</li>
+                                <li><span>Facility:</span> @Model.Room.Facilities?.SelectMany(x => x.ToString(", "))</li>
+                                <li><span>Bed:</span> @Model.Room.BedCount</li>
                             </ul>
                         </div>
                     </div>
@@ -57,8 +333,8 @@
                         <h3 class="mb-4">Take A Tour</h3>
                         <div class="block-16">
                             <figure>
-                                <img src="@Model.Room.MainImage" alt="Room Image" class="img-fluid">
-                                <a href="@Model.Room.VideoUrl" class="play-button popup-vimeo"><span class="icon-play"></span></a>
+                                <img src="@Model.Room.ImageUrl" alt="Room Image" class="img-fluid">
+                                <a href="@Model.Room.ImageUrl" class="play-button popup-vimeo"><span class="icon-play"></span></a>
                             </figure>
                         </div>
                     </div>

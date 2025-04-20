@@ -2,6 +2,7 @@
 using HotelBooking.Data.Models;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace HotelBooking.Domain.DTOs.User
 {

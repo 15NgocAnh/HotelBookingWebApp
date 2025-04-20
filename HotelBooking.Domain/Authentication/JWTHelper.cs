@@ -23,12 +23,15 @@ namespace HotelBooking.Domain.Authentication
             var key = Encoding.ASCII.GetBytes(_tokenSetting.Secret);
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, id.ToString()), // ID của User
+                new Claim(ClaimTypes.Email, user.email), // Email
+                new Claim("FirstName", user.first_name), // Họ
+                new Claim("LastName", user.last_name) // Tên
             };
             
             foreach ( var role in user.roles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+                claims.Add(new Claim(ClaimTypes.Role, role.Name));
             }
             var token = new JwtSecurityToken(
                 claims: claims,
@@ -92,6 +95,14 @@ namespace HotelBooking.Domain.Authentication
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             );
             return tokenHandler.WriteToken(token);
+        }
+
+        public static bool JwtExpired(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+
+            return jsonToken == null || jsonToken.ValidTo < DateTime.UtcNow;
         }
     }
 }
