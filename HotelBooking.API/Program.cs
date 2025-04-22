@@ -12,10 +12,12 @@ using HotelBooking.Domain.DTOs.Post;
 using HotelBooking.Domain.Email;
 using HotelBooking.Domain.Encryption;
 using HotelBooking.Domain.Filtering;
+using HotelBooking.Domain.Repositories.Interfaces;
 using HotelBooking.Domain.Repository;
 using HotelBooking.Domain.Repository.Interfaces;
 using HotelBooking.Domain.Services;
 using HotelBooking.Domain.Services.Interfaces;
+using HotelBooking.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -156,6 +158,8 @@ static void ConfigureApplicationServices(WebApplicationBuilder builder)
     builder.Services.AddTransient<IRoomService, RoomService>();
     builder.Services.AddTransient<IRoomTypeService, RoomTypeService>();
     builder.Services.AddTransient<IBookingService, BookingService>();
+    builder.Services.AddScoped<IBranchRepository, BranchRepository>();
+    builder.Services.AddScoped<IBranchService, BranchService>();
     
     builder.Services.AddControllers()
         .AddJsonOptions(opt => 

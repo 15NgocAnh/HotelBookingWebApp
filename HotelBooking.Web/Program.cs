@@ -1,10 +1,8 @@
 ﻿using HotelBooking.Domain.Authentication;
 using HotelBooking.Domain.AutoMapper;
-using HotelBooking.Domain.Constant;
 using HotelBooking.Domain.DTOs.Authentication;
 using HotelBooking.Domain.Encryption;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
 using System.Net.Http.Headers;
 using static HotelBooking.Web.Pages.Abstract.AbstractPageModel;
 
@@ -117,23 +115,6 @@ app.Use(async (context, next) =>
 
     await next();
 });
-
-// Cấu hình Middleware Chặn Truy Cập /Admin
-app.Use(async (context, next) =>
-{
-    var path = context.Request.Path.Value?.ToLower();
-    var user = context.User;
-
-    // Kiểm tra nếu truy cập vào /admin mà user không phải Admin
-    if (path != null && path.StartsWith("/Admin") && !user.IsInRole(CJConstant.ADMIN))
-    {
-        context.Response.Redirect("/Account/Login");
-        return;
-    }
-
-    await next();
-});
-
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

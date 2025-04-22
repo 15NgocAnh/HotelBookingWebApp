@@ -31,6 +31,14 @@ namespace HotelBooking.Domain.Services
             var serviceResponse = new ServiceResponse<RoomDetailsDTO>();
             try
             {
+                // Check if room number already exists
+                var existingRoom = await _roomRepository.GetAllRooms()
+                    .FirstOrDefaultAsync(r => r.RoomNumber == newRoom.RoomNo);
+
+                if (existingRoom != null)
+                {
+                    throw new InvalidOperationException("Room number already exists");
+                }
                 var room = _mapper.Map<RoomModel>(newRoom);
                 var roomType = await _roomTypeRepository.GetByIdAsync(newRoom.RoomType);
                 room.RoomType = roomType ?? new();

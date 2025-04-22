@@ -84,6 +84,8 @@ namespace HotelBooking.Data
         /// </summary>
         public virtual DbSet<BillModel> Bills { get; set; }
 
+        public virtual DbSet<BranchModel> Branches { get; set; }
+
         #endregion
 
         #region Override Methods

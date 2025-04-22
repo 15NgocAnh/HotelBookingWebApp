@@ -83,8 +83,7 @@ namespace HotelBooking.Web.Pages.Account
                     authProperties);
 
                 IsSuccess = true; // Cập nhật trạng thái đăng nhập thành công để hiển thị popup
-                // Kiểm tra nếu là Admin thì set URL redirect đến Dashboard
-                RedirectUrl = userInfo.RoleName == CJConstant.ADMIN ? "/Admin/Dashboard" : "/Index";
+                RedirectUrl = "/Index";
                 return Page();
             }
             catch

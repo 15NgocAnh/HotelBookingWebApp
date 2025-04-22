@@ -2,6 +2,7 @@
 using HotelBooking.Data.Models;
 using HotelBooking.Domain.DTOs.Authentication;
 using HotelBooking.Domain.DTOs.Booking;
+using HotelBooking.Domain.DTOs.Branch;
 using HotelBooking.Domain.DTOs.Post;
 using HotelBooking.Domain.DTOs.Role;
 using HotelBooking.Domain.DTOs.Room;
@@ -70,6 +71,10 @@ namespace HotelBooking.Domain.AutoMapper
                 .ForMember(dest => dest.RoomId, opt => opt.MapFrom(src => src.Room))
                 .ForMember(dest => dest.GuestID, opt => opt.MapFrom(src => src.Guest));
             CreateMap<BookingDTO, BookingModel>();
+
+            CreateMap<BranchDetailsDTO, BranchModel>().ReverseMap();
+            CreateMap<BranchDTO, BranchModel>().ReverseMap();
+            CreateMap<BranchCreateDTO, BranchModel>().ReverseMap();
         }
     }
 }

@@ -1,0 +1,104 @@
+﻿@page
+@using HotelBooking.Data.Models
+@model IndexModel
+@{
+    ViewData["Title"] = "Room Management";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center">Room List</h2>
+
+    <div class="d-flex justify-content-between mb-3">
+        <a asp-page="Create" class="btn btn-primary">Add New Room</a>
+    </div>
+
+    <table class="table table-bordered">
+        <thead class="bg-primary text-white">
+            <tr>
+                <th>Room No</th>
+                <th>Room Type</th>
+                <th>Status</th>
+                <th>Price/Night</th>
+                <th>Area</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Rooms.Any())
+            {
+                foreach (var room in Model.Rooms)
+                {
+                    <tr>
+                        <td>@room.RoomNumber</td>
+                        <td>@room.RoomType</td>
+                        <td>@room.Status</td>
+                        <td>@room.PricePerNight VNĐ</td>
+                        <td>@room.Area m²</td>
+                        <td>
+                            @if (room.Status == RoomStatus.Available.ToString())
+                            {
+                                <a asp-page="Edit" asp-route-id="@room.Id" class="btn btn-sm btn-warning">Edit</a>
+                                <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                        onclick="setRoomIdToDelete(@room.Id)" data-roomno="@room.RoomNumber">
+                                    Delete
+                                </button>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Actions not available</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center">No data to display.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete room <strong id="roomToDelete"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form asp-page-handler="Delete" method="post" id="deleteForm">
+                    <input type="hidden" name="RoomId" id="roomIdToDelete" value="" />
+                    <button type="submit" class="btn btn-danger">Ok</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var deleteModal = document.getElementById("deleteModal");
+
+            deleteModal.addEventListener("show.bs.modal", function (event) {
+                var button = event.relatedTarget;
+                var roomNo = button.getAttribute("data-roomno");
+
+                document.getElementById("roomToDelete").textContent = roomNo;
+            });
+        });
+        function setRoomIdToDelete(roomId) {
+            document.getElementById('roomIdToDelete').value = roomId;
+        }
+    </script>
+}

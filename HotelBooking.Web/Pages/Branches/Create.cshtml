@@ -1,0 +1,98 @@
+@page
+@model HotelBooking.Web.Pages.Branches.CreateModel
+@{
+    ViewData["Title"] = "Thêm cơ sở mới";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col">
+                            <h4 class="mb-0 text-primary">
+                                <i class="fas fa-plus-circle me-2"></i>Thêm cơ sở mới
+                            </h4>
+                        </div>
+                        <div class="col-auto">
+                            <a asp-page="Index" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="createForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Branch.Name" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-building"></i></span>
+                                <input asp-for="Branch.Name" class="form-control" placeholder="Nhập tên cơ sở" />
+                            </div>
+                            <span asp-validation-for="Branch.Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Branch.PhoneNumber" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                <input asp-for="Branch.PhoneNumber" class="form-control" placeholder="Nhập số điện thoại" />
+                            </div>
+                            <span asp-validation-for="Branch.PhoneNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Branch.Email" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input asp-for="Branch.Email" class="form-control" placeholder="Nhập email" />
+                            </div>
+                            <span asp-validation-for="Branch.Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Branch.Address" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                <input asp-for="Branch.Address" class="form-control" placeholder="Nhập địa chỉ" />
+                            </div>
+                            <span asp-validation-for="Branch.Address" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Branch.Website" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                                <input asp-for="Branch.Website" class="form-control" placeholder="Nhập website" />
+                            </div>
+                            <span asp-validation-for="Branch.Website" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Branch.Note" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Branch.Note" class="form-control" rows="3" placeholder="Nhập ghi chú"></textarea>
+                            <span asp-validation-for="Branch.Note" class="text-danger small"></span>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <a asp-page="Index" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Hủy
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Lưu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} 
