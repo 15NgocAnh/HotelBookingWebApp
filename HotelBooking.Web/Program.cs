@@ -93,8 +93,8 @@ app.Use(async (context, next) =>
 
         if (response.IsSuccessStatusCode)
         {
-            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<TokenDTO>>();
-            var newToken = apiResponse?.Data;
+            var apiResponse = await response.Content.ReadFromJsonAsync<TokenDTO>();
+            var newToken = apiResponse;
             context.Response.Cookies.Append("JWT", newToken.Token, new CookieOptions
             {
                 HttpOnly = true,

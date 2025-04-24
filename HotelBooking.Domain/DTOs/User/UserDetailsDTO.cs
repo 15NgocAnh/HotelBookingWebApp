@@ -19,7 +19,7 @@ namespace HotelBooking.Domain.DTOs.User
 
         [Column(TypeName = "text")]
         public string? avatar { get; set; }
-        public ICollection<RolesDTO> roles { get; set; }
+        public ICollection<RoleDto> roles { get; set; }
         public ICollection<RoomDTO> posts { get; set; }
         public int followers { get; set; }
         public int following { get; set; }

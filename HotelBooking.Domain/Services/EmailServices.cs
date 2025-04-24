@@ -4,8 +4,8 @@ using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Net;
-using HotelBooking.Domain.Services.Interfaces;
 using HotelBooking.Data.Models;
+using HotelBooking.Domain.Interfaces.Services;
 
 namespace HotelBooking.Domain.Services
 {

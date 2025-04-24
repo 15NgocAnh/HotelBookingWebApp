@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using HotelBooking.Data;
-using HotelBooking.Domain.Repository.Interfaces;
+using HotelBooking.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 

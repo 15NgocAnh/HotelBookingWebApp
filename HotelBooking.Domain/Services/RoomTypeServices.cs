@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using HotelBooking.Data.Models;
 using HotelBooking.Domain.Constant;
-using HotelBooking.Domain.Repository.Interfaces;
+using HotelBooking.Domain.Interfaces.Repositories;
+using HotelBooking.Domain.Interfaces.Services;
 using HotelBooking.Domain.Response;
-using HotelBooking.Domain.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using static HotelBooking.Domain.Response.EServiceResponseTypes;

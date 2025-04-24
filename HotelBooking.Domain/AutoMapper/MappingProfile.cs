@@ -33,25 +33,16 @@ namespace HotelBooking.Domain.AutoMapper
             CreateMap<UserModel, UserInfoDTO>().ReverseMap();
             CreateMap<UserModel, UserDetailsDTO>()
                 .ForMember(dest => dest.dob, opt => opt.MapFrom(src => src.DOB))
-                .ForMember(dest => dest.posts, opt => opt.MapFrom(src => src.Posts))
                 .ForMember(dest => dest.roles, opt => opt.MapFrom(src => src.UserRoles.Select(y => y.Role).ToList()))
                 .ForMember(dto => dto.avatar, opt => opt.MapFrom(x => x.ProfileImage));
             CreateMap<UserModel, CredentialDTO>()
                 .ForMember(dto => dto.roles, opt => opt.MapFrom(x => x.UserRoles.Select(y => y.Role).ToList()))
                 .ForMember(dto => dto.avatar, opt => opt.MapFrom(x => x.ProfileImage));
-            CreateMap<RoleModel, RolesDTO>().ReverseMap();
-            CreateMap<PostModel, PostDTO>().ForMember(dto => dto.file_name, opt => opt.MapFrom(x => x.File.Name))
-                                           .ForMember(dto => dto.file_type, opt => opt.MapFrom(x => x.File.Type))
-                                           .ForMember(dto => dto.file_url, opt => opt.MapFrom(x => x.File.Url))
-                                           .ForMember(dto => dto.author, opt => opt.MapFrom(x => x.User.LastName)).ReverseMap();
-            CreateMap<PostModel, PostValidatorDTO>()
-                                            .ForMember(dto => dto.file_url, opt => opt.MapFrom(x => x.File.Url))
-                                            .ForMember(dto => dto.author, opt => opt.MapFrom(x => x.User.LastName)).ReverseMap();
-            CreateMap<PostModel, PostDetailsDTO>()
-                                            .ForMember(dto => dto.file_url, opt => opt.MapFrom(x => x.File.Url))
-                                            .ForMember(dto => dto.avatar_author, opt => opt.MapFrom(x => x.User.ProfileImage))
-                                            .ForMember(dto => dto.author, opt => opt.MapFrom(x => x.User.LastName))
-                                            .ReverseMap();
+            CreateMap<RoleModel, RoleDto>().ReverseMap();
+            CreateMap<RoleModel, CreateRoleDto>().ReverseMap();
+            CreateMap<RoleModel, UpdateRoleDto>().ReverseMap();
+            CreateMap<PermissionModel, PermissionDto>().ReverseMap();
+
             CreateMap<RoomModel, RoomDTO>().ForMember(dto => dto.RoomType, opt => opt.MapFrom(x => x.RoomType.Name))
                                             .ReverseMap();
             CreateMap<RoomModel, RoomDetailsDTO>()

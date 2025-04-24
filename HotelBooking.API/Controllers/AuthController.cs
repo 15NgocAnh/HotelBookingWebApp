@@ -1,11 +1,12 @@
 ﻿using Asp.Versioning;
 using HotelBooking.Domain.DTOs.Authentication;
 using HotelBooking.Domain.DTOs.User;
-using HotelBooking.Domain.Services.Interfaces;
+using HotelBooking.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Claims;
+using static HotelBooking.Domain.Response.EServiceResponseTypes;
 
 namespace HotelBooking.API.Controllers
 {
@@ -15,9 +16,10 @@ namespace HotelBooking.API.Controllers
     [Route("api/v{version:apiVersion}/auth/")]
     public class AuthController : Controller
     {
-        private readonly Microsoft.Extensions.Logging.ILogger _logger;
+        private readonly ILogger<AuthController> _logger;
         private readonly IUserServices _userServices;
         private readonly IAuthenticationServices _authService;
+
         public AuthController(ILogger<AuthController> logger, IUserServices userService, IAuthenticationServices authService)
         {
             _logger = logger;
@@ -36,8 +38,16 @@ namespace HotelBooking.API.Controllers
         [HttpPost]
         public async Task<ActionResult> Register([FromBody] UserRegisterDTO userdata)
         {
-            var serviceResponse = await _userServices.RegisterAsync(userdata);
-            return CreatedAtAction(nameof(Register), new { version = "1" }, serviceResponse.getMessage());
+            try
+            {
+                var serviceResponse = await _userServices.RegisterAsync(userdata);
+                return CreatedAtAction(nameof(Register), new { version = "1" }, serviceResponse.getMessage());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during registration");
+                return BadRequest(new { message = "Registration failed. Please try again." });
+            }
         }
 
         /// <summary>
@@ -50,18 +60,44 @@ namespace HotelBooking.API.Controllers
         [HttpPost]
         public async Task<ActionResult> Login([FromBody] UserLoginDTO userdata)
         {
-            var serviceResponse = await _authService.LoginAsync(userdata);
-            return Ok(serviceResponse.getData());
+            try
+            {
+                var serviceResponse = await _authService.LoginAsync(userdata);
+                if (serviceResponse.ResponseType == EResponseType.Success)
+                {
+                    return Ok(serviceResponse.getData());
+                }
+                return Unauthorized(new { message = serviceResponse.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during login");
+                return BadRequest(new { message = "Login failed. Please try again." });
+            }
         }
 
         [Route("verify")]
         [Produces("application/json")]
         [HttpPost]
         [Authorize]
-        public async Task Verify()
+        public async Task<ActionResult> Verify()
         {
-            var userid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            await _authService.verifyEmailAsync(userid);
+            try
+            {
+                var userid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userid))
+                {
+                    return BadRequest(new { message = "Invalid user ID" });
+                }
+
+                await _authService.verifyEmailAsync(userid);
+                return Ok(new { message = "Verification email sent successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during email verification");
+                return BadRequest(new { message = "Failed to send verification email" });
+            }
         }
 
         [Route("verify/{token}")]
@@ -69,9 +105,21 @@ namespace HotelBooking.API.Controllers
         [HttpGet]
         public async Task<ActionResult> VerifyLink(string token)
         {
-            var decode = WebUtility.UrlDecode(token);
-            var serviceResponse = await _authService.activeEmailAsync(decode);
-            return Redirect($"https://localhost:7154/Account/Login");
+            try
+            {
+                var decode = WebUtility.UrlDecode(token);
+                var serviceResponse = await _authService.activeEmailAsync(decode);
+                if (serviceResponse.ResponseType == EResponseType.Success)
+                {
+                    return Redirect($"https://localhost:7154/Account/Login");
+                }
+                return BadRequest(new { message = serviceResponse.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during email verification link processing");
+                return BadRequest(new { message = "Invalid verification link" });
+            }
         }
 
         [Route("refresh")]
@@ -79,8 +127,20 @@ namespace HotelBooking.API.Controllers
         [HttpPost]
         public async Task<ActionResult> refreshToken(TokenDTO token)
         {
-            var serviceResponse = await _authService.refreshTokenAsync(token.Token);
-            return CreatedAtAction(nameof(refreshToken), new { version = "1" }, serviceResponse.getData());
+            try
+            {
+                var serviceResponse = await _authService.refreshTokenAsync(token.Token);
+                if (serviceResponse.ResponseType == EResponseType.Success)
+                {
+                    return CreatedAtAction(nameof(refreshToken), new { version = "1" }, serviceResponse.getData());
+                }
+                return Unauthorized(new { message = serviceResponse.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during token refresh");
+                return BadRequest(new { message = "Token refresh failed" });
+            }
         }
 
         [Route("forgot")]
@@ -88,8 +148,20 @@ namespace HotelBooking.API.Controllers
         [HttpPost]
         public async Task<ActionResult> forgotPassword(string email)
         {
-            var serviceResponse = await _authService.sendForgotEmailVerify(email);
-            return Ok(serviceResponse.getMessage());
+            try
+            {
+                var serviceResponse = await _authService.sendForgotEmailVerify(email);
+                if (serviceResponse.ResponseType == EResponseType.Success)
+                {
+                    return Ok(new { message = serviceResponse.Message });
+                }
+                return NotFound(new { message = serviceResponse.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during forgot password request");
+                return BadRequest(new { message = "Failed to process forgot password request" });
+            }
         }
 
         [Route("forgot/{token}")]

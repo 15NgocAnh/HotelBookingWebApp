@@ -16,6 +16,9 @@ namespace HotelBooking.Data.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [Required]
+        public string Code { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the role.
         /// </summary>
@@ -29,10 +32,15 @@ namespace HotelBooking.Data.Models
         [StringLength(200, ErrorMessage = "Description must not exceed 200 characters")]
         public string? Description { get; set; }
 
+        public bool IsActive { get; set; }
+
         /// <summary>
         /// Gets or sets the collection of user roles associated with this role.
         /// </summary>
         [JsonIgnore]
-        public ICollection<UserRoleModel> UserRoles { get; set; }
+        public virtual ICollection<UserRoleModel> UserRoles { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<RolePermissionModel> RolePermissions { get; set; }
     }
 }

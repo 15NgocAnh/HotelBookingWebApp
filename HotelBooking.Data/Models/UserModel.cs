@@ -58,11 +58,10 @@ namespace HotelBooking.Data.Models
         /// <summary>
         /// Gets or sets the user's date of birth.
         /// </summary>
-        [Required]
         [DataType(DataType.Date)]
         [AgeRequirementAttribure(15)]
         [JsonPropertyName("dob")]
-        public DateOnly DOB { get; set; }
+        public DateOnly? DOB { get; set; }
 
         /// <summary>
         /// Gets or sets the user's email address.
@@ -99,9 +98,8 @@ namespace HotelBooking.Data.Models
         /// <summary>
         /// Gets or sets the user's phone number.
         /// </summary>
-        [Required]
         [RegularExpression(RegexUtils.PHONE_NUMBER, ErrorMessage = "Phone number format is not Valid!")]
-        public string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the user's address.
@@ -126,8 +124,7 @@ namespace HotelBooking.Data.Models
         /// <summary>
         /// Gets or sets the user's profile image URL.
         /// </summary>
-        [Required]
-        public string ProfileImage { get; set; }
+        public string? ProfileImage { get; set; }
 
         /// <summary>
         /// Gets or sets the user's biography.
@@ -146,12 +143,6 @@ namespace HotelBooking.Data.Models
         /// </summary>
         [JsonIgnore]
         public ICollection<JWTModel> Jwts { get; set; }
-
-        /// <summary>
-        /// Gets or sets the collection of posts created by the user.
-        /// </summary>
-        [JsonIgnore]
-        public ICollection<PostModel> Posts { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of notifications sent by the user.

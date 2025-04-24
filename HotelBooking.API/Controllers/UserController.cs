@@ -1,8 +1,8 @@
 ﻿using Asp.Versioning;
 using HotelBooking.Domain.DTOs.File;
 using HotelBooking.Domain.DTOs.User;
+using HotelBooking.Domain.Interfaces.Services;
 using HotelBooking.Domain.Response;
-using HotelBooking.Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

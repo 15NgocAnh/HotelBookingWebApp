@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using HotelBooking.Data;
 using HotelBooking.Domain.DTOs.User;
-using HotelBooking.Domain.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using HotelBooking.Data.Models;
+using HotelBooking.Domain.Interfaces.Repositories;
+using HotelBooking.Domain.Constant;
 
 namespace HotelBooking.Domain.Repository
 {
@@ -66,30 +67,23 @@ namespace HotelBooking.Domain.Repository
             return user;
         }
 
-        public async Task<UserModel> FindUserPostAsync(int userId)
+        public async Task<UserModel> GetUserNotIsAdminAsync(int id)
         {
-            return await _context.Users
-                    .Include(c => c.Posts)
-                    .FirstAsync(c => c.Id == userId);
+            var role = await _context.Roles.Where(c => c.Name == CJConstant.ADMIN).FirstOrDefaultAsync();
+
+            var user = await _context.UserRoles
+                .Where(x => x.UserId == id && x.RoleId != role.Id)
+                .Select(u => u.User)
+                .FirstOrDefaultAsync();
+            return user;
         }
 
         public async Task<UserModel> GetDetailsUserAsync(int userId)
         {
             return await _context.Users
-                .Include(c => c.Posts)
-                    .ThenInclude(p => p.File)
                 .Include(c => c.UserRoles)
                     .ThenInclude(r => r.Role)
                 .FirstAsync(c => c.Id == userId);
-        }
-
-        public async Task<UserModel> GetUserNotIsAdminAsync(int id)
-        {
-            var user = await _context.UserRoles
-                .Where(x => x.UserId == id && x.RoleId != 1)
-                .Select(u => u.User)
-                .FirstOrDefaultAsync();
-            return user;
         }
 
         public int GetRoleByUserId(int id)

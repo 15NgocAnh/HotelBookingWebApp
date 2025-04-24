@@ -12,12 +12,12 @@ using HotelBooking.Domain.DTOs.Post;
 using HotelBooking.Domain.Email;
 using HotelBooking.Domain.Encryption;
 using HotelBooking.Domain.Filtering;
-using HotelBooking.Domain.Repositories.Interfaces;
+using HotelBooking.Domain.Interfaces.Repositories;
+using HotelBooking.Domain.Interfaces.Services;
 using HotelBooking.Domain.Repository;
-using HotelBooking.Domain.Repository.Interfaces;
 using HotelBooking.Domain.Services;
-using HotelBooking.Domain.Services.Interfaces;
 using HotelBooking.Infrastructure.Repositories;
+using HotelBooking.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -154,12 +154,11 @@ static void ConfigureApplicationServices(WebApplicationBuilder builder)
     builder.Services.AddScoped<IJwtServices, JwtServices>();
     builder.Services.AddScoped<IAuthorizationHandler, EmailVerifiedHandler>();
     builder.Services.AddTransient<IEmailServices, EmailServices>();
-    builder.Services.AddTransient<IPostService, PostService>();
     builder.Services.AddTransient<IRoomService, RoomService>();
     builder.Services.AddTransient<IRoomTypeService, RoomTypeService>();
     builder.Services.AddTransient<IBookingService, BookingService>();
-    builder.Services.AddScoped<IBranchRepository, BranchRepository>();
     builder.Services.AddScoped<IBranchService, BranchService>();
+    builder.Services.AddScoped<IRoleService, RoleService>();
     
     builder.Services.AddControllers()
         .AddJsonOptions(opt => 
@@ -199,10 +198,11 @@ static void ConfigureRepositories(WebApplicationBuilder builder)
     builder.Services.AddTransient<IRoleRepository, RoleRepository>();
     builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
     builder.Services.AddTransient<IJwtRepository, JwtRepository>();
-    builder.Services.AddTransient<IPostRepository, PostRepository>();
     builder.Services.AddTransient<IRoomRepository, RoomRepository>();
     builder.Services.AddTransient<IRoomTypeRepository, RoomTypeRepository>();
     builder.Services.AddTransient<IBookingRepository, BookingRepository>();
+    builder.Services.AddScoped<IBranchRepository, BranchRepository>();
+    builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 }
 
 /// <summary>

@@ -44,10 +44,9 @@ namespace HotelBooking.Data
         /// </summary>
         public virtual DbSet<RoleModel> Roles { get; set; }
 
-        /// <summary>
-        /// Gets or sets the files DbSet.
-        /// </summary>
-        public virtual DbSet<FileModel> Files { get; set; }
+        public virtual DbSet<PermissionModel> Permissions { get; set; }
+
+        public virtual DbSet<RolePermissionModel> RolePermissions { get; set; }
 
         /// <summary>
         /// Gets or sets the JWTs DbSet.
@@ -58,11 +57,6 @@ namespace HotelBooking.Data
         /// Gets or sets the notifications DbSet.
         /// </summary>
         public virtual DbSet<NotificationModel> Notifications { get; set; }
-
-        /// <summary>
-        /// Gets or sets the posts DbSet.
-        /// </summary>
-        public virtual DbSet<PostModel> Posts { get; set; }
 
         /// <summary>
         /// Gets or sets the room types DbSet.
@@ -173,11 +167,6 @@ namespace HotelBooking.Data
                 .WithOne(e => e.User)
                 .HasForeignKey("UserId")
                 .IsRequired();
-
-            modelBuilder.Entity<UserModel>()
-                .HasMany(e => e.Posts)
-                .WithOne(e => e.User)
-                .HasForeignKey("UserId");
 
             modelBuilder.Entity<UserModel>()
                 .HasMany(e => e.FromUserNotifications)

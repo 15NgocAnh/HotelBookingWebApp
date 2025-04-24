@@ -202,47 +202,6 @@ namespace HotelBooking.Data.Migrations
                     b.ToTable("Branches");
                 });
 
-            modelBuilder.Entity("HotelBooking.Data.Models.FileModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChangedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Files");
-                });
-
             modelBuilder.Entity("HotelBooking.Data.Models.JWTModel", b =>
                 {
                     b.Property<int>("Id")
@@ -332,7 +291,7 @@ namespace HotelBooking.Data.Migrations
                     b.ToTable("Notifications");
                 });
 
-            modelBuilder.Entity("HotelBooking.Data.Models.PostModel", b =>
+            modelBuilder.Entity("HotelBooking.Data.Models.PermissionModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -340,48 +299,25 @@ namespace HotelBooking.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Caption")
+                    b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ChangedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FileId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActived")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("JobId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FileId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Posts");
+                    b.ToTable("Permissions");
                 });
 
             modelBuilder.Entity("HotelBooking.Data.Models.RoleModel", b =>
@@ -395,6 +331,10 @@ namespace HotelBooking.Data.Migrations
                     b.Property<int>("ChangedBy")
                         .HasColumnType("int");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -404,6 +344,9 @@ namespace HotelBooking.Data.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -419,6 +362,29 @@ namespace HotelBooking.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("HotelBooking.Data.Models.RolePermissionModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("HotelBooking.Data.Models.RoomModel", b =>
@@ -538,7 +504,7 @@ namespace HotelBooking.Data.Migrations
                             FloorNumber = 2,
                             ImageUrl = "/images/room201.jpg",
                             IsDeleted = false,
-                            LastBookedDate = new DateTime(2025, 4, 18, 15, 45, 33, 958, DateTimeKind.Utc).AddTicks(9832),
+                            LastBookedDate = new DateTime(2025, 4, 19, 16, 53, 22, 195, DateTimeKind.Utc).AddTicks(2011),
                             MaxOccupancy = 5,
                             PricePerNight = 1500000m,
                             RoomNumber = "201",
@@ -660,7 +626,7 @@ namespace HotelBooking.Data.Migrations
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("DOB")
+                    b.Property<DateOnly?>("DOB")
                         .HasColumnType("date")
                         .HasAnnotation("Relational:JsonPropertyName", "dob");
 
@@ -700,14 +666,12 @@ namespace HotelBooking.Data.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Postcode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProfileImage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -823,23 +787,23 @@ namespace HotelBooking.Data.Migrations
                     b.Navigation("FromUserNotification");
                 });
 
-            modelBuilder.Entity("HotelBooking.Data.Models.PostModel", b =>
+            modelBuilder.Entity("HotelBooking.Data.Models.RolePermissionModel", b =>
                 {
-                    b.HasOne("HotelBooking.Data.Models.FileModel", "File")
-                        .WithMany("Posts")
-                        .HasForeignKey("FileId")
+                    b.HasOne("HotelBooking.Data.Models.PermissionModel", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HotelBooking.Data.Models.UserModel", "User")
-                        .WithMany("Posts")
-                        .HasForeignKey("UserId")
+                    b.HasOne("HotelBooking.Data.Models.RoleModel", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("File");
+                    b.Navigation("Permission");
 
-                    b.Navigation("User");
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("HotelBooking.Data.Models.RoomModel", b =>
@@ -872,13 +836,15 @@ namespace HotelBooking.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("HotelBooking.Data.Models.FileModel", b =>
+            modelBuilder.Entity("HotelBooking.Data.Models.PermissionModel", b =>
                 {
-                    b.Navigation("Posts");
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("HotelBooking.Data.Models.RoleModel", b =>
                 {
+                    b.Navigation("RolePermissions");
+
                     b.Navigation("UserRoles");
                 });
 
@@ -896,8 +862,6 @@ namespace HotelBooking.Data.Migrations
                     b.Navigation("FromUserNotifications");
 
                     b.Navigation("Jwts");
-
-                    b.Navigation("Posts");
 
                     b.Navigation("UserRoles");
                 });

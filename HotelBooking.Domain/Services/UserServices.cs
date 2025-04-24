@@ -2,12 +2,11 @@
 using HotelBooking.Data.Models;
 using HotelBooking.Domain.Constant;
 using HotelBooking.Domain.DTOs.File;
-using HotelBooking.Domain.DTOs.Role;
 using HotelBooking.Domain.DTOs.User;
 using HotelBooking.Domain.Encryption;
-using HotelBooking.Domain.Repository.Interfaces;
+using HotelBooking.Domain.Interfaces.Repositories;
+using HotelBooking.Domain.Interfaces.Services;
 using HotelBooking.Domain.Response;
-using HotelBooking.Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -84,12 +83,19 @@ namespace HotelBooking.Domain.Services
             try
             {
                 var toAdd = _mapper.Map<UserModel>(user);
-                var role = await _roleRepository.getRoleByName(CJConstant.CUSTOMER);
-                await _userRoleRepository.AddAsync(new UserRoleModel()
+                var role = await _roleRepository.GetRoleByNameAsync(CJConstant.EMPLOYEE);
+                if (role == null)
                 {
-                    Role = role,
-                    User = toAdd
-                });
+                    await _userRepository.AddAsync(toAdd);
+                }
+                else
+                {
+                    await _userRoleRepository.AddAsync(new UserRoleModel()
+                    {
+                        Role = role,
+                        User = toAdd
+                    });
+                }
                 serviceResponse.Data = _mapper.Map<UserDTO>(toAdd);
                 serviceResponse.ResponseType = EResponseType.Created;
                 serviceResponse.Message = "Register Successfully! Please check your email to confirm account!";
@@ -100,37 +106,6 @@ namespace HotelBooking.Domain.Services
                 throw new DbUpdateException("Email already taken by another User. Please reset or choose different.");
             }
             catch { throw; }
-            return serviceResponse;
-        }
-
-        public async Task<ServiceResponse<UserDTO>> SelectRole(SelectRoleDTO Role, string? userid)
-        {
-            RoleModel selectedRole = await _roleRepository.getRoleExceptAdmin(Role.role_name);
-            var serviceResponse = new ServiceResponse<UserDTO>();
-            try
-            {
-                var userModel = await _userRepository.GetByIdAsync(int.Parse(userid));
-                var userRole = await _userRoleRepository.GetUserRoleAsync(userModel, selectedRole);
-                if (userRole != null)
-                {
-                    serviceResponse.ResponseType = EResponseType.CannotUpdate;
-                    serviceResponse.Message = "You have this role already.";
-                }
-                else
-                {
-                    await _userRoleRepository.AddAsync(new UserRoleModel()
-                    {
-                        Role = selectedRole,
-                        User = userModel
-                    });
-                    serviceResponse.Data = _mapper.Map<UserDTO>(userModel);
-                }
-            }
-            catch (Exception ex)
-            {
-                serviceResponse.ResponseType = EResponseType.CannotUpdate;
-                serviceResponse.Message = CJConstant.SOMETHING_WENT_WRONG;
-            }
             return serviceResponse;
         }
 

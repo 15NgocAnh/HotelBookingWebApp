@@ -1,0 +1,93 @@
+@page "{id}"
+@model HotelBooking.Web.Pages.Roles.DetailModel
+@{
+    ViewData["Title"] = "Chi tiết nhóm quyền";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col">
+                            <h4 class="mb-0 text-primary">
+                                <i class="fas fa-info-circle me-2"></i>Chi tiết nhóm quyền
+                            </h4>
+                        </div>
+                        <div class="col-auto">
+                            <a asp-page="Index" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-semibold">@Html.DisplayNameFor(m => m.Role.Code)</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-plaintext">@Model.Role.Code</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-semibold">@Html.DisplayNameFor(m => m.Role.Name)</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-plaintext">@Model.Role.Name</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-semibold">@Html.DisplayNameFor(m => m.Role.Description)</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-plaintext">@Model.Role.Description</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-semibold">@Html.DisplayNameFor(m => m.Role.IsActive)</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-plaintext">
+                                <span class="badge @(Model.Role.IsActive ? "bg-success" : "bg-danger")">
+                                    @(Model.Role.IsActive ? "Đang kích hoạt" : "Đã vô hiệu")
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-semibold">Danh sách quyền</label>
+                        <div class="col-sm-9">
+                            <div class="border rounded p-3">
+                                @foreach (var module in Model.GroupedPermissions)
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="text-primary mb-2">@module.Key</h6>
+                                        <div class="row g-3">
+                                            @foreach (var permission in module.Value)
+                                            {
+                                                <div class="col-md-6">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                                        <span>@permission.Name</span>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <a asp-page="Edit" asp-route-id="@Model.Role.Id" class="btn btn-primary">
+                            <i class="fas fa-edit me-1"></i>Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

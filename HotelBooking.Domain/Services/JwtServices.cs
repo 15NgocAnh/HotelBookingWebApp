@@ -2,10 +2,10 @@
 using HotelBooking.Data;
 using HotelBooking.Domain.DTOs.User;
 using HotelBooking.Domain.Encryption;
-using HotelBooking.Domain.Repository.Interfaces;
 using HotelBooking.Data;
-using HotelBooking.Domain.Services.Interfaces;
 using HotelBooking.Data.Models;
+using HotelBooking.Domain.Interfaces.Services;
+using HotelBooking.Domain.Interfaces.Repositories;
 
 namespace HotelBooking.Domain.Services
 {

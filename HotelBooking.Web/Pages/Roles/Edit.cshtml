@@ -1,0 +1,120 @@
+@page "{id}"
+@model HotelBooking.Web.Pages.Roles.EditModel
+@{
+    ViewData["Title"] = "Chỉnh sửa nhóm quyền";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col">
+                            <h4 class="mb-0 text-primary">
+                                <i class="fas fa-edit me-2"></i>Chỉnh sửa nhóm quyền
+                            </h4>
+                        </div>
+                        <div class="col-auto">
+                            <a asp-page="Index" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="editForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        <input type="hidden" asp-for="Role.Id" />
+
+                        <div class="mb-3">
+                            <label asp-for="Role.Code" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-code"></i></span>
+                                <input asp-for="Role.Code" class="form-control" readonly />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Role.Name" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-users-cog"></i></span>
+                                <input asp-for="Role.Name" class="form-control" placeholder="Nhập tên nhóm quyền" />
+                            </div>
+                            <span asp-validation-for="Role.Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Role.Description" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Role.Description" class="form-control" rows="3" placeholder="Nhập mô tả"></textarea>
+                            <span asp-validation-for="Role.Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Role.IsActive" class="form-label fw-semibold"></label>
+                            <div class="form-check form-switch">
+                                <input asp-for="Role.IsActive" class="form-check-input" type="checkbox" role="switch" />
+                                <label class="form-check-label" for="Role_IsActive">
+                                    @(Model.Role.IsActive ? "Đang kích hoạt" : "Đã vô hiệu")
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Phân quyền</label>
+                            <div class="border rounded p-3">
+                                @foreach (var module in Model.GroupedPermissions)
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="text-primary mb-2">@module.Key</h6>
+                                        <div class="row g-3">
+                                            @foreach (var permission in module.Value)
+                                            {
+                                                <div class="col-md-6">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" 
+                                                               name="Role.PermissionIds" 
+                                                               value="@permission.Id" 
+                                                               id="perm_@permission.Id"
+                                                               @(Model.Role.PermissionIds?.Contains(permission.Id) == true ? "checked" : "") />
+                                                        <label class="form-check-label" for="perm_@permission.Id">
+                                                            @permission.Name
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <a asp-page="Index" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Hủy
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Lưu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const isActiveSwitch = document.getElementById('Role_IsActive');
+            const isActiveLabel = isActiveSwitch.nextElementSibling;
+
+            isActiveSwitch.addEventListener('change', function () {
+                isActiveLabel.textContent = this.checked ? 'Đang kích hoạt' : 'Đã vô hiệu';
+            });
+        });
+    </script>
+} 

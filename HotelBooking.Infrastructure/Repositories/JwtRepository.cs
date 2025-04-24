@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using HotelBooking.Data;
-using HotelBooking.Domain.Repository.Interfaces;
 using HotelBooking.Data;
 using Microsoft.EntityFrameworkCore;
 using HotelBooking.Data.Models;
+using HotelBooking.Domain.Interfaces.Repositories;
 namespace HotelBooking.Domain.Repository
 {
     public class JwtRepository : GenericRepository<JWTModel>, IJwtRepository

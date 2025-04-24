@@ -1,16 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using HotelBooking.Domain.DTOs.Role;
+using HotelBooking.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using HotelBooking.Domain.DTOs;
-using HotelBooking.Domain.Interfaces;
+using Asp.Versioning;
+using static HotelBooking.Domain.Response.EServiceResponseTypes;
 
 namespace HotelBooking.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "emailverified")]
+    [ApiVersion("1")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class RolesController : ControllerBase
     {
         private readonly IRoleService _roleService;
@@ -21,74 +21,95 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<RoleDto>>> GetAllRoles()
+        public async Task<ActionResult> GetAllRoles()
         {
-            var roles = await _roleService.GetAllRolesAsync();
-            return Ok(roles);
+            var serviceResponse = await _roleService.GetAllRolesAsync();
+            return Ok(serviceResponse.getData());
+        }
+
+        [HttpGet("active")]
+        public async Task<ActionResult> GetAllRolesActive()
+        {
+            var serviceResponse = await _roleService.GetAllRolesActiveAsync();
+            return Ok(serviceResponse.getData());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<RoleDto>> GetRoleById(Guid id)
+        [Produces("application/json")]
+        public async Task<ActionResult> GetRoleById(int id)
         {
-            var role = await _roleService.GetRoleByIdAsync(id);
-            if (role == null)
-                return NotFound();
+            var serviceResponse = await _roleService.GetRoleByIdAsync(id);
+            if (serviceResponse.ResponseType != EResponseType.Success)
+                return NotFound(serviceResponse.getMessage());
 
-            return Ok(role);
+            return Ok(serviceResponse.getData());
         }
 
         [HttpPost]
-        public async Task<ActionResult<RoleDto>> CreateRole(CreateRoleDto createRoleDto)
+        public async Task<ActionResult> CreateRole(CreateRoleDto createRoleDto)
         {
-            var role = await _roleService.CreateRoleAsync(createRoleDto);
-            return CreatedAtAction(nameof(GetRoleById), new { id = role.Id }, role);
+            var serviceResponse = await _roleService.CreateRoleAsync(createRoleDto);
+            if (serviceResponse.ResponseType != EResponseType.Created)
+                return BadRequest(serviceResponse.getMessage());
+
+            return Ok(serviceResponse.getData());
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<RoleDto>> UpdateRole(Guid id, UpdateRoleDto updateRoleDto)
+        public async Task<ActionResult> UpdateRole(int id, UpdateRoleDto updateRoleDto)
         {
-            var role = await _roleService.UpdateRoleAsync(id, updateRoleDto);
-            if (role == null)
-                return NotFound();
+            var serviceResponse = await _roleService.UpdateRoleAsync(id, updateRoleDto);
+            if (serviceResponse.ResponseType != EResponseType.Success)
+                return NotFound(serviceResponse.getMessage());
 
-            return Ok(role);
+            return Ok(serviceResponse.getData());
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteRole(Guid id)
+        public async Task<ActionResult> DeleteRole(int id)
         {
-            var result = await _roleService.DeleteRoleAsync(id);
-            if (!result)
-                return NotFound();
+            var serviceResponse = await _roleService.DeleteRoleAsync(id);
+            if (serviceResponse.ResponseType != EResponseType.Success)
+                return NotFound(serviceResponse.getMessage());
 
-            return NoContent();
+            return Ok(serviceResponse.getMessage());
         }
 
         [HttpGet("permissions")]
-        public async Task<ActionResult<List<PermissionDto>>> GetAllPermissions()
+        public async Task<ActionResult> GetAllPermissions()
         {
-            var permissions = await _roleService.GetAllPermissionsAsync();
-            return Ok(permissions);
+            var serviceResponse = await _roleService.GetAllPermissionsAsync();
+            return Ok(serviceResponse.getData());
         }
 
         [HttpPost("users/{userId}/roles/{roleId}")]
-        public async Task<ActionResult> AssignRoleToUser(Guid userId, Guid roleId)
+        public async Task<ActionResult> AssignRoleToUser(int userId, int roleId)
         {
-            var result = await _roleService.AssignRoleToUserAsync(userId, roleId);
-            if (!result)
-                return BadRequest();
+            var serviceResponse = await _roleService.AssignRoleToUserAsync(userId, roleId);
+            if (serviceResponse.ResponseType != EResponseType.Success)
+                return BadRequest(serviceResponse.getMessage());
 
-            return NoContent();
+            return Ok(serviceResponse.getMessage());
         }
 
         [HttpDelete("users/{userId}/roles/{roleId}")]
-        public async Task<ActionResult> RemoveRoleFromUser(Guid userId, Guid roleId)
+        public async Task<ActionResult> RemoveRoleFromUser(int userId, int roleId)
         {
-            var result = await _roleService.RemoveRoleFromUserAsync(userId, roleId);
-            if (!result)
-                return NotFound();
+            var serviceResponse = await _roleService.RemoveRoleFromUserAsync(userId, roleId);
+            if (serviceResponse.ResponseType != EResponseType.Success)
+                return NotFound(serviceResponse.getMessage());
 
-            return NoContent();
+            return Ok(serviceResponse.getMessage());
+        }
+
+        [HttpGet("name/{roleName}")]
+        public async Task<ActionResult> GetRoleByName(string roleName)
+        {
+            var serviceResponse = await _roleService.GetRoleByNameAsync(roleName);
+            if (serviceResponse.ResponseType != EResponseType.Success)
+                return NotFound(serviceResponse.getMessage());
+
+            return Ok(serviceResponse.getData());
         }
     }
 } 

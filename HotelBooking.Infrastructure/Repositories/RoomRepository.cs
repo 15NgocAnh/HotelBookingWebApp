@@ -2,7 +2,7 @@
 using HotelBooking.Data;
 using HotelBooking.Data.Models;
 using HotelBooking.Domain.DTOs.Room;
-using HotelBooking.Domain.Repository.Interfaces;
+using HotelBooking.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Domain.Repository

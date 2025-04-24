@@ -5,9 +5,9 @@ using HotelBooking.Domain.Authentication;
 using HotelBooking.Domain.DTOs.Authentication;
 using HotelBooking.Domain.DTOs.User;
 using HotelBooking.Domain.Encryption;
-using HotelBooking.Domain.Repository.Interfaces;
+using HotelBooking.Domain.Interfaces.Repositories;
+using HotelBooking.Domain.Interfaces.Services;
 using HotelBooking.Domain.Response;
-using HotelBooking.Domain.Services.Interfaces;
 using System.Security.Claims;
 using static HotelBooking.Domain.Response.EServiceResponseTypes;
 

@@ -2,9 +2,9 @@ using AutoMapper;
 using HotelBooking.Data.Models;
 using HotelBooking.Domain.DTOs.Branch;
 using HotelBooking.Domain.Filtering;
-using HotelBooking.Domain.Repositories.Interfaces;
+using HotelBooking.Domain.Interfaces.Repositories;
+using HotelBooking.Domain.Interfaces.Services;
 using HotelBooking.Domain.Response;
-using HotelBooking.Domain.Services.Interfaces;
 using static HotelBooking.Domain.Response.EServiceResponseTypes;
 
 namespace HotelBooking.Domain.Services

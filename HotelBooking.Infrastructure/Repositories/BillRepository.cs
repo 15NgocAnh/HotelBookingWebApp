@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using HotelBooking.Data;
 using HotelBooking.Data.Models;
-using HotelBooking.Domain.Repository.Interfaces;
+using HotelBooking.Domain.Interfaces.Repositories;
 
 namespace HotelBooking.Domain.Repository
 {

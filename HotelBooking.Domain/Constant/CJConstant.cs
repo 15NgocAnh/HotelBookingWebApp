@@ -3,7 +3,7 @@
     public  class CJConstant
     {
         public const string ADMIN = "Admin";
-        public const string CUSTOMER = "Customer";
+        public const string EMPLOYEE = "Employee";
         public const string SOMETHING_WENT_WRONG = "Something went wrong";
         public const int PAGE_LIMIT = 8;
         public const int CURRENT_PAGE = 1;

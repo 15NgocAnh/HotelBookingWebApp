@@ -2,7 +2,7 @@ using AutoMapper;
 using HotelBooking.Data;
 using HotelBooking.Data.Models;
 using HotelBooking.Domain.Filtering;
-using HotelBooking.Domain.Repositories.Interfaces;
+using HotelBooking.Domain.Interfaces.Repositories;
 using HotelBooking.Domain.Repository;
 using Microsoft.EntityFrameworkCore;
 

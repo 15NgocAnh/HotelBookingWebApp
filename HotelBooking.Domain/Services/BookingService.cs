@@ -1,8 +1,8 @@
 using AutoMapper;
 using HotelBooking.Data.Models;
 using HotelBooking.Domain.DTOs.Booking;
-using HotelBooking.Domain.Repository.Interfaces;
-using HotelBooking.Domain.Services.Interfaces;
+using HotelBooking.Domain.Interfaces.Repositories;
+using HotelBooking.Domain.Interfaces.Services;
 
 namespace HotelBooking.Domain.Services
 {
