@@ -1,7 +1,7 @@
 @page
-@model HotelBooking.Web.Pages.Roles.IndexModel
+@model HotelBooking.Web.Pages.RoomTypes.IndexModel
 @{
-    ViewData["Title"] = "Danh sách nhóm quyền";
+    ViewData["Title"] = "Danh sách loại phòng";
     Layout = "_Layout";
 }
 
@@ -11,7 +11,7 @@
             <div class="row justify-content-between align-items-center">
                 <div class="col">
                     <h4 class="mb-0 text-primary">
-                        <i class="fas fa-users-cog me-2"></i> Danh sách nhóm quyền
+                        <i class="fas fa-bed me-2"></i>Danh sách loại phòng
                     </h4>
                 </div>
                 <div class="col-auto">
@@ -26,25 +26,23 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>@Html.DisplayNameFor(model => model.Roles[0].Code)</th>
-                            <th>@Html.DisplayNameFor(model => model.Roles[0].Name)</th>
-                            <th>@Html.DisplayNameFor(model => model.Roles[0].Description)</th>
-                            <th>@Html.DisplayNameFor(model => model.Roles[0].IsActive)</th>
+                            <th>@Html.DisplayNameFor(model => model.RoomTypes[0].Name)</th>
+                            <th>@Html.DisplayNameFor(model => model.RoomTypes[0].RoomTypeSymbol)</th>
+                            <th>@Html.DisplayNameFor(model => model.RoomTypes[0].NumberOfAdults)</th>
+                            <th>@Html.DisplayNameFor(model => model.RoomTypes[0].NumberOfChildrent)</th>
+                            <th>@Html.DisplayNameFor(model => model.RoomTypes[0].Description)</th>
                             <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model.Roles)
+                        @foreach (var item in Model.RoomTypes)
                         {
                             <tr>
-                                <td>@item.Code</td>
                                 <td>@item.Name</td>
+                                <td>@item.RoomTypeSymbol</td>
+                                <td>@item.NumberOfAdults</td>
+                                <td>@item.NumberOfChildrent</td>
                                 <td>@item.Description</td>
-                                <td>
-                                    <span class="badge @(item.IsActive ? "bg-success" : "bg-danger")">
-                                        @(item.IsActive ? "Kích hoạt" : "Vô hiệu")
-                                    </span>
-                                </td>
                                 <td>
                                     <div class="btn-group">
                                         <a asp-page="Detail" asp-route-id="@item.Id" class="btn btn-sm btn-info">
@@ -54,7 +52,7 @@
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                onclick="setRoleIdToDelete('@item.Id')" data-rolename="@item.Name">
+                                                onclick="setRoomTypeIdToDelete('@item.Id')" data-roomtypename="@item.Name">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -63,6 +61,10 @@
                         }
                     </tbody>
                 </table>
+            </div>
+
+            <div class="text-muted text-center mt-2">
+                Tổng số loại phòng: @Model.RoomTypes.Count()
             </div>
 
             <!-- Delete Confirmation Modal -->
@@ -74,12 +76,12 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            Bạn có chắc chắn muốn xóa nhóm quyền <strong id="roleToDelete"></strong>?
+                            Bạn có chắc chắn muốn xóa loại phòng <strong id="roomTypeToDelete"></strong>?
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                             <form asp-page-handler="Delete" method="post" id="deleteForm">
-                                <input type="hidden" name="roleId" id="roleIdToDelete" value="" />
+                                <input type="hidden" name="roomTypeId" id="roomTypeIdToDelete" value="" />
                                 <button type="submit" class="btn btn-danger">Xóa</button>
                             </form>
                         </div>
@@ -98,13 +100,13 @@
 
             deleteModal.addEventListener("show.bs.modal", function (event) {
                 var button = event.relatedTarget;
-                var roleName = button.getAttribute("data-rolename");
-                document.getElementById("roleToDelete").textContent = roleName;
+                var roomTypeName = button.getAttribute("data-roomtypename");
+
+                document.getElementById("roomTypeToDelete").textContent = roomTypeName;
             });
         });
-
-        function setRoleIdToDelete(roleId) {
-            document.getElementById('roleIdToDelete').value = roleId;
+        function setRoomTypeIdToDelete(roomTypeId) {
+            document.getElementById('roomTypeIdToDelete').value = roomTypeId;
         }
     </script>
 } 

@@ -1,84 +1,113 @@
-﻿@page
-@using HotelBooking.Data.Models
-@model IndexModel
+@page
+@model HotelBooking.Web.Pages.Rooms.IndexModel
 @{
-    ViewData["Title"] = "Room Management";
+    ViewData["Title"] = "Danh sách phòng";
     Layout = "_Layout";
 }
 
-<div class="container mt-5">
-    <h2 class="text-center">Room List</h2>
-
-    <div class="d-flex justify-content-between mb-3">
-        <a asp-page="Create" class="btn btn-primary">Add New Room</a>
-    </div>
-
-    <table class="table table-bordered">
-        <thead class="bg-primary text-white">
-            <tr>
-                <th>Room No</th>
-                <th>Room Type</th>
-                <th>Status</th>
-                <th>Price/Night</th>
-                <th>Area</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model.Rooms.Any())
-            {
-                foreach (var room in Model.Rooms)
+<div class="container-fluid px-4 py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row justify-content-between align-items-center">
+                <div class="col">
+                    <h4 class="mb-0 text-primary">
+                        <i class="fas fa-door-open me-2"></i>Danh sách phòng
+                    </h4>
+                </div>
+                <div class="col-auto">
+                    <a asp-page="Create" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Thêm mới
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                @if (Model.BranchFloorRooms.Any())
                 {
-                    <tr>
-                        <td>@room.RoomNumber</td>
-                        <td>@room.RoomType</td>
-                        <td>@room.Status</td>
-                        <td>@room.PricePerNight VNĐ</td>
-                        <td>@room.Area m²</td>
-                        <td>
-                            @if (room.Status == RoomStatus.Available.ToString())
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Tên phòng</th>
+                                <th>Loại phòng</th>
+                                <th>Người lớn</th>
+                                <th>Trẻ em</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var branch in Model.BranchFloorRooms)
                             {
-                                <a asp-page="Edit" asp-route-id="@room.Id" class="btn btn-sm btn-warning">Edit</a>
-                                <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                        onclick="setRoomIdToDelete(@room.Id)" data-roomno="@room.RoomNumber">
-                                    Delete
-                                </button>
+                                <tr class="table-primary">
+                                    <td colspan="6"><b>Cơ sở:</b> @branch.BranchName</td>
+                                </tr>
+                                @foreach (var floor in branch.Floors)
+                                {
+                                    <tr class="table-secondary">
+                                        <td colspan="6"><b>Tầng:</b> @floor.FloorName</td>
+                                    </tr>
+                                    @foreach (var room in floor.Rooms)
+                                    {
+                                        <tr>
+                                            <td>@room.RoomNumber</td>
+                                            <td>@room.RoomTypeName</td>
+                                            <td>@room.NumberOfAdults</td>
+                                            <td>@room.NumberOfChildrent</td>
+                                            <td>
+                                                <span class="badge @(room.IsActive ? "bg-success" : "bg-danger")">
+                                                    @(room.IsActive ? "Kích hoạt" : "Vô hiệu")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a asp-page="Detail" asp-route-id="@room.Id" class="btn btn-sm btn-info">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-page="Edit" asp-route-id="@room.Id" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                            onclick="setRoomIdToDelete('@room.Id')" data-roomnumber="@room.RoomNumber">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
                             }
-                            else
-                            {
-                                <span class="text-muted">Actions not available</span>
-                            }
-                        </td>
-                    </tr>
+                        </tbody>
+                    </table>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="6" class="text-center">No data to display.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-danger" id="deleteModalLabel">Confirm Deletion</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                else
+                {
+                    <div class="alert alert-info">Không có phòng nào.</div>
+                }
             </div>
-            <div class="modal-body">
-                Are you sure you want to delete room <strong id="roomToDelete"></strong>?
+            <div class="text-muted text-center mt-2">
+                Tổng số phòng: @(Model.BranchFloorRooms.SelectMany(b => b.Floors).SelectMany(f => f.Rooms).Count())
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form asp-page-handler="Delete" method="post" id="deleteForm">
-                    <input type="hidden" name="RoomId" id="roomIdToDelete" value="" />
-                    <button type="submit" class="btn btn-danger">Ok</button>
-                </form>
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-danger" id="deleteModalLabel">Xác nhận xóa</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Bạn có chắc chắn muốn xóa phòng <strong id="roomToDelete"></strong>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <form asp-page-handler="Delete" method="post" id="deleteForm">
+                                <input type="hidden" name="roomId" id="roomIdToDelete" value="" />
+                                <button type="submit" class="btn btn-danger">Xóa</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -92,13 +121,13 @@
 
             deleteModal.addEventListener("show.bs.modal", function (event) {
                 var button = event.relatedTarget;
-                var roomNo = button.getAttribute("data-roomno");
+                var roomNumber = button.getAttribute("data-roomnumber");
 
-                document.getElementById("roomToDelete").textContent = roomNo;
+                document.getElementById("roomToDelete").textContent = roomNumber;
             });
         });
         function setRoomIdToDelete(roomId) {
             document.getElementById('roomIdToDelete').value = roomId;
         }
     </script>
-}
+} 

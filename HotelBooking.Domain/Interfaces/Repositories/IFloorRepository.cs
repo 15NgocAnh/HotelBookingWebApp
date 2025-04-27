@@ -2,7 +2,7 @@ using HotelBooking.Domain.Entities;
 
 namespace HotelBooking.Domain.Interfaces.Repositories
 {
-    public interface IRoomTypeRepository : IGenericRepository<RoomType>
+    public interface IFloorRepository : IGenericRepository<Floor>
     {
     }
 }

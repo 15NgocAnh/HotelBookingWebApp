@@ -1,66 +1,57 @@
 ﻿using AutoMapper;
 using HotelBooking.Data;
-using HotelBooking.Data.Models;
 using HotelBooking.Domain.DTOs.Room;
+using HotelBooking.Domain.Entities;
 using HotelBooking.Domain.Interfaces.Repositories;
+using HotelBooking.Domain.Repository;
 using Microsoft.EntityFrameworkCore;
 
-namespace HotelBooking.Domain.Repository
+namespace HotelBooking.Infrastructure.Repositories
 {
-    public class RoomRepository : GenericRepository<RoomModel>, IRoomRepository
+    public class RoomRepository : GenericRepository<Room>, IRoomRepository
     {
         public RoomRepository(AppDbContext context, IMapper mapper) : base(context, mapper)
         {
         }
 
-        public IQueryable<RoomModel> GetAllRooms() =>
-            _context.Rooms.Where(p => !p.IsDeleted);
-
-        public IQueryable<RoomDTO> GetRooms()
+        public async Task<IEnumerable<Room>> GetAllAsync()
         {
-            return _context.Rooms
-                .Where(p => !p.IsDeleted)
+            return await _context.Rooms
+                .Include(r => r.Floor)
                 .Include(r => r.RoomType)
-                .Select(r => new RoomDTO
-                {
-                    Id = r.Id,
-                    RoomNumber = r.RoomNumber,
-                    RoomType = r.RoomType.Name,
-                    PricePerNight = r.PricePerNight,
-                    Status = r.Status.ToString(),
-                    Area = r.Area,
-                    ImageUrl = r.ImageUrl,
-                    MaxOccupancy = r.MaxOccupancy,
-                    BedCount = r.BedCount,
-                    Facilities = r.Facilities,
-                    Description = r.Description
-                });
+                .Where(r => !r.IsDeleted)
+                .ToListAsync();
         }
 
-        public async Task<RoomModel> UpdateRoomAsync(int id, RoomDetailsDTO roomDTO)
+        public async Task<Room> GetByIdAsync(int id)
         {
-            try
-            {
-                var room = await _context.Rooms.FindAsync(id);
-                if (room != null)
-                {
-                    _mapper.Map(roomDTO, room);
-                    room.RoomType = null;
-                    await _context.SaveChangesAsync();
-                }
-                return room;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error updating room: {ex.Message}");
-                throw;
-            }
+            return await _context.Rooms
+                .Include(r => r.Floor)
+                .Include(r => r.RoomType)
+                .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
         }
 
-        public async Task RestoreDeletedRoomAsync(RoomModel room)
+        public async Task<bool> ExistsAsync(int id)
         {
-            room.IsDeleted = false;
-            await _context.SaveChangesAsync();
+            return await _context.Rooms.AnyAsync(r => r.Id == id && !r.IsDeleted);
+        }
+
+        public async Task<IEnumerable<Room>> GetByFloorIdAsync(int floorId)
+        {
+            return await _context.Rooms
+                .Include(r => r.Floor)
+                .Include(r => r.RoomType)
+                .Where(r => r.FloorId == floorId && !r.IsDeleted)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Room>> GetByRoomTypeIdAsync(int roomTypeId)
+        {
+            return await _context.Rooms
+                .Include(r => r.Floor)
+                .Include(r => r.RoomType)
+                .Where(r => r.RoomTypeId == roomTypeId && !r.IsDeleted)
+                .ToListAsync();
         }
     }
 }

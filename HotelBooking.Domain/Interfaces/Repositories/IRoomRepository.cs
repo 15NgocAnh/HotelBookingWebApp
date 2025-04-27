@@ -1,14 +1,13 @@
-﻿using HotelBooking.Data.Models;
-using HotelBooking.Domain.DTOs.Room;
-using Microsoft.AspNetCore.Mvc;
+using HotelBooking.Domain.Entities;
 
 namespace HotelBooking.Domain.Interfaces.Repositories
 {
-    public interface IRoomRepository : IGenericRepository<RoomModel>
+    public interface IRoomRepository : IGenericRepository<Room>
     {
-        IQueryable<RoomModel> GetAllRooms();
-        IQueryable<RoomDTO> GetRooms();
-        Task<RoomModel> UpdateRoomAsync(int id, RoomDetailsDTO roomDTO);
-        Task RestoreDeletedRoomAsync(RoomModel room);
+        Task<IEnumerable<Room>> GetAllAsync();
+        Task<Room> GetByIdAsync(int id);
+        Task<bool> ExistsAsync(int id);
+        Task<IEnumerable<Room>> GetByFloorIdAsync(int floorId);
+        Task<IEnumerable<Room>> GetByRoomTypeIdAsync(int roomTypeId);
     }
 }

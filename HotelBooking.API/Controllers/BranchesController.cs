@@ -27,6 +27,14 @@ namespace HotelBooking.API.Controllers
             return Ok(serviceResponse.getData());
         }
 
+        [HttpGet("all")]
+        public async Task<ActionResult> GetAll()
+        {
+            var serviceResponse = await _branchService.GetAllAsync();
+            return Ok(serviceResponse.getData());
+        }
+
+
         [HttpGet("{id}")]
         [Produces("application/json")]
         public async Task<ActionResult> GetBranchById(int id)

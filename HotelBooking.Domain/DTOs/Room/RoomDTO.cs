@@ -1,19 +1,36 @@
-﻿using HotelBooking.Data.Models;
-
 namespace HotelBooking.Domain.DTOs.Room
 {
     public class RoomDTO
     {
         public int Id { get; set; }
         public string RoomNumber { get; set; }
-        public string RoomType { get; set; }
-        public decimal PricePerNight { get; set; }
+        public int FloorId { get; set; }
+        public string FloorName { get; set; }
+        public int RoomTypeId { get; set; }
+        public string RoomTypeName { get; set; }
+        public int NumberOfAdults { get; set; }
+        public int NumberOfChildrent { get; set; }
         public string Status { get; set; }
-        public double Area { get; set; }
-        public string ImageUrl { get; set; }
-        public int MaxOccupancy { get; set; }
-        public int BedCount { get; set; }
-        public List<Facility> Facilities { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public class CreateRoomDTO
+    {
+        public string RoomNumber { get; set; }
+        public int FloorId { get; set; }
+        public int RoomTypeId { get; set; }
+        public bool IsActive { get; set; }
+        public string? Description { get; set; }
+    }
+
+    public class UpdateRoomDTO
+    {
+        public int Id { get; set; }
+        public string RoomNumber { get; set; }
+        public int FloorId { get; set; }
+        public int RoomTypeId { get; set; }
+        public string? Description { get; set; }
+        public bool IsActive { get; set; }
     }
 }

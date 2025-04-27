@@ -3,11 +3,13 @@ using HotelBooking.Data.Models;
 using HotelBooking.Domain.DTOs.Authentication;
 using HotelBooking.Domain.DTOs.Booking;
 using HotelBooking.Domain.DTOs.Branch;
-using HotelBooking.Domain.DTOs.Post;
+using HotelBooking.Domain.DTOs.Floor;
 using HotelBooking.Domain.DTOs.Role;
 using HotelBooking.Domain.DTOs.Room;
+using HotelBooking.Domain.DTOs.RoomType;
 using HotelBooking.Domain.DTOs.User;
 using HotelBooking.Domain.Encryption;
+using HotelBooking.Domain.Entities;
 namespace HotelBooking.Domain.AutoMapper
 {
     public class MappingProfile : Profile
@@ -43,21 +45,28 @@ namespace HotelBooking.Domain.AutoMapper
             CreateMap<RoleModel, UpdateRoleDto>().ReverseMap();
             CreateMap<PermissionModel, PermissionDto>().ReverseMap();
 
-            CreateMap<RoomModel, RoomDTO>().ForMember(dto => dto.RoomType, opt => opt.MapFrom(x => x.RoomType.Name))
-                                            .ReverseMap();
-            CreateMap<RoomModel, RoomDetailsDTO>()
-                .ForMember(dto => dto.RoomType, opt => opt.MapFrom(src => src.RoomType.Id))
-                .ReverseMap()
-                .ForPath(src => src.RoomType.Id, opt => opt.MapFrom(dto => dto.RoomType));
+            CreateMap<Room, RoomDTO>()
+                .ForMember(dto => dto.RoomTypeName, opt => opt.MapFrom(x => x.RoomType.Name))
+                .ForMember(dto => dto.NumberOfAdults, opt => opt.MapFrom(x => x.RoomType.NumberOfAdults))
+                .ForMember(dto => dto.NumberOfChildrent, opt => opt.MapFrom(x => x.RoomType.NumberOfChildrent))
+                .ReverseMap();
+            CreateMap<Room, CreateRoomDTO>().ReverseMap();
+            CreateMap<Room, UpdateRoomDTO>().ReverseMap();
+            CreateMap<UpdateRoomDTO, RoomDTO>().ReverseMap();
+            CreateMap<CreateRoomDTO, RoomDTO>().ReverseMap();
 
-            // Add direct mapping between RoomDTO and RoomDetailsDTO
-            CreateMap<RoomDTO, RoomDetailsDTO>()
-                .ForMember(dest => dest.RoomType, opt => opt.MapFrom(src => int.Parse(src.RoomType)))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+            CreateMap<RoomType, RoomTypeDTO>().ReverseMap();
+            CreateMap<RoomType, CreateRoomTypeDTO>().ReverseMap();
+            CreateMap<RoomType, UpdateRoomTypeDTO>().ReverseMap();
+            CreateMap<CreateRoomTypeDTO, RoomTypeDTO>().ReverseMap();
+            CreateMap<UpdateRoomTypeDTO, RoomTypeDTO>().ReverseMap();
 
-            CreateMap<RoomDetailsDTO, RoomDTO>()
-                .ForMember(dest => dest.RoomType, opt => opt.MapFrom(src => src.RoomType.ToString()))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+            CreateMap<Floor, FloorDTO>().ReverseMap();
+            CreateMap<Floor, CreateFloorDTO>().ReverseMap();
+            CreateMap<Floor, UpdateFloorDTO>().ReverseMap();
+            CreateMap<FloorDTO, CreateFloorDTO>().ReverseMap();
+            CreateMap<FloorDTO, UpdateFloorDTO>().ReverseMap();
+
             CreateMap<BookingModel, BookingDTO>()
                 .ForMember(dest => dest.RoomId, opt => opt.MapFrom(src => src.Room))
                 .ForMember(dest => dest.GuestID, opt => opt.MapFrom(src => src.Guest));

@@ -57,29 +57,23 @@
                     <span>Chi nhánh</span>
                 </a>
             </li>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Khách sạn</div>
+
             <li class="nav-item">
-                <a class="nav-link" asp-page="/Admin/Bookings">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Đặt Phòng</span>
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRevenue"
+                    aria-expanded="true" aria-controls="collapseRevenue">
+                    <i class="fas fa-money-bill"></i>
+                    <span>Cấu hình khách sạn</span>
                 </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" asp-page="/Admin/Rooms/Index">
-                    <i class="fas fa-bed"></i>
-                    <span>Phòng</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" asp-page="/Admin/Users">
-                    <i class="fas fa-users"></i>
-                    <span>Khách Hàng</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" asp-page="/Admin/Revenue">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Doanh Thu</span>
-                </a>
+                <div id="collapseRevenue" class="collapse" aria-labelledby="headingRevenue" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-page="/Floors/Index">Danh sách tầng</a>
+                        <a class="collapse-item" asp-page="/RoomTypes/Index">Danh sách loại phòng</a>
+                        <a class="collapse-item" asp-page="/Rooms/Index">Danh sách phòng</a>
+                    </div>
+                </div>
             </li>
 
             <hr class="sidebar-divider d-none d-md-block">

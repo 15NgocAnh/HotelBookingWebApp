@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HotelBooking.Domain.Entities;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HotelBooking.Data.Models
@@ -106,7 +107,7 @@ namespace HotelBooking.Data.Models
         /// <summary>
         /// Gets or sets the room being booked.
         /// </summary>
-        public virtual RoomModel Room { get; set; }
+        public virtual Room Room { get; set; }
 
         /// <summary>
         /// Gets or sets the current status of the booking.

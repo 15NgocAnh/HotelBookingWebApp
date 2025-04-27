@@ -1,73 +1,97 @@
-﻿using Asp.Versioning;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Asp.Versioning;
 using HotelBooking.Domain.DTOs.Room;
 using HotelBooking.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static HotelBooking.Domain.Response.EServiceResponseTypes;
 
 namespace HotelBooking.API.Controllers
 {
     [ApiController]
     [Authorize(Policy = "emailverified")]
     [ApiVersion("1")]
-    [Route("api/v{version:apiVersion}/room/")]
+    [Route("api/v{version:apiVersion}/[Controller]/")]
     public class RoomsController : ControllerBase
     {
         private readonly IRoomService _roomService;
-        private readonly IRoomTypeService _roomTypeService;
 
-        public RoomsController(IRoomService roomService, IRoomTypeService roomTypeService)
+        public RoomsController(IRoomService roomService)
         {
             _roomService = roomService;
-            _roomTypeService = roomTypeService;
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAllRooms()
+        public async Task<ActionResult> GetAll()
         {
             var serviceResponse = await _roomService.GetAllAsync();
             return Ok(serviceResponse.getData());
         }
 
-        [HttpGet("search")]
-        public async Task<ActionResult> SearchRooms([FromQuery] RoomCondition condition)
-        {
-            var serviceResponse = await _roomService.SearchRoomsAsync(condition);
-            return Ok(serviceResponse.getData());
-        }
-
-        [HttpGet("roomtypes")]
-        public async Task<ActionResult> GetAllRoomTypes()
-        {
-            var serviceResponse = await _roomTypeService.GetAllAsync();
-            return Ok(serviceResponse.getData());
-        }
-
         [HttpGet("{id}")]
-        [Produces("application/json")]
-        public async Task<ActionResult> GetRoomById(int id)
+        public async Task<ActionResult> GetById(int id)
         {
-            var serviceResponse = await _roomService.FindByIdAsync(id);
+            var serviceResponse = await _roomService.GetByIdAsync(id);
+            if (serviceResponse.ResponseType == EResponseType.NotFound)
+                return NotFound(serviceResponse.getMessage());
+
+            return Ok(serviceResponse.getData());
+        }
+
+        [HttpGet("floor/{floorId}")]
+        public async Task<ActionResult> GetByFloorId(int floorId)
+        {
+            var serviceResponse = await _roomService.GetByFloorIdAsync(floorId);
+            if (serviceResponse.ResponseType == EResponseType.NotFound)
+                return NotFound(serviceResponse.getMessage());
+
+            return Ok(serviceResponse.getData());
+        }
+
+        [HttpGet("type/{roomTypeId}")]
+        public async Task<ActionResult> GetByRoomTypeId(int roomTypeId)
+        {
+            var serviceResponse = await _roomService.GetByRoomTypeIdAsync(roomTypeId);
+            if (serviceResponse.ResponseType == EResponseType.NotFound)
+                return NotFound(serviceResponse.getMessage());
+
             return Ok(serviceResponse.getData());
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRoom(RoomDetailsDTO room)
+        public async Task<ActionResult> Create(CreateRoomDTO createRoomDTO)
         {
-            var serviceResponse = await _roomService.SaveAsync(room);
-            return Ok(serviceResponse.getMessage());
+            var serviceResponse = await _roomService.CreateAsync(createRoomDTO);
+            if (serviceResponse.ResponseType == EResponseType.BadRequest)
+                return BadRequest(serviceResponse.getMessage());
+            if (serviceResponse.ResponseType == EResponseType.InternalError)
+                return BadRequest(serviceResponse.getMessage());
+
+            return CreatedAtAction(nameof(GetById), new { id = serviceResponse.Data.Id }, serviceResponse.getData());
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateRoom(int id, [FromBody] RoomDetailsDTO room)
+        public async Task<ActionResult> Update(int id, UpdateRoomDTO updateRoomDTO)
         {
-            var serviceResponse = await _roomService.UpdateAsync(id, room);
+            var serviceResponse = await _roomService.UpdateAsync(id, updateRoomDTO);
+            if (serviceResponse.ResponseType == EResponseType.NotFound)
+                return NotFound(serviceResponse.getMessage());
+            if (serviceResponse.ResponseType == EResponseType.BadRequest)
+                return BadRequest(serviceResponse.getMessage());
+            if (serviceResponse.ResponseType == EResponseType.InternalError)
+                return BadRequest(serviceResponse.getMessage());
+
             return Ok(serviceResponse.getData());
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteRoom(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             var serviceResponse = await _roomService.DeleteAsync(id);
+            if (serviceResponse.ResponseType == EResponseType.NotFound)
+                return NotFound(serviceResponse.getMessage());
+
             return Ok(serviceResponse.getMessage());
         }
     }

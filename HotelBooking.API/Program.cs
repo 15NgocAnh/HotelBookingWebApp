@@ -155,6 +155,7 @@ static void ConfigureApplicationServices(WebApplicationBuilder builder)
     builder.Services.AddScoped<IAuthorizationHandler, EmailVerifiedHandler>();
     builder.Services.AddTransient<IEmailServices, EmailServices>();
     builder.Services.AddTransient<IRoomService, RoomService>();
+    builder.Services.AddTransient<IFloorService, FloorService>();
     builder.Services.AddTransient<IRoomTypeService, RoomTypeService>();
     builder.Services.AddTransient<IBookingService, BookingService>();
     builder.Services.AddScoped<IBranchService, BranchService>();
@@ -199,6 +200,7 @@ static void ConfigureRepositories(WebApplicationBuilder builder)
     builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
     builder.Services.AddTransient<IJwtRepository, JwtRepository>();
     builder.Services.AddTransient<IRoomRepository, RoomRepository>();
+    builder.Services.AddTransient<IFloorRepository, FloorRepository>();
     builder.Services.AddTransient<IRoomTypeRepository, RoomTypeRepository>();
     builder.Services.AddTransient<IBookingRepository, BookingRepository>();
     builder.Services.AddScoped<IBranchRepository, BranchRepository>();

@@ -1,4 +1,5 @@
 ﻿using HotelBooking.Data.Models;
+using HotelBooking.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -61,12 +62,13 @@ namespace HotelBooking.Data
         /// <summary>
         /// Gets or sets the room types DbSet.
         /// </summary>
-        public virtual DbSet<RoomTypeModel> RoomTypes { get; set; }
+        public virtual DbSet<RoomType> RoomTypes { get; set; }
 
         /// <summary>
         /// Gets or sets the rooms DbSet.
         /// </summary>
-        public virtual DbSet<RoomModel> Rooms { get; set; }
+        public virtual DbSet<Room> Rooms { get; set; }
+        public virtual DbSet<Floor> Floors { get; set; }
 
         /// <summary>
         /// Gets or sets the bookings DbSet.
@@ -104,6 +106,19 @@ namespace HotelBooking.Data
             ConfigureSoftDelete(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Floor>()
+                .HasOne(f => f.Branch)
+                .WithMany(b => b.Floors)
+                .HasForeignKey(f => f.BranchId)
+                .OnDelete(DeleteBehavior.Restrict); // prevent cascade delete
+
+            modelBuilder.Entity<Floor>()
+                .HasOne(f => f.DefauldRoomRype)
+                .WithMany() // Assuming RoomType doesn't have a Floors collection
+                .HasForeignKey(f => f.DefauldRoomRypeId)
+                .OnDelete(DeleteBehavior.Restrict); // prevent cascade delete
+
             new DbInitializer(modelBuilder).Seed();
         }
 

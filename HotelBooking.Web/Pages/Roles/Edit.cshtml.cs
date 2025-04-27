@@ -3,7 +3,6 @@ using HotelBooking.Domain.DTOs.Role;
 using HotelBooking.Web.Pages.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static HotelBooking.Domain.Response.EServiceResponseTypes;
 
 namespace HotelBooking.Web.Pages.Roles
 {

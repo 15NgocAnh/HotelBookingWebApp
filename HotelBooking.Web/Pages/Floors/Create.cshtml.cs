@@ -1,14 +1,13 @@
 using HotelBooking.Domain.Constant;
 using HotelBooking.Domain.DTOs.Branch;
 using HotelBooking.Domain.DTOs.Floor;
-using HotelBooking.Domain.DTOs.Room;
 using HotelBooking.Domain.DTOs.RoomType;
 using HotelBooking.Web.Pages.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace HotelBooking.Web.Pages.Rooms
+namespace HotelBooking.Web.Pages.Floors
 {
     [Authorize(Roles = CJConstant.ADMIN)]
     public class CreateModel : AbstractPageModel
@@ -19,10 +18,10 @@ namespace HotelBooking.Web.Pages.Rooms
         }
 
         [BindProperty]
-        public CreateRoomDTO Room { get; set; } = new();
+        public CreateFloorDTO Floor { get; set; } = new();
 
         public List<SelectListItem> RoomTypes { get; set; } = new();
-        public List<SelectListItem> Floors { get; set; } = new();
+        public List<SelectListItem> Branches { get; set; } = new();
 
         public async Task OnGetAsync()
         {
@@ -33,8 +32,8 @@ namespace HotelBooking.Web.Pages.Rooms
                 Text = rt.Name
             }).ToList() ?? new List<SelectListItem>();
 
-            var floors = await GetAsync<List<FloorDTO>>("api/v1/floors");
-            Floors = floors?.Select(b => new SelectListItem
+            var branches = await GetAsync<List<BranchDTO>>("api/v1/branches/all");
+            Branches = branches?.Select(b => new SelectListItem
             {
                 Value = b.Id.ToString(),
                 Text = b.Name
@@ -51,23 +50,23 @@ namespace HotelBooking.Web.Pages.Rooms
 
             try
             {
-                var response = await PostAsync<CreateRoomDTO, RoomDTO>("api/v1/rooms", Room);
+                var response = await PostAsync<CreateFloorDTO, FloorDTO>("api/v1/floors", Floor);
                 
                 if (response != null)
                 {
-                    TempData["SuccessMessage"] = "Thêm mới phòng thành công!";
+                    TempData["SuccessMessage"] = "Thêm mới tầng thành công!";
                     return RedirectToPage("./Index");
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, $"Thêm mới phòng thất bại");
+                    ModelState.AddModelError(string.Empty, "Thêm mới tầng thất bại");
                     await OnGetAsync();
                     return Page();
                 }
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, $"Có lỗi xảy ra khi thêm mới phòng: {ex.Message}");
+                ModelState.AddModelError(string.Empty, $"Có lỗi xảy ra khi thêm mới tầng: {ex.Message}");
                 await OnGetAsync();
                 return Page();
             }

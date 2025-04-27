@@ -387,216 +387,6 @@ namespace HotelBooking.Data.Migrations
                     b.ToTable("RolePermissions");
                 });
 
-            modelBuilder.Entity("HotelBooking.Data.Models.RoomModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Area")
-                        .HasColumnType("int");
-
-                    b.Property<int>("BedCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ChangedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.PrimitiveCollection<string>("Facilities")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("FloorNumber")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastBookedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MaxOccupancy")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("PricePerNight")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<string>("RoomNumber")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<int>("RoomTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoomTypeId");
-
-                    b.ToTable("Rooms");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Area = 25,
-                            BedCount = 1,
-                            ChangedBy = 0,
-                            CreatedBy = 0,
-                            Description = "A cozy single room with modern amenities.",
-                            Facilities = "[0,1,2]",
-                            FloorNumber = 1,
-                            ImageUrl = "/images/room101.jpg",
-                            IsDeleted = false,
-                            MaxOccupancy = 2,
-                            PricePerNight = 500000m,
-                            RoomNumber = "101",
-                            RoomTypeId = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Area = 35,
-                            BedCount = 2,
-                            ChangedBy = 0,
-                            CreatedBy = 0,
-                            Description = "Spacious double room with minibar and safe.",
-                            Facilities = "[0,1,4,5]",
-                            FloorNumber = 1,
-                            ImageUrl = "/images/room102.jpg",
-                            IsDeleted = false,
-                            MaxOccupancy = 4,
-                            PricePerNight = 800000m,
-                            RoomNumber = "102",
-                            RoomTypeId = 2,
-                            Status = 0
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Area = 50,
-                            BedCount = 2,
-                            ChangedBy = 0,
-                            CreatedBy = 0,
-                            Description = "Luxury suite with bathtub and complimentary breakfast.",
-                            Facilities = "[0,1,3,6]",
-                            FloorNumber = 2,
-                            ImageUrl = "/images/room201.jpg",
-                            IsDeleted = false,
-                            LastBookedDate = new DateTime(2025, 4, 19, 16, 53, 22, 195, DateTimeKind.Utc).AddTicks(2011),
-                            MaxOccupancy = 5,
-                            PricePerNight = 1500000m,
-                            RoomNumber = "201",
-                            RoomTypeId = 3,
-                            Status = 1
-                        });
-                });
-
-            modelBuilder.Entity("HotelBooking.Data.Models.RoomTypeModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChangedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("DefaultRoomPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("RoomDescription")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("RoomImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("RoomPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RoomTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ChangedBy = 0,
-                            CreatedBy = 0,
-                            DefaultRoomPrice = 450000m,
-                            IsDeleted = false,
-                            Name = "Single",
-                            RoomDescription = "A cozy single room.",
-                            RoomImageUrl = "/images/single.jpg",
-                            RoomPrice = 500000m
-                        },
-                        new
-                        {
-                            Id = 2,
-                            ChangedBy = 0,
-                            CreatedBy = 0,
-                            DefaultRoomPrice = 750000m,
-                            IsDeleted = false,
-                            Name = "Double",
-                            RoomDescription = "A comfortable double room.",
-                            RoomImageUrl = "/images/double.jpg",
-                            RoomPrice = 800000m
-                        },
-                        new
-                        {
-                            Id = 3,
-                            ChangedBy = 0,
-                            CreatedBy = 0,
-                            DefaultRoomPrice = 1400000m,
-                            IsDeleted = false,
-                            Name = "Suite",
-                            RoomDescription = "A luxurious suite.",
-                            RoomImageUrl = "/images/suite.jpg",
-                            RoomPrice = 1500000m
-                        });
-                });
-
             modelBuilder.Entity("HotelBooking.Data.Models.UserModel", b =>
                 {
                     b.Property<int>("Id")
@@ -723,6 +513,161 @@ namespace HotelBooking.Data.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("HotelBooking.Domain.Entities.Floor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ChangedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DefauldRoomRypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrderFloor")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoomCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoomSymbol")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("DefauldRoomRypeId");
+
+                    b.ToTable("Floors");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.Entities.Room", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChangedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("FloorId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("RoomNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoomTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FloorId");
+
+                    b.HasIndex("RoomTypeId");
+
+                    b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.Entities.RoomType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal?>("BasePrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ChangedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NumberOfAdults")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumberOfChildrent")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoomTypeSymbol")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RoomTypes");
+                });
+
             modelBuilder.Entity("HotelBooking.Data.Models.BillModel", b =>
                 {
                     b.HasOne("HotelBooking.Data.Models.BookingModel", "Booking")
@@ -750,7 +695,7 @@ namespace HotelBooking.Data.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("HotelBooking.Data.Models.RoomModel", "Room")
+                    b.HasOne("HotelBooking.Domain.Entities.Room", "Room")
                         .WithMany()
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -806,17 +751,6 @@ namespace HotelBooking.Data.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("HotelBooking.Data.Models.RoomModel", b =>
-                {
-                    b.HasOne("HotelBooking.Data.Models.RoomTypeModel", "RoomType")
-                        .WithMany("Rooms")
-                        .HasForeignKey("RoomTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RoomType");
-                });
-
             modelBuilder.Entity("HotelBooking.Data.Models.UserRoleModel", b =>
                 {
                     b.HasOne("HotelBooking.Data.Models.RoleModel", "Role")
@@ -836,6 +770,49 @@ namespace HotelBooking.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HotelBooking.Domain.Entities.Floor", b =>
+                {
+                    b.HasOne("HotelBooking.Data.Models.BranchModel", "Branch")
+                        .WithMany("Floors")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HotelBooking.Domain.Entities.RoomType", "DefauldRoomRype")
+                        .WithMany()
+                        .HasForeignKey("DefauldRoomRypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("DefauldRoomRype");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.Entities.Room", b =>
+                {
+                    b.HasOne("HotelBooking.Domain.Entities.Floor", "Floor")
+                        .WithMany("Rooms")
+                        .HasForeignKey("FloorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HotelBooking.Domain.Entities.RoomType", "RoomType")
+                        .WithMany("Rooms")
+                        .HasForeignKey("RoomTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Floor");
+
+                    b.Navigation("RoomType");
+                });
+
+            modelBuilder.Entity("HotelBooking.Data.Models.BranchModel", b =>
+                {
+                    b.Navigation("Floors");
+                });
+
             modelBuilder.Entity("HotelBooking.Data.Models.PermissionModel", b =>
                 {
                     b.Navigation("RolePermissions");
@@ -846,11 +823,6 @@ namespace HotelBooking.Data.Migrations
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("HotelBooking.Data.Models.RoomTypeModel", b =>
-                {
-                    b.Navigation("Rooms");
                 });
 
             modelBuilder.Entity("HotelBooking.Data.Models.UserModel", b =>
@@ -864,6 +836,16 @@ namespace HotelBooking.Data.Migrations
                     b.Navigation("Jwts");
 
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.Entities.Floor", b =>
+                {
+                    b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.Entities.RoomType", b =>
+                {
+                    b.Navigation("Rooms");
                 });
 #pragma warning restore 612, 618
         }

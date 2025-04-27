@@ -1,7 +1,7 @@
 @page
-@model HotelBooking.Web.Pages.Rooms.CreateModel
+@model HotelBooking.Web.Pages.RoomTypes.CreateModel
 @{
-    ViewData["Title"] = "Thêm mới phòng";
+    ViewData["Title"] = "Thêm mới loại phòng";
     Layout = "_Layout";
 }
 
@@ -11,7 +11,7 @@
             <div class="row justify-content-between align-items-center">
                 <div class="col">
                     <h4 class="mb-0 text-primary">
-                        <i class="fas fa-door-open me-2"></i>Thêm mới phòng
+                        <i class="fas fa-bed me-2"></i>Thêm mới loại phòng
                     </h4>
                 </div>
                 <div class="col-auto">
@@ -28,16 +28,16 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label asp-for="Room.RoomNumber" class="control-label">Tên phòng <span class="text-danger">*</span></label>
-                            <input asp-for="Room.RoomNumber" class="form-control" />
-                            <span asp-validation-for="Room.RoomNumber" class="text-danger"></span>
+                            <label asp-for="RoomType.Name" class="control-label">Loại phòng <span class="text-danger">*</span></label>
+                            <input asp-for="RoomType.Name" class="form-control" />
+                            <span asp-validation-for="RoomType.Name" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label asp-for="Room.RoomTypeId" class="control-label">Loại phòng <span class="text-danger">*</span></label>
-                            <select asp-for="Room.RoomTypeId" class="form-control" asp-items="Model.RoomTypes"></select>
-                            <span asp-validation-for="Room.RoomTypeId" class="text-danger"></span>
+                            <label asp-for="RoomType.RoomTypeSymbol" class="control-label">Ký hiệu phòng</label>
+                            <input asp-for="RoomType.RoomTypeSymbol" class="form-control" />
+                            <span asp-validation-for="RoomType.RoomTypeSymbol" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -45,25 +45,24 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label asp-for="Room.FloorId" class="control-label">Tầng <span class="text-danger">*</span></label>
-                            <select asp-for="Room.FloorId" class="form-control" asp-items="Model.Floors"></select>
-                            <span asp-validation-for="Room.FloorId" class="text-danger"></span>
+                            <label asp-for="RoomType.NumberOfAdults" class="control-label">Người lớn <span class="text-danger">*</span></label>
+                            <input asp-for="RoomType.NumberOfAdults" class="form-control" />
+                            <span asp-validation-for="RoomType.NumberOfAdults" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <div class="form-check form-switch mt-4">
-                                <input class="form-check-input" type="checkbox" asp-for="Room.IsActive" id="isActive">
-                                <label class="form-check-label" for="isActive">Hoạt động</label>
-                            </div>
+                            <label asp-for="RoomType.NumberOfChildrent" class="control-label">Trẻ em <span class="text-danger">*</span></label>
+                            <input asp-for="RoomType.NumberOfChildrent" class="form-control" />
+                            <span asp-validation-for="RoomType.NumberOfChildrent" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Room.Description" class="control-label">Ghi chú</label>
-                    <textarea asp-for="Room.Description" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="Room.Description" class="text-danger"></span>
+                    <label asp-for="RoomType.Description" class="control-label"></label>
+                    <textarea asp-for="RoomType.Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="RoomType.Description" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">

@@ -1,11 +1,21 @@
-﻿namespace HotelBooking.Domain.DTOs.Role
+﻿using System.ComponentModel;
+
+namespace HotelBooking.Domain.DTOs.Role
 {
     public class RoleDto
     {
         public int Id { get; set; }
+
+        [DisplayName("Mã nhóm quyền")]
         public string Code { get; set; }
+
+        [DisplayName("Tên nhóm quyền")]
         public string Name { get; set; }
+
+        [DisplayName("Ghi chú")]
         public string Description { get; set; }
+
+        [DisplayName("Trạng thái")]
         public bool IsActive { get; set; }
         public List<PermissionDto> Permissions { get; set; }
     }

@@ -1,0 +1,63 @@
+@page
+@model HotelBooking.Web.Pages.Floors.DetailModel
+@{
+    ViewData["Title"] = "Chi tiết tầng";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row justify-content-between align-items-center">
+                <div class="col">
+                    <h4 class="mb-0 text-primary">
+                        <i class="fas fa-building me-2"></i>Chi tiết tầng
+                    </h4>
+                </div>
+                <div class="col-auto">
+                    <a asp-page="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Quay lại
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.Floor != null)
+            {
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Floor.Name)</dt>
+                            <dd class="col-sm-8">@Model.Floor.Name</dd>
+
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Floor.RoomSymbol)</dt>
+                            <dd class="col-sm-8">@Model.Floor.RoomSymbol</dd>
+
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Floor.OrderFloor)</dt>
+                            <dd class="col-sm-8">@Model.Floor.OrderFloor</dd>
+
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Floor.RoomCount)</dt>
+                            <dd class="col-sm-8">@Model.Floor.RoomCount</dd>
+
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Floor.Description)</dt>
+                            <dd class="col-sm-8">@Model.Floor.Description</dd>
+
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Floor.IsActive)</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge @(Model.Floor.IsActive ? "bg-success" : "bg-danger")">
+                                    @(Model.Floor.IsActive ? "Hoạt động" : "Không hoạt động")
+                                </span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    Không tìm thấy thông tin tầng.
+                </div>
+            }
+        </div>
+    </div>
+</div> 
