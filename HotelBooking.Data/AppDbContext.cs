@@ -82,6 +82,11 @@ namespace HotelBooking.Data
 
         public virtual DbSet<BranchModel> Branches { get; set; }
 
+        public virtual DbSet<DynamicPricingRule> DynamicPricingRules { get; set; }
+
+        public virtual DbSet<HourlyPrice> HourlyPrices { get; set; }
+        public virtual DbSet<ExtraCharge> ExtraCharges { get; set; }
+
         #endregion
 
         #region Override Methods

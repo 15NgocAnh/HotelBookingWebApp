@@ -513,6 +513,97 @@ namespace HotelBooking.Data.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("HotelBooking.Domain.Entities.DynamicPricingRule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChangedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DatePrice")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ExtraAdult")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ExtraChild")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HourPrice")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MonthPrice")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NightPrice")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoomTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomTypeId");
+
+                    b.ToTable("DynamicPricingRules");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.Entities.ExtraCharge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChargeType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DynamicPricingRuleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HourSetting")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DynamicPricingRuleId");
+
+                    b.ToTable("ExtraCharges");
+                });
+
             modelBuilder.Entity("HotelBooking.Domain.Entities.Floor", b =>
                 {
                     b.Property<int>("Id")
@@ -568,6 +659,30 @@ namespace HotelBooking.Data.Migrations
                     b.HasIndex("DefauldRoomRypeId");
 
                     b.ToTable("Floors");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.Entities.HourlyPrice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DynamicPricingRuleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HourSetting")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DynamicPricingRuleId");
+
+                    b.ToTable("HourlyPrices");
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.Entities.Room", b =>
@@ -770,6 +885,28 @@ namespace HotelBooking.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HotelBooking.Domain.Entities.DynamicPricingRule", b =>
+                {
+                    b.HasOne("HotelBooking.Domain.Entities.RoomType", "RoomType")
+                        .WithMany()
+                        .HasForeignKey("RoomTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RoomType");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.Entities.ExtraCharge", b =>
+                {
+                    b.HasOne("HotelBooking.Domain.Entities.DynamicPricingRule", "DynamicPricingRule")
+                        .WithMany("ExtraCharges")
+                        .HasForeignKey("DynamicPricingRuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DynamicPricingRule");
+                });
+
             modelBuilder.Entity("HotelBooking.Domain.Entities.Floor", b =>
                 {
                     b.HasOne("HotelBooking.Data.Models.BranchModel", "Branch")
@@ -787,6 +924,17 @@ namespace HotelBooking.Data.Migrations
                     b.Navigation("Branch");
 
                     b.Navigation("DefauldRoomRype");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.Entities.HourlyPrice", b =>
+                {
+                    b.HasOne("HotelBooking.Domain.Entities.DynamicPricingRule", "DynamicPricingRule")
+                        .WithMany("HourlyPrices")
+                        .HasForeignKey("DynamicPricingRuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DynamicPricingRule");
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.Entities.Room", b =>
@@ -836,6 +984,13 @@ namespace HotelBooking.Data.Migrations
                     b.Navigation("Jwts");
 
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.Entities.DynamicPricingRule", b =>
+                {
+                    b.Navigation("ExtraCharges");
+
+                    b.Navigation("HourlyPrices");
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.Entities.Floor", b =>

@@ -1,0 +1,408 @@
+@page
+@model HotelBooking.Web.Pages.DynamicPricing.CreateModel
+@{
+    ViewData["Title"] = "Cấu hình mức giá theo thời điểm";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <!-- Bên trái: Thông tin mức giá -->
+                    <div class="col-md-4">
+                        <div class="form-group mb-2">
+                            <label>Loại phòng <span class="text-danger">*</span></label>
+                            <select asp-for="Rule.RoomTypeId" class="form-control" asp-items="Model.RoomTypes">
+                                <option value="">-- Chọn loại phòng --</option>
+                            </select>
+                            <span asp-validation-for="Rule.RoomTypeId" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label>Loại <span class="text-danger">*</span></label>
+                            <select asp-for="Rule.Type" class="form-control" asp-items="Model.RuleTypes" id="ruleTypeSelect"></select>
+                            <span asp-validation-for="Rule.Type" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2 date-range-fields" style="display: none;">
+                            <label>Ngày bắt đầu <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" asp-for="Rule.StartDate" />
+                            <span asp-validation-for="Rule.StartDate" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2 date-range-fields" style="display: none;">
+                            <label>Ngày kết thúc <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" asp-for="Rule.EndDate" />
+                            <span asp-validation-for="Rule.EndDate" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label>Tên mức giá <span class="text-danger">*</span></label>
+                            <input class="form-control" asp-for="Rule.Name" placeholder="Tên mức giá" />
+                            <span asp-validation-for="Rule.Name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label>Đơn giá ngày <span class="text-danger">*</span></label>
+                            <input class="form-control" asp-for="Rule.DatePrice" placeholder="Đơn giá ngày" />
+                            <span asp-validation-for="Rule.DatePrice" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label>Đơn giá đêm <span class="text-danger">*</span></label>
+                            <input class="form-control" asp-for="Rule.NightPrice" placeholder="Đơn giá đêm" />
+                            <span asp-validation-for="Rule.NightPrice" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label>Đơn giá giờ <span class="text-danger">*</span></label>
+                            <input class="form-control" asp-for="Rule.HourPrice" placeholder="Đơn giá giờ" />
+                            <span asp-validation-for="Rule.HourPrice" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label>Đơn giá tháng</label>
+                            <input class="form-control" asp-for="Rule.MonthPrice" placeholder="Đơn giá tháng" />
+                            <span asp-validation-for="Rule.MonthPrice" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label>Người lớn</label>
+                            <input class="form-control" asp-for="Rule.ExtraAdult" placeholder="Người lớn" />
+                            <span asp-validation-for="Rule.ExtraAdult" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label>Trẻ em</label>
+                            <input class="form-control" asp-for="Rule.ExtraChild" placeholder="Trẻ em" />
+                            <span asp-validation-for="Rule.ExtraChild" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <!-- Bên phải: Các bảng phụ trội -->
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Phụ trội Checkin sớm (Theo ngày)</label>
+                                <table class="table table-bordered" id="earlyCheckinByDayTableEdit">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Cài đặt giờ</th>
+                                            <th>Đơn giá</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.Rule.ExtraCharges != null)
+                                        {
+                                            var idx = 0;
+                                            foreach (var item in Model.Rule.ExtraCharges.Where(x => x.ChargeType == HotelBooking.Domain.Entities.ExtraChargeType.EarlyCheckinByDay))
+                                            {
+                                                <tr>
+                                                    <td>@(idx + 1)</td>
+                                                    <td>
+                                                        <select name="Rule.ExtraCharges[@idx].HourSetting" class="form-control">
+                                                            @for (int h = 1; h <= 24; h++)
+                                                            {
+                                                                <option value="@h" selected="@(item.HourSetting == h ? "selected" : null)">@h</option>
+                                                            }
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input name="Rule.ExtraCharges[@idx].Price" class="form-control" value="@item.Price" />
+                                                    </td>
+                                                    <td>
+                                                        <input type="hidden" name="Rule.ExtraCharges[@idx].ChargeType" value="0" />
+                                                        <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
+                                                    </td>
+                                                </tr>
+                                                idx++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addEarlyCheckinByDayRowEdit()">Thêm dòng</button>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Phụ trội quá giờ Checkout (Theo ngày)</label>
+                                <table class="table table-bordered" id="lateCheckoutByDayTableEdit">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Cài đặt giờ</th>
+                                            <th>Đơn giá</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.Rule.ExtraCharges != null)
+                                        {
+                                            var idx = 0;
+                                            foreach (var item in Model.Rule.ExtraCharges.Where(x => x.ChargeType == HotelBooking.Domain.Entities.ExtraChargeType.LateCheckoutByDay))
+                                            {
+                                                <tr>
+                                                    <td>@(idx + 1)</td>
+                                                    <td>
+                                                        <select name="Rule.ExtraCharges[@idx].HourSetting" class="form-control">
+                                                            @for (int h = 1; h <= 24; h++)
+                                                            {
+                                                                <option value="@h" selected="@(item.HourSetting == h ? "selected" : null)">@h</option>
+                                                            }
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input name="Rule.ExtraCharges[@idx].Price" class="form-control" value="@item.Price" />
+                                                    </td>
+                                                    <td>
+                                                        <input type="hidden" name="Rule.ExtraCharges[@idx].ChargeType" value="1" />
+                                                        <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
+                                                    </td>
+                                                </tr>
+                                                idx++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addLateCheckoutByDayRowEdit()">Thêm dòng</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Phụ trội Checkin sớm (Qua đêm)</label>
+                                <table class="table table-bordered" id="earlyCheckinOvernightTableEdit">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Cài đặt giờ</th>
+                                            <th>Đơn giá</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.Rule.ExtraCharges != null)
+                                        {
+                                            var idx = 0;
+                                            foreach (var item in Model.Rule.ExtraCharges.Where(x => x.ChargeType == HotelBooking.Domain.Entities.ExtraChargeType.EarlyCheckinOvernight))
+                                            {
+                                                <tr>
+                                                    <td>@(idx + 1)</td>
+                                                    <td>
+                                                        <select name="Rule.ExtraCharges[@idx].HourSetting" class="form-control">
+                                                            @for (int h = 1; h <= 24; h++)
+                                                            {
+                                                                <option value="@h" selected="@(item.HourSetting == h ? "selected" : null)">@h</option>
+                                                            }
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input name="Rule.ExtraCharges[@idx].Price" class="form-control" value="@item.Price" />
+                                                    </td>
+                                                    <td>
+                                                        <input type="hidden" name="Rule.ExtraCharges[@idx].ChargeType" value="2" />
+                                                        <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
+                                                    </td>
+                                                </tr>
+                                                idx++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addEarlyCheckinOvernightRowEdit()">Thêm dòng</button>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Phụ trội quá giờ Checkout (Qua đêm)</label>
+                                <table class="table table-bordered" id="lateCheckoutOvernightTableEdit">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Cài đặt giờ</th>
+                                            <th>Đơn giá</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.Rule.ExtraCharges != null)
+                                        {
+                                            var idx = 0;
+                                            foreach (var item in Model.Rule.ExtraCharges.Where(x => x.ChargeType == HotelBooking.Domain.Entities.ExtraChargeType.LateCheckoutOvernight))
+                                            {
+                                                <tr>
+                                                    <td>@(idx + 1)</td>
+                                                    <td>
+                                                        <select name="Rule.ExtraCharges[@idx].HourSetting" class="form-control">
+                                                            @for (int h = 1; h <= 24; h++)
+                                                            {
+                                                                <option value="@h" selected="@(item.HourSetting == h ? "selected" : null)">@h</option>
+                                                            }
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input name="Rule.ExtraCharges[@idx].Price" class="form-control" value="@item.Price" />
+                                                    </td>
+                                                    <td>
+                                                        <input type="hidden" name="Rule.ExtraCharges[@idx].ChargeType" value="3" />
+                                                        <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
+                                                    </td>
+                                                </tr>
+                                                idx++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addLateCheckoutOvernightRowEdit()">Thêm dòng</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Lưu
+                    </button>
+                    <a asp-page="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ruleTypeSelect = document.getElementById('ruleTypeSelect');
+            const dateRangeFields = document.querySelectorAll('.date-range-fields');
+            const startDateInput = document.querySelector('input[name="Rule.StartDate"]');
+            const endDateInput = document.querySelector('input[name="Rule.EndDate"]');
+
+            // Set default dates to today
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.value = today;
+            endDateInput.value = today;
+
+            function toggleDateRangeFields() {
+                const selectedType = parseInt(ruleTypeSelect.value);
+                const shouldShow = selectedType === 1 || selectedType === 2; // DateRange or Holiday
+                dateRangeFields.forEach(field => {
+                    field.style.display = shouldShow ? 'block' : 'none';
+                });
+            }
+
+            ruleTypeSelect.addEventListener('change', toggleDateRangeFields);
+            toggleDateRangeFields(); // Initial check
+        });
+
+        function getNextExtraChargeIndex() {
+            var maxIndex = -1;
+            // Tìm index cao nhất trong tất cả các bảng
+            document.querySelectorAll('input[name^="Rule.ExtraCharges["]').forEach(function (input) {
+                var match = input.name.match(/Rule\.ExtraCharges\[(\d+)\]/);
+                if (match) {
+                    var index = parseInt(match[1]);
+                    if (index > maxIndex) {
+                        maxIndex = index;
+                    }
+                }
+            });
+            return maxIndex + 1;
+        }
+
+        function addEarlyCheckinByDayRowEdit() {
+            var table = document.getElementById('earlyCheckinByDayTableEdit').getElementsByTagName('tbody')[0];
+            var idx = getNextExtraChargeIndex();
+            var row = table.insertRow();
+            row.innerHTML = `
+                    <td>${table.rows.length}</td>
+                    <td>
+                        <select name="Rule.ExtraCharges[${idx}].HourSetting" class="form-control">
+                            ${[...Array(24).keys()].map(i => `<option value='${i + 1}'>${i + 1}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <input name="Rule.ExtraCharges[${idx}].Price" class="form-control" />
+                    </td>
+                    <td>
+                        <input type="hidden" name="Rule.ExtraCharges[${idx}].ChargeType" value="0" />
+                        <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
+                    </td>
+                `;
+        }
+
+        function addLateCheckoutByDayRowEdit() {
+            var table = document.getElementById('lateCheckoutByDayTableEdit').getElementsByTagName('tbody')[0];
+            var idx = getNextExtraChargeIndex();
+            var row = table.insertRow();
+            row.innerHTML = `
+                    <td>${table.rows.length}</td>
+                    <td>
+                        <select name="Rule.ExtraCharges[${idx}].HourSetting" class="form-control">
+                            ${[...Array(24).keys()].map(i => `<option value='${i + 1}'>${i + 1}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <input name="Rule.ExtraCharges[${idx}].Price" class="form-control" />
+                    </td>
+                    <td>
+                        <input type="hidden" name="Rule.ExtraCharges[${idx}].ChargeType" value="1" />
+                        <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
+                    </td>
+                `;
+        }
+
+        function addEarlyCheckinOvernightRowEdit() {
+            var table = document.getElementById('earlyCheckinOvernightTableEdit').getElementsByTagName('tbody')[0];
+            var idx = getNextExtraChargeIndex();
+            var row = table.insertRow();
+            row.innerHTML = `
+                    <td>${table.rows.length}</td>
+                    <td>
+                        <select name="Rule.ExtraCharges[${idx}].HourSetting" class="form-control">
+                            ${[...Array(24).keys()].map(i => `<option value='${i + 1}'>${i + 1}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <input name="Rule.ExtraCharges[${idx}].Price" class="form-control" />
+                    </td>
+                    <td>
+                        <input type="hidden" name="Rule.ExtraCharges[${idx}].ChargeType" value="2" />
+                        <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
+                    </td>
+                `;
+        }
+
+        function addLateCheckoutOvernightRowEdit() {
+            var table = document.getElementById('lateCheckoutOvernightTableEdit').getElementsByTagName('tbody')[0];
+            var idx = getNextExtraChargeIndex();
+            var row = table.insertRow();
+            row.innerHTML = `
+                    <td>${table.rows.length}</td>
+                    <td>
+                        <select name="Rule.ExtraCharges[${idx}].HourSetting" class="form-control">
+                            ${[...Array(24).keys()].map(i => `<option value='${i + 1}'>${i + 1}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <input name="Rule.ExtraCharges[${idx}].Price" class="form-control" />
+                    </td>
+                    <td>
+                        <input type="hidden" name="Rule.ExtraCharges[${idx}].ChargeType" value="3" />
+                        <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
+                    </td>
+                `;
+        }
+
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-row')) {
+                e.target.closest('tr').remove();
+                // Cập nhật lại số thứ tự
+                var table = e.target.closest('table');
+                var rows = table.getElementsByTagName('tbody')[0].rows;
+                for (var i = 0; i < rows.length; i++) {
+                    rows[i].cells[0].textContent = i + 1;
+                }
+            }
+        });
+    </script>
+} 

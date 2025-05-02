@@ -11,6 +11,7 @@ namespace HotelBooking.Web.Pages.Abstract
         protected readonly IConfiguration _configuration;
         protected readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly JsonSerializerOptions _jsonOptions;
 
         public AbstractPageModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
         {
@@ -18,6 +19,12 @@ namespace HotelBooking.Web.Pages.Abstract
             _httpClient = httpClientFactory.CreateClient("BackendApi");
             _httpClient.BaseAddress = new Uri(_configuration["BackendApi"]);
             _httpContextAccessor = httpContextAccessor;
+            
+            _jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new JsonStringEnumConverter() }
+            };
         }
 
         public class ApiResponse<T>
@@ -56,7 +63,7 @@ namespace HotelBooking.Web.Pages.Abstract
             HttpResponseMessage response;
             if (data != null)
             {
-                var jsonContent = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(JsonSerializer.Serialize(data, _jsonOptions), Encoding.UTF8, "application/json");
                 response = method.Method switch
                 {
                     "POST" => await client.PostAsync(endpoint, jsonContent),
@@ -80,7 +87,7 @@ namespace HotelBooking.Web.Pages.Abstract
             {
                 try
                 {
-                    var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(responseText);
+                    var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(responseText, _jsonOptions);
                     if (errorResponse?.Errors != null)
                     {
                         throw new InvalidOperationException(string.Join(", ", errorResponse.Errors.Values.SelectMany(e => e)));
@@ -95,10 +102,7 @@ namespace HotelBooking.Web.Pages.Abstract
 
             try
             {
-                var apiResponse = JsonSerializer.Deserialize<ApiResponse<T>>(responseText, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+                var apiResponse = JsonSerializer.Deserialize<ApiResponse<T>>(responseText, _jsonOptions);
                 return apiResponse.Data ?? default;
             }
             catch (Exception ex)

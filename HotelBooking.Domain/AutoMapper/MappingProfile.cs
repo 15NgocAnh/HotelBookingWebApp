@@ -7,6 +7,7 @@ using HotelBooking.Domain.DTOs.Floor;
 using HotelBooking.Domain.DTOs.Role;
 using HotelBooking.Domain.DTOs.Room;
 using HotelBooking.Domain.DTOs.RoomType;
+using HotelBooking.Domain.DTOs.DynamicPricing;
 using HotelBooking.Domain.DTOs.User;
 using HotelBooking.Domain.Encryption;
 using HotelBooking.Domain.Entities;
@@ -68,13 +69,39 @@ namespace HotelBooking.Domain.AutoMapper
             CreateMap<FloorDTO, UpdateFloorDTO>().ReverseMap();
 
             CreateMap<BookingModel, BookingDTO>()
-                .ForMember(dest => dest.RoomId, opt => opt.MapFrom(src => src.Room))
-                .ForMember(dest => dest.GuestID, opt => opt.MapFrom(src => src.Guest));
+                .ForMember(dest => dest.RoomId, opt => opt.MapFrom(src => src.RoomId))
+                .ForMember(dest => dest.GuestID, opt => opt.MapFrom(src => src.GuestId));
             CreateMap<BookingDTO, BookingModel>();
+            CreateMap<CreateBookingDTO, BookingModel>();
+            CreateMap<BookingModel, CreateBookingDTO>();
 
             CreateMap<BranchDetailsDTO, BranchModel>().ReverseMap();
             CreateMap<BranchDTO, BranchModel>().ReverseMap();
             CreateMap<BranchCreateDTO, BranchModel>().ReverseMap();
+
+            // DynamicPricing mappings
+            CreateMap<HourlyPrice, HourlyPriceDTO>().ReverseMap();
+            CreateMap<ExtraCharge, ExtraChargeDTO>().ReverseMap();
+
+            CreateMap<DynamicPricingRule, DynamicPricingDTO>()
+                .ForMember(dest => dest.RoomTypeName, opt => opt.MapFrom(src => src.RoomType.Name))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.HourlyPrices, opt => opt.MapFrom(src => src.HourlyPrices))
+                .ForMember(dest => dest.ExtraCharges, opt => opt.MapFrom(src => src.ExtraCharges))
+                .ReverseMap();
+
+            CreateMap<CreateDynamicPricingDTO, DynamicPricingRule>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.HourlyPrices, opt => opt.MapFrom(src => src.HourlyPrices))
+                .ForMember(dest => dest.ExtraCharges, opt => opt.MapFrom(src => src.ExtraCharges))
+                .ReverseMap();
+            CreateMap<UpdateDynamicPricingDTO, DynamicPricingRule>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.HourlyPrices, opt => opt.MapFrom(src => src.HourlyPrices))
+                .ForMember(dest => dest.ExtraCharges, opt => opt.MapFrom(src => src.ExtraCharges))
+                .ReverseMap();
+            CreateMap<CreateDynamicPricingDTO, DynamicPricingDTO>().ReverseMap();
+            CreateMap<UpdateDynamicPricingDTO, DynamicPricingDTO>().ReverseMap();
         }
     }
 }

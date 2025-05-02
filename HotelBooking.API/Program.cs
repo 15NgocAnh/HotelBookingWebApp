@@ -160,7 +160,8 @@ static void ConfigureApplicationServices(WebApplicationBuilder builder)
     builder.Services.AddTransient<IBookingService, BookingService>();
     builder.Services.AddScoped<IBranchService, BranchService>();
     builder.Services.AddScoped<IRoleService, RoleService>();
-    
+    builder.Services.AddScoped<IDynamicPricingService, DynamicPricingService>();
+
     builder.Services.AddControllers()
         .AddJsonOptions(opt => 
         { 
@@ -205,6 +206,8 @@ static void ConfigureRepositories(WebApplicationBuilder builder)
     builder.Services.AddTransient<IBookingRepository, BookingRepository>();
     builder.Services.AddScoped<IBranchRepository, BranchRepository>();
     builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+    builder.Services.AddScoped<IDynamicPricingRepository, DynamicPricingRepository>();
+    builder.Services.AddScoped<IExtraChargesRepository, ExtraChargesRepository>();
 }
 
 /// <summary>
