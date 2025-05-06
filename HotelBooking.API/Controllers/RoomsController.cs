@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Asp.Versioning;
+﻿using Asp.Versioning;
+using HotelBooking.Application.Features.Rooms.Commands;
+using HotelBooking.Application.Features.Rooms.Queries;
 using HotelBooking.Domain.DTOs.Room;
 using HotelBooking.Domain.Interfaces.Services;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static HotelBooking.Domain.Response.EServiceResponseTypes;
@@ -13,26 +14,19 @@ namespace HotelBooking.API.Controllers
     [Authorize(Policy = "emailverified")]
     [ApiVersion("1")]
     [Route("api/v{version:apiVersion}/[Controller]/")]
-    public class RoomsController : ControllerBase
+    public class RoomsController(IMediator mediator, IRoomService roomService) : BaseController(mediator)
     {
-        private readonly IRoomService _roomService;
-
-        public RoomsController(IRoomService roomService)
-        {
-            _roomService = roomService;
-        }
-
         [HttpGet]
-        public async Task<ActionResult> GetAll()
+        public async Task<IActionResult> GetRooms([FromQuery] GetRoomsQuery query)
         {
-            var serviceResponse = await _roomService.GetAllAsync();
-            return Ok(serviceResponse.getData());
+            var result = await mediator.Send(query);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(int id)
         {
-            var serviceResponse = await _roomService.GetByIdAsync(id);
+            var serviceResponse = await roomService.GetByIdAsync(id);
             if (serviceResponse.ResponseType == EResponseType.NotFound)
                 return NotFound(serviceResponse.getMessage());
 
@@ -42,7 +36,7 @@ namespace HotelBooking.API.Controllers
         [HttpGet("floor/{floorId}")]
         public async Task<ActionResult> GetByFloorId(int floorId)
         {
-            var serviceResponse = await _roomService.GetByFloorIdAsync(floorId);
+            var serviceResponse = await roomService.GetByFloorIdAsync(floorId);
             if (serviceResponse.ResponseType == EResponseType.NotFound)
                 return NotFound(serviceResponse.getMessage());
 
@@ -52,7 +46,7 @@ namespace HotelBooking.API.Controllers
         [HttpGet("type/{roomTypeId}")]
         public async Task<ActionResult> GetByRoomTypeId(int roomTypeId)
         {
-            var serviceResponse = await _roomService.GetByRoomTypeIdAsync(roomTypeId);
+            var serviceResponse = await roomService.GetByRoomTypeIdAsync(roomTypeId);
             if (serviceResponse.ResponseType == EResponseType.NotFound)
                 return NotFound(serviceResponse.getMessage());
 
@@ -60,21 +54,16 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(CreateRoomDTO createRoomDTO)
+        public async Task<IActionResult> CreateRoom([FromBody] CreateRoomCommand command)
         {
-            var serviceResponse = await _roomService.CreateAsync(createRoomDTO);
-            if (serviceResponse.ResponseType == EResponseType.BadRequest)
-                return BadRequest(serviceResponse.getMessage());
-            if (serviceResponse.ResponseType == EResponseType.InternalError)
-                return BadRequest(serviceResponse.getMessage());
-
-            return CreatedAtAction(nameof(GetById), new { id = serviceResponse.Data.Id }, serviceResponse.getData());
+            var result = await mediator.Send(command);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, UpdateRoomDTO updateRoomDTO)
         {
-            var serviceResponse = await _roomService.UpdateAsync(id, updateRoomDTO);
+            var serviceResponse = await roomService.UpdateAsync(id, updateRoomDTO);
             if (serviceResponse.ResponseType == EResponseType.NotFound)
                 return NotFound(serviceResponse.getMessage());
             if (serviceResponse.ResponseType == EResponseType.BadRequest)
@@ -88,7 +77,7 @@ namespace HotelBooking.API.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var serviceResponse = await _roomService.DeleteAsync(id);
+            var serviceResponse = await roomService.DeleteAsync(id);
             if (serviceResponse.ResponseType == EResponseType.NotFound)
                 return NotFound(serviceResponse.getMessage());
 

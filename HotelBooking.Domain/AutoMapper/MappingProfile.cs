@@ -11,6 +11,7 @@ using HotelBooking.Domain.DTOs.DynamicPricing;
 using HotelBooking.Domain.DTOs.User;
 using HotelBooking.Domain.Encryption;
 using HotelBooking.Domain.Entities;
+using HotelBooking.Domain.DTOs.Guest;
 namespace HotelBooking.Domain.AutoMapper
 {
     public class MappingProfile : Profile
@@ -47,9 +48,9 @@ namespace HotelBooking.Domain.AutoMapper
             CreateMap<PermissionModel, PermissionDto>().ReverseMap();
 
             CreateMap<Room, RoomDTO>()
-                .ForMember(dto => dto.RoomTypeName, opt => opt.MapFrom(x => x.RoomType.Name))
-                .ForMember(dto => dto.NumberOfAdults, opt => opt.MapFrom(x => x.RoomType.NumberOfAdults))
-                .ForMember(dto => dto.NumberOfChildrent, opt => opt.MapFrom(x => x.RoomType.NumberOfChildrent))
+                .ForMember(dto => dto.RoomTypeName, opt => opt.MapFrom(x => x.RoomType != null ? x.RoomType.Name : string.Empty))
+                .ForMember(dto => dto.NumberOfAdults, opt => opt.MapFrom(x => x.RoomType != null ? x.RoomType.NumberOfAdults : 1))
+                .ForMember(dto => dto.NumberOfChildrent, opt => opt.MapFrom(x => x.RoomType != null ? x.RoomType.NumberOfChildrent : 0))
                 .ReverseMap();
             CreateMap<Room, CreateRoomDTO>().ReverseMap();
             CreateMap<Room, UpdateRoomDTO>().ReverseMap();
@@ -68,12 +69,9 @@ namespace HotelBooking.Domain.AutoMapper
             CreateMap<FloorDTO, CreateFloorDTO>().ReverseMap();
             CreateMap<FloorDTO, UpdateFloorDTO>().ReverseMap();
 
-            CreateMap<BookingModel, BookingDTO>()
-                .ForMember(dest => dest.RoomId, opt => opt.MapFrom(src => src.RoomId))
-                .ForMember(dest => dest.GuestID, opt => opt.MapFrom(src => src.GuestId));
-            CreateMap<BookingDTO, BookingModel>();
-            CreateMap<CreateBookingDTO, BookingModel>();
-            CreateMap<BookingModel, CreateBookingDTO>();
+            CreateMap<BookingModel, BookingDTO>().ReverseMap();
+
+            CreateMap<GuestModel, GuestDTO>().ReverseMap();
 
             CreateMap<BranchDetailsDTO, BranchModel>().ReverseMap();
             CreateMap<BranchDTO, BranchModel>().ReverseMap();

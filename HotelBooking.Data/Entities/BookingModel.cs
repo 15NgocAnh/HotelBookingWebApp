@@ -1,6 +1,7 @@
 ﻿using HotelBooking.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HotelBooking.Data.Models
 {
@@ -35,6 +36,14 @@ namespace HotelBooking.Data.Models
         CheckedOut
     }
 
+    public enum BookingType
+    {
+        DayAndNight,
+        Night,
+        Hour,
+        Month
+    }
+
     /// <summary>
     /// Represents a booking in the system.
     /// </summary>
@@ -54,35 +63,14 @@ namespace HotelBooking.Data.Models
         public int GuestId { get; set; }
 
         /// <summary>
-        /// Gets or sets the ID of the room being booked.
-        /// </summary>
-        [ForeignKey("Room")]
-        public int RoomId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time when the booking was made.
-        /// </summary>
-        public DateTime BookingDateTime { get; set; }
-
-        /// <summary>
         /// Gets or sets the expected arrival date.
         /// </summary>
-        public DateTime ArrivalDate { get; set; }
+        public DateTime EstCheckinTime { get; set; }
 
         /// <summary>
         /// Gets or sets the expected departure date.
         /// </summary>
-        public DateTime DepartureDate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the estimated arrival time.
-        /// </summary>
-        public string? EstimatedArrivalTime { get; set; }
-
-        /// <summary>
-        /// Gets or sets the estimated departure time.
-        /// </summary>
-        public string? EstimatedDepartureTime { get; set; }
+        public DateTime EstCheckoutTime { get; set; }
 
         /// <summary>
         /// Gets or sets the number of adults in the booking.
@@ -95,23 +83,41 @@ namespace HotelBooking.Data.Models
         public int NumberOfChildren { get; set; }
 
         /// <summary>
-        /// Gets or sets any special requirements for the booking.
+        /// Gets or sets the booking type (Loại hình).
         /// </summary>
-        public string? SpecialRequirements { get; set; }
+        public BookingType BookingType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the note (Ghi chú).
+        /// </summary>
+        public string? Note { get; set; }
+
+        /// <summary>
+        /// Gets or sets the actual check-in time.
+        /// </summary>
+        public DateTime? ActualCheckInTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the actual check-out time.
+        /// </summary>
+        public DateTime? ActualCheckOutTime { get; set; }
 
         /// <summary>
         /// Gets or sets the guest who made the booking.
-        /// </summary>
-        public virtual UserModel Guest { get; set; }
+        /// </summary> 
+        [JsonIgnore]
+        public virtual GuestModel Guest { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the room being booked.
         /// </summary>
-        public virtual Room Room { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<BookingRoom> BookingRooms { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the current status of the booking.
         /// </summary>
+        [Column(TypeName = "nvarchar(20)")]
         public BookingStatus Status { get; set; } = BookingStatus.Pending;
     }
 }

@@ -18,7 +18,11 @@ namespace HotelBooking.Domain.Entities
         /// <summary>
         /// Room is currently booked
         /// </summary>
-        Booked,
+        Occupied,
+
+        Reserved,
+
+        OutOfOrder,
 
         /// <summary>
         /// Room is under maintenance
@@ -83,5 +87,8 @@ namespace HotelBooking.Domain.Entities
         // Navigation properties
         public virtual Floor Floor { get; set; }
         public virtual RoomType RoomType { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<BookingRoom> BookingRooms { get; set; } = [];
     }
 } 

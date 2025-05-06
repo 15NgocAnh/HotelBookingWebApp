@@ -2,6 +2,7 @@
 using HotelBooking.Domain.AutoMapper;
 using HotelBooking.Domain.DTOs.Authentication;
 using HotelBooking.Domain.Encryption;
+using HotelBooking.Web.Middleware;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net.Http.Headers;
 using static HotelBooking.Web.Pages.Abstract.AbstractPageModel;
@@ -127,6 +128,9 @@ app.UseSession();
 // IMPORTANT: Add these in this order
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Add our custom authentication middleware
+app.UseMiddleware<AuthenticationMiddleware>();
 
 app.MapRazorPages();
 app.Run();

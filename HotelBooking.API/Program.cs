@@ -1,9 +1,12 @@
 using Asp.Versioning;
 using AutoMapper;
+using FluentValidation;
 using Hangfire;
 using HotelBooking.API.Middleware;
 using HotelBooking.API.Policy;
 using HotelBooking.API.Policy.Requirement;
+using HotelBooking.Application.Behaviors;
+using HotelBooking.Application.Features.Rooms.Queries;
 using HotelBooking.Data;
 using HotelBooking.Data.Config;
 using HotelBooking.Domain.Authentication;
@@ -18,6 +21,7 @@ using HotelBooking.Domain.Repository;
 using HotelBooking.Domain.Services;
 using HotelBooking.Infrastructure.Repositories;
 using HotelBooking.Infrastructure.Services;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -68,6 +72,15 @@ ConfigureAutoMapper(builder);
 
 // Configure CORS
 ConfigureCors(builder);
+
+// Add MediatR
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(GetRoomsQuery).Assembly);
+});
+
+// Add FluentValidation
+builder.Services.AddValidatorsFromAssembly(typeof(GetRoomsQuery).Assembly);
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 var app = builder.Build();
 
@@ -161,6 +174,7 @@ static void ConfigureApplicationServices(WebApplicationBuilder builder)
     builder.Services.AddScoped<IBranchService, BranchService>();
     builder.Services.AddScoped<IRoleService, RoleService>();
     builder.Services.AddScoped<IDynamicPricingService, DynamicPricingService>();
+    builder.Services.AddScoped<IGuestService, GuestService>();
 
     builder.Services.AddControllers()
         .AddJsonOptions(opt => 
@@ -208,6 +222,8 @@ static void ConfigureRepositories(WebApplicationBuilder builder)
     builder.Services.AddScoped<IRoleRepository, RoleRepository>();
     builder.Services.AddScoped<IDynamicPricingRepository, DynamicPricingRepository>();
     builder.Services.AddScoped<IExtraChargesRepository, ExtraChargesRepository>();
+    builder.Services.AddScoped<IGuestRepository, GuestRepository>();
+    builder.Services.AddScoped<IBookingRoomRepository, BookingRoomRepository>();
 }
 
 /// <summary>
@@ -268,7 +284,10 @@ static void ConfigureAutoMapper(WebApplicationBuilder builder)
 {
     builder.Services.AddSingleton(provider => new MapperConfiguration(options =>
     {
+        // Add existing profiles
         options.AddProfile(new MappingProfile(provider.GetService<IPasswordHasher>()));
+        // Add all profiles from the assembly
+        options.AddMaps(typeof(GetRoomsQuery).Assembly);
     }).CreateMapper());
 }
 

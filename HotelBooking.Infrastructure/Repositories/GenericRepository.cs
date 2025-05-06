@@ -17,18 +17,20 @@ namespace HotelBooking.Domain.Repository
             _mapper = mapper;
         }
 
-        public async Task AddAsync(T entity)
+        public async Task<T> AddAsync(T entity)
         {
             try
             {
                 await _context.Set<T>().AddAsync(entity);
                 await _context.SaveChangesAsync();
+                return entity;
             }
             catch (DbUpdateException)
             {
                 throw;
             }
         }
+
 
         public async Task UpdateAsync(T entity)
         {

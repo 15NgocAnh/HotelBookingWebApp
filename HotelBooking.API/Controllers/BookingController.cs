@@ -1,14 +1,17 @@
+using Asp.Versioning;
 using HotelBooking.Data.Models;
 using HotelBooking.Domain.DTOs.Booking;
 using HotelBooking.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static HotelBooking.Domain.Response.EServiceResponseTypes;
 
 namespace HotelBooking.API.Controllers
 {
     [ApiController]
-    [Route("api/v1/[controller]")]
-    [Authorize]
+    [Authorize(Policy = "emailverified")]
+    [ApiVersion("1")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
@@ -19,87 +22,81 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<BookingDTO>> CreateBooking([FromBody] BookingDTO bookingDTO)
+        public async Task<ActionResult<BookingDTO>> CreateBooking([FromBody] CreateBookingDTO bookingDTO)
         {
-            try
+            var response = await _bookingService.CreateBookingAsync(bookingDTO);
+            if (response.ResponseType == EResponseType.Success)
             {
-                var result = await _bookingService.CreateBookingAsync(bookingDTO);
-                return Ok(new { data = result });
+                return Ok(response.getData());
             }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, new { error = "An error occurred while creating the booking" });
-            }
+            return StatusCode((int)response.ResponseType, response.getMessage());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<BookingDTO>> GetBooking(int id)
         {
-            try
+            var response = await _bookingService.GetBookingByIdAsync(id);
+            if (response.ResponseType == EResponseType.Success)
             {
-                var booking = await _bookingService.GetBookingByIdAsync(id);
-                if (booking == null)
-                    return NotFound(new { error = "Booking not found" });
-
-                return Ok(new { data = booking });
+                return Ok(response.getData());
             }
-            catch (Exception)
-            {
-                return StatusCode(500, new { error = "An error occurred while retrieving the booking" });
-            }
+            return StatusCode((int)response.ResponseType, response.getMessage());
         }
 
         [HttpGet("guest/{guestId}")]
         public async Task<ActionResult<IEnumerable<BookingDTO>>> GetGuestBookings(int guestId)
         {
-            try
+            var response = await _bookingService.GetBookingsByGuestIdAsync(guestId);
+            if (response.ResponseType == EResponseType.Success)
             {
-                var bookings = await _bookingService.GetBookingsByGuestIdAsync(guestId);
-                return Ok(new { data = bookings });
+                return Ok(response.getData());
             }
-            catch (Exception)
-            {
-                return StatusCode(500, new { error = "An error occurred while retrieving the bookings" });
-            }
+            return StatusCode((int)response.ResponseType, response.getMessage());
         }
 
         [HttpPost("{id}/cancel")]
         public async Task<ActionResult> CancelBooking(int id)
         {
-            try
+            var response = await _bookingService.CancelBookingAsync(id);
+            if (response.ResponseType == EResponseType.Success)
             {
-                var result = await _bookingService.CancelBookingAsync(id);
-                if (!result)
-                    return NotFound(new { error = "Booking not found" });
-
-                return Ok(new { message = "Booking cancelled successfully" });
+                return Ok(response.getMessage());
             }
-            catch (Exception)
-            {
-                return StatusCode(500, new { error = "An error occurred while cancelling the booking" });
-            }
+            return StatusCode((int)response.ResponseType, response.getMessage());
         }
 
         [HttpPut("{id}/status")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateBookingStatus(int id, [FromBody] BookingStatus status)
         {
-            try
+            var response = await _bookingService.UpdateBookingStatusAsync(id, status);
+            if (response.ResponseType == EResponseType.Success)
             {
-                var result = await _bookingService.UpdateBookingStatusAsync(id, status);
-                if (!result)
-                    return NotFound(new { error = "Booking not found" });
+                return Ok(response.getMessage());
+            }
+            return StatusCode((int)response.ResponseType, response.getMessage());
+        }
 
-                return Ok(new { message = "Booking status updated successfully" });
-            }
-            catch (Exception)
+        [HttpPost("{id}/checkin")]
+        public async Task<ActionResult> CheckIn(int id)
+        {
+            var response = await _bookingService.CheckInAsync(id);
+            if (response.ResponseType == EResponseType.Success)
             {
-                return StatusCode(500, new { error = "An error occurred while updating the booking status" });
+                return Ok(response.getMessage());
             }
+            return StatusCode((int)response.ResponseType, response.getMessage());
+        }
+
+        [HttpPost("{id}/checkout")]
+        public async Task<ActionResult> CheckOut(int id)
+        {
+            var response = await _bookingService.CheckOutAsync(id);
+            if (response.ResponseType == EResponseType.Success)
+            {
+                return Ok(response.getMessage());
+            }
+            return StatusCode((int)response.ResponseType, response.getMessage());
         }
     }
 } 

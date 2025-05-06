@@ -22,7 +22,7 @@ namespace HotelBooking.Data
         /// </summary>
         /// <param name="options">The options for this context.</param>
         /// <param name="httpContextAccessor">The HTTP context accessor for accessing current user information.</param>
-        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) 
+        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor)
             : base(options)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -74,6 +74,7 @@ namespace HotelBooking.Data
         /// Gets or sets the bookings DbSet.
         /// </summary>
         public virtual DbSet<BookingModel> Bookings { get; set; }
+        public virtual DbSet<BookingRoom> BookingRooms { get; set; }
 
         /// <summary>
         /// Gets or sets the bills DbSet.
@@ -86,6 +87,8 @@ namespace HotelBooking.Data
 
         public virtual DbSet<HourlyPrice> HourlyPrices { get; set; }
         public virtual DbSet<ExtraCharge> ExtraCharges { get; set; }
+
+        public DbSet<GuestModel> Guests { get; set; }
 
         #endregion
 
@@ -108,9 +111,16 @@ namespace HotelBooking.Data
             ConfigureUserModel(modelBuilder);
             ConfigureRoleModel(modelBuilder);
             ConfigureBookingModel(modelBuilder);
+            ConfigureBookingRoom(modelBuilder);
+            ConfigureRoomModel(modelBuilder);
             ConfigureSoftDelete(modelBuilder);
+            ConfigureGuestModel(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<BookingModel>()
+                .Property(b => b.Status)
+                .HasConversion<string>();
 
             modelBuilder.Entity<Floor>()
                 .HasOne(f => f.Branch)
@@ -213,15 +223,36 @@ namespace HotelBooking.Data
         private static void ConfigureBookingModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<BookingModel>()
-                .HasOne(b => b.Room)
-                .WithMany()
-                .HasForeignKey(b => b.RoomId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<BookingModel>()
                 .HasOne(b => b.Guest)
                 .WithMany()
                 .HasForeignKey(b => b.GuestId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<BookingModel>()
+                .HasMany(b => b.BookingRooms)
+                .WithOne(br => br.Booking)
+                .HasForeignKey(br => br.BookingId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        /// <summary>
+        /// Configures the BookingRoom entity.
+        /// </summary>
+        private static void ConfigureBookingRoom(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BookingRoom>()
+                .HasOne(br => br.Room)
+                .WithMany(r => r.BookingRooms)
+                .HasForeignKey(br => br.RoomId)
+                .OnDelete(DeleteBehavior.NoAction);
+        }
+
+        private static void ConfigureRoomModel(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Room>()
+                .HasMany(r => r.BookingRooms)
+                .WithOne(br => br.Room)
+                .HasForeignKey(br => br.RoomId)
                 .OnDelete(DeleteBehavior.NoAction);
         }
 
@@ -250,12 +281,24 @@ namespace HotelBooking.Data
         }
 
         /// <summary>
+        /// Configures the GuestModel entity.
+        /// </summary>
+        private static void ConfigureGuestModel(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<GuestModel>()
+                .HasMany(g => g.Bookings)
+                .WithOne(b => b.Guest)
+                .HasForeignKey(b => b.GuestId)
+                .OnDelete(DeleteBehavior.NoAction);
+        }
+
+        /// <summary>
         /// Adds timestamps to entities that inherit from BaseModel.
         /// </summary>
         private void AddTimestamps()
         {
             var entities = ChangeTracker.Entries()
-                .Where(x => x.Entity is BaseModel && 
+                .Where(x => x.Entity is BaseModel &&
                     (x.State == EntityState.Added || x.State == EntityState.Modified));
 
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

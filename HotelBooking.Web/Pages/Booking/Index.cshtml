@@ -1,0 +1,312 @@
+﻿@page
+@model HotelBooking.Web.Pages.Booking.IndexModel
+@{
+    ViewData["Title"] = "Quản lý phòng";
+    Layout = "_Layout";
+}
+<div class="container-fluid mt-2">
+    <!-- Booking Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="bookingModalLabel">Đặt phòng khách sạn</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="bookingFrame" src="" style="width: 100%; height: 600px; border: none;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-item" data-action="book">Đặt phòng</div>
+        <div class="context-menu-item" data-action="checkin">Check-in</div>
+        <div class="context-menu-item" data-action="checkout">Check-out</div>
+    </div>
+    <div class="toolbar">
+        <button class="btn btn-primary btn-sm"><i class="fas fa-list"></i> DS Đặt phòng</button>
+        <button class="btn btn-success btn-sm"><i class="fas fa-search"></i> Kết quả checkin</button>
+        <button class="btn btn-info btn-sm">Bàn lễ</button>
+        <button class="btn btn-info btn-sm">Giặt là</button>
+        <button class="btn btn-danger btn-sm">Xóa thẻ</button>
+        <button class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i></button>
+
+        <div class="float-right">
+            <span class="badge badge-light"><i class="fas fa-home"></i> @Model.Rooms.Count(r => r.Status == "Available")</span>
+            <span class="badge badge-success"><i class="fas fa-file-alt"></i> @Model.Rooms.Count(r => r.Status == "Occupied")</span>
+            <span class="badge badge-danger"><i class="fas fa-exclamation-triangle"></i> @Model.Rooms.Count(r => r.Status == "Maintenance")</span>
+            <span class="badge badge-secondary"><i class="fas fa-pencil-alt"></i> @Model.Rooms.Count(r => r.Status == "Reserved")</span>
+            <span class="badge badge-warning"><i class="fas fa-bolt"></i> @Model.Rooms.Count(r => r.Status == "OutOfOrder")</span>
+            <span class="badge badge-info"><i class="fas fa-question-circle"></i></span>
+        </div>
+    </div>
+
+    <div class="progress mt-2 mb-2">
+        @{
+            var totalRooms = Model.Rooms.Count;
+            var availableRooms = Model.Rooms.Count(r => r.Status == "Available");
+            var occupancyRate = totalRooms > 0 ? (availableRooms * 100) / totalRooms : 0;
+        }
+        <div class="progress-bar bg-success" role="progressbar" style="width: @occupancyRate%" aria-valuenow="@occupancyRate" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+
+    <div class="hotel-floors">
+        @foreach (var floorGroup in Model.RoomsByFloor)
+        {
+            <div class="floor">
+                <div class="floor-title">@floorGroup.Key</div>
+                <div class="rooms-container">
+                    @foreach (var room in floorGroup.Value)
+                    {
+                        <div class="room @GetRoomStatusClass(room.Status)">
+                            <input type="hidden" class="room-id" value="@room.Id" />
+                            <div class="room-number">@room.RoomNumber</div>
+                            @if (room.Status == "Occupied")
+                            {
+                                <div class="room-price">@room.RoomTypeName</div>
+                                <div class="room-guest"><i class="fas fa-user"></i> Khách Lẻ</div>
+                                <div class="room-type-info">Loại: @room.RoomTypeName</div>
+                                <div class="room-deposit">Đặt trước: 0</div>
+                            }
+                            else
+                            {
+                                <div class="room-type">@room.RoomTypeName</div>
+                                <div class="room-capacity">Số người: @room.NumberOfAdults</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@functions {
+    private string GetRoomStatusClass(string status)
+    {
+        return status switch
+        {
+            "Available" => "available",
+            "Occupied" => "occupied customer",
+            "Maintenance" => "unavailable",
+            "Reserved" => "orange",
+            "OutOfOrder" => "unavailable",
+            _ => "available"
+        };
+    }
+}
+
+@section Styles {
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+
+        .toolbar {
+            margin-bottom: 10px;
+        }
+
+        .hotel-floors {
+            border: 1px solid #ddd;
+        }
+
+        .floor {
+            margin-bottom: 5px;
+            border-bottom: 1px solid #eee;
+            padding: 5px 0;
+        }
+
+        .floor-title {
+            width: 70px;
+            padding: 5px;
+            text-align: right;
+            font-weight: bold;
+            float: left;
+            color: #555;
+        }
+
+        .rooms-container {
+            margin-left: 80px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .room {
+            width: 120px;
+            height: 100px;
+            margin: 0 5px 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .room-number {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .room-type, .room-capacity, .room-price, .room-guest, .room-type-info, .room-deposit {
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+
+        .room-price {
+            font-weight: bold;
+        }
+
+        .available {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .occupied {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .unavailable {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .orange {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .customer::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            border-style: solid;
+            border-width: 0 15px 15px 0;
+            border-color: transparent #ff5722 transparent transparent;
+        }
+
+        .badge {
+            margin-right: 5px;
+            padding: 5px 8px;
+        }
+
+        .btn-sm {
+            margin-right: 3px;
+        }
+
+        .progress {
+            height: 10px;
+        }
+
+        /* Trạng thái đặt phòng */
+        .room-status {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* Điều chỉnh thêm */
+        .float-right {
+            float: right;
+        }
+
+        .room-tag {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0,0,0,0.2);
+            padding: 1px 3px;
+            border-radius: 2px;
+            font-size: 10px;
+        }
+
+        /* Context Menu Styles */
+        .context-menu {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 150px;
+        }
+
+        .context-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+            .context-menu-item:last-child {
+                border-bottom: none;
+            }
+
+            .context-menu-item:hover {
+                background-color: #f5f5f5;
+            }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var selectedRoom = null;
+
+            $('.room').on('contextmenu', function (e) {
+                e.preventDefault();
+                selectedRoom = $(this);
+
+                // Position the context menu
+                $('#contextMenu')
+                    .css({
+                        display: 'block',
+                        left: e.pageX,
+                        top: e.pageY
+                    });
+            });
+
+            // Hide context menu when clicking elsewhere
+            $(document).on('click', function () {
+                $('#contextMenu').hide();
+            });
+
+            // Handle context menu item clicks
+            $('.context-menu-item').click(function () {
+                var action = $(this).data('action');
+                var roomId = selectedRoom.find('.room-id').val();
+                var roomNumber = selectedRoom.find('.room-number').text();
+                var roomType = selectedRoom.find('.room-type').text();
+
+                switch (action) {
+                    case 'book':
+                        showBookingForm(roomId);
+                        break;
+                    case 'checkin':
+                        // Handle check-in
+                        console.log('Check-in for room: ' + roomNumber);
+                        break;
+                    case 'checkout':
+                        // Handle check-out
+                        console.log('Check-out for room: ' + roomNumber);
+                        break;
+                }
+
+                $('#contextMenu').hide();
+            });
+
+            function showBookingForm(roomId) {
+                // Open the booking page in a new tab
+                var bookingUrl = '/Booking/Create?roomId=' + encodeURIComponent(roomId);
+                window.open(bookingUrl, '_blank');
+            }
+        });
+    </script>
+}

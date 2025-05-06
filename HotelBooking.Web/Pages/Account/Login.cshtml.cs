@@ -30,7 +30,16 @@ namespace HotelBooking.Web.Pages.Account
         public bool IsSuccess { get; set; }
         public string? RedirectUrl { get; set; }
 
-        public void OnGet() { }
+        [BindProperty(SupportsGet = true)]
+        public string? ReturnUrl { get; set; }
+
+        public void OnGet()
+        {
+            if (!string.IsNullOrEmpty(ReturnUrl))
+            {
+                RedirectUrl = ReturnUrl;
+            }
+        }
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -41,34 +50,32 @@ namespace HotelBooking.Web.Pages.Account
 
             try
             {
-                var credential = await GetJWT(); // Gửi request đăng nhập đến API
+                var credential = await GetJWT();
 
-                // Kiểm tra nếu API trả về lỗi hoặc token trống
                 if (credential == null || string.IsNullOrEmpty(credential.Data.Token))
                 {
                     ErrorMessage = "Invalid username or password";
                     return Page();
                 }
 
-                var userInfo = GetUserInfoFromJWT(credential.Data.Token); // Giải mã JWT để lấy thông tin user
+                var userInfo = GetUserInfoFromJWT(credential.Data.Token);
 
-                if (string.IsNullOrEmpty(userInfo.Id)) // Nếu không có ID, báo lỗi
+                if (string.IsNullOrEmpty(userInfo.Id))
                 {
                     ErrorMessage = "Failed to retrieve user information.";
                     return Page();
                 }
 
-                // Tạo danh sách quyền hạn (claims) cho user
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, userInfo.Id),
                     new Claim(ClaimTypes.Role, userInfo.RoleName),
                     new Claim(ClaimTypes.Email, userInfo.Email),
                     new Claim("FirstName", userInfo.FirstName),
-                    new Claim("LastName", userInfo.LastName)
+                    new Claim("LastName", userInfo.LastName),
+                    new Claim("LocationAccess", "true") // Add location access claim
                 };
 
-                // Xác thực đăng nhập bằng Cookie
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
                 {
@@ -82,8 +89,8 @@ namespace HotelBooking.Web.Pages.Account
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                IsSuccess = true; // Cập nhật trạng thái đăng nhập thành công để hiển thị popup
-                RedirectUrl = "/Index";
+                IsSuccess = true;
+                RedirectUrl = !string.IsNullOrEmpty(ReturnUrl) ? ReturnUrl : "/Index";
                 return Page();
             }
             catch

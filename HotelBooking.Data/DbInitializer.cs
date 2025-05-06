@@ -14,6 +14,24 @@ namespace HotelBooking.Data
 
         public void Seed()
         {
+            modelBuilder.Entity<GuestModel>().HasData(
+                new GuestModel
+                {
+                    Id = 1,
+                    FullName = "Khách lẻ",
+                    IdentityNumber = "000000000",
+                    Address = "N/A",
+                    Nationality = "Vietnamese",
+                    Gender = Gender.Other,
+                    Phone = "0000000000",
+                    Email = "anonymous@guest.local",
+                    IdentityIssueDate = null,
+                    IdentityIssuePlace = null,
+                    BirthDate = null,
+                    Province = null,
+                    Bookings = null
+                }
+             );
         }
     }
 }

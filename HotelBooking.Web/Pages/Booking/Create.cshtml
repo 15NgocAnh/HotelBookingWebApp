@@ -1,0 +1,883 @@
+﻿@page
+@using HotelBooking.Data.Models
+@model HotelBooking.Web.Pages.Booking.CreateModel
+@{
+    ViewData["Title"] = "Đặt phòng khách sạn";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid p-0">
+    <div class="booking-header">
+        <div class="d-flex justify-content-between align-items-center p-2">
+            <h5 class="m-0 text-white">ĐẶT PHÒNG KHÁCH SẠN</h5>
+        </div>
+    </div>
+
+    <div class="booking-content">
+        <ul class="nav nav-tabs" id="bookingTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab">Thông tin</a>
+            </li>
+        </ul>
+
+        <div class="tab-content p-3" id="bookingTabsContent">
+            <div class="tab-pane fade show active" id="info" role="tabpanel">
+                <form id="bookingForm" method="post">
+                    <!-- Display validation error -->
+                    @if (!ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Lỗi:</strong> Vui lòng kiểm tra lại các trường.
+                            <ul>
+                                @foreach (var state in ViewData.ModelState)
+                                {
+                                    foreach (var error in state.Value.Errors)
+                                    {
+                                        <li>@error.ErrorMessage</li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    @Html.AntiForgeryToken()
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Ngày checkin *</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <input type="datetime-local" class="form-control form-control-sm" asp-for="Booking.EstCheckinTime" required>
+                                    </div>
+                                    <span asp-validation-for="Booking.EstCheckinTime" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Loại hình</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <select asp-for="Booking.BookingType" asp-items="Html.GetEnumSelectList<BookingType>()" class="form-control form-control-sm">
+                                            <option value="">-- Select --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Người lớn</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input asp-for="Booking.NumberOfAdults" type="number" class="form-control form-control-sm"></input>
+                                    </div>
+                                    <span asp-validation-for="Booking.NumberOfAdults" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Loại hình</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input asp-for="Booking.NumberOfChildren" type="number" class="form-control form-control-sm"></input>
+                                    </div>
+                                    <span asp-validation-for="Booking.NumberOfChildren" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Ghi chú</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control form-control-sm" asp-for="Booking.Note" placeholder="Ghi chú">
+                                </div>
+                            </div>
+
+                            <!-- Guest Full Name -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Tên khách hàng *</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control form-control-sm" asp-for="Booking.GuestFullName" placeholder="Nhập tên khách hàng">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Booking.GuestFullName" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+
+                            <!-- Identity Number -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Số CCCD/ Hộ chiếu</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control form-control-sm" asp-for="Booking.GuestIdentityNumber" placeholder="Số CMT/ Hộ chiếu">
+                                    <span asp-validation-for="Booking.GuestIdentityNumber" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+
+                            <!-- Identity Issue Date -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Ngày cấp</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="date" class="form-control form-control-sm" asp-for="Booking.GuestIdentityIssueDate">
+                                    </div>
+                                    <span asp-validation-for="Booking.GuestIdentityIssueDate" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Địa chỉ</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control form-control-sm" asp-for="Booking.GuestAddress" placeholder="Địa chỉ">
+                                    <span asp-validation-for="Booking.GuestAddress" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Ngày checkout *</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <input type="datetime-local" class="form-control form-control-sm" asp-for="Booking.EstCheckoutTime" required>
+                                    </div>
+                                    <span asp-validation-for="Booking.EstCheckoutTime" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+
+                            <!-- Gender -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Giới tính</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control form-control-sm" asp-for="Booking.GuestGender">
+                                        <option value="">Chọn giới tính</option>
+                                        <option value="Male">Nam</option>
+                                        <option value="Female">Nữ</option>
+                                        <option value="Other">Khác</option>
+                                    </select>
+                                    <span asp-validation-for="Booking.GuestGender" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+
+                            <!-- Nationality -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Quốc tịch</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control form-control-sm" asp-for="Booking.GuestNationality" placeholder="Nhập quốc tịch">
+                                    <span asp-validation-for="Booking.GuestNationality" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+
+                            <!-- Identity Issue Place -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Nơi cấp</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control form-control-sm" asp-for="Booking.GuestIdentityIssuePlace" placeholder="Nơi cấp">
+                                    <span asp-validation-for="Booking.GuestIdentityIssuePlace" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+
+                            <!-- Birth Date -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Ngày sinh</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="date" class="form-control form-control-sm" asp-for="Booking.GuestBirthDate">
+                                    </div>
+                                    <span asp-validation-for="Booking.GuestBirthDate" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+
+                            <!-- Province -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Tỉnh thành</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control form-control-sm" asp-for="Booking.GuestProvince" placeholder="Nhập tỉnh thành">
+                                    <span asp-validation-for="Booking.GuestProvince" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Điện thoại</label>
+                                <div class="col-sm-8">
+                                    <input type="tel" class="form-control form-control-sm" asp-for="Booking.GuestPhone" placeholder="Điện thoại">
+                                    <span asp-validation-for="Booking.GuestPhone" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Email</label>
+                                <div class="col-sm-8">
+                                    <input type="email" class="form-control form-control-sm" asp-for="Booking.GuestEmail" placeholder="Email">
+                                    <span asp-validation-for="Booking.GuestEmail" class="text-danger"></span> <!-- Validation error -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách khách hàng -->
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <div>
+                                <button type="submit" asp-page-handler="UpdateGuestInfo" class="btn btn-primary btn-sm">Cập nhật khách hàng</button>
+                                <button type="submit" asp-page-handler="ResetGuestInfo" class="btn btn-secondary btn-sm">Làm lại</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Tên khách hàng</th>
+                                        <th>CMT/ Hộ chiếu</th>
+                                        <th>Điện thoại</th>
+                                        <th>Email</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            @Model.Booking.Guest?.FullName
+                                            <input type="hidden" name="Booking.Guest.FullName" value="@Model.Booking.Guest?.FullName" />
+                                        </td>
+                                        <td>
+                                            @Model.Booking.Guest?.IdentityNumber
+                                            <input type="hidden" name="Booking.Guest.IdentityNumber" value="@Model.Booking.Guest?.IdentityNumber" />
+                                        </td>
+                                        <td>
+                                            @Model.Booking.Guest?.Phone
+                                            <input type="hidden" name="Booking.Guest.Phone" value="@Model.Booking.Guest?.Phone" />
+                                        </td>
+                                        <td>
+                                            @Model.Booking.Guest?.Email
+                                            <input type="hidden" name="Booking.Guest.Email" value="@Model.Booking.Guest?.Email" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách phòng -->
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <h6>Danh sách phòng (@Model.Booking.Rooms?.Count)</h6>
+                            <div>
+                                <button type="submit" asp-page-handler="SelectRoom" class="btn btn-primary btn-sm" id="btnOpenRoomSelectionModal">Chọn phòng</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên phòng</th>
+                                        <th>Loại phòng</th>
+                                        <th>Người lớn</th>
+                                        <th>Trẻ em</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Booking.Rooms?.Count; i++)
+                                    {
+                                        <tr>
+                                            <td>@(i + 1)</td>
+                                            <td>
+                                                @Model.Booking.Rooms[i].RoomNumber
+                                                <input type="hidden" name="Booking.Rooms[@i].RoomNumber" value="@Model.Booking.Rooms[i].RoomNumber" />
+                                            </td>
+                                            <td>
+                                                @Model.Booking.Rooms[i].RoomTypeName
+                                                <input type="hidden" name="Booking.Rooms[@i].RoomTypeName" value="@Model.Booking.Rooms[i].RoomTypeName" />
+                                            </td>
+                                            <td>
+                                                <div class="input-group">
+                                                    <input readonly type="number" class="form-control form-control-sm" asp-for="@Model.Booking.Rooms[i].NumberOfAdults" min="1" max="10" required>
+                                                    <input type="hidden" name="Booking.Rooms[@i].NumberOfAdults" value="@Model.Booking.Rooms[i].NumberOfAdults" />
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="input-group">
+                                                    <input readonly type="number" class="form-control form-control-sm" asp-for="@Model.Booking.Rooms[i].NumberOfChildrent" min="0" max="10" required>
+                                                    <input type="hidden" name="Booking.Rooms[@i].NumberOfChildrent" value="@Model.Booking.Rooms[i].NumberOfChildrent" />
+                                                </div>
+                                            </td>
+                                            <input type="hidden" name="Booking.Rooms[@i].Id" value="@Model.Booking.Rooms[i].Id" />
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="services" role="tabpanel">
+                <p>Nội dung về sản phẩm & dịch vụ sẽ hiển thị ở đây.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="booking-footer">
+        <div class="d-flex justify-content-between align-items-center p-2">
+            <div class="total-price">
+                <span class="text-danger font-weight-bold">250,000</span>
+            </div>
+            <div>
+                <button type="submit" asp-page-handler="Create" form="bookingForm" class="btn btn-primary btn-sm">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
+                <button type="submit" asp-page-handler="Back" form="bookingForm" class="btn btn-danger btn-sm">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chọn Phòng -->
+<div class="modal fade" id="roomSelectionModal" tabindex="-1" role="dialog" aria-labelledby="roomSelectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="roomSelectionModalLabel">CHỌN PHÒNG</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Room content will be loaded dynamically -->
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="mt-2">Đang tải danh sách phòng...</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" id="btnSaveRoomSelection">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .booking-header {
+            background-color: #2b7dbc;
+            color: white;
+        }
+
+        .booking-content {
+            background-color: #f9f9f9;
+        }
+
+        .booking-footer {
+            background-color: #f3f3f3;
+            border-top: 1px solid #ddd;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .form-control-sm {
+            height: calc(1.5em + 0.5rem + 2px);
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0.2rem;
+        }
+
+        .input-group-text {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .table-sm td, .table-sm th {
+            padding: 0.3rem;
+        }
+
+        .nav-tabs .nav-link {
+            border: 1px solid transparent;
+            border-top-left-radius: 0.25rem;
+            border-top-right-radius: 0.25rem;
+            color: #333;
+        }
+
+            .nav-tabs .nav-link.active {
+                color: #495057;
+                background-color: #fff;
+                border-color: #dee2e6 #dee2e6 #fff;
+                font-weight: bold;
+            }
+
+        .table-responsive {
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .close {
+            text-shadow: none;
+            opacity: 1;
+        }
+
+        .form-check-input {
+            margin-top: 0.25rem;
+        }
+
+        .col-form-label {
+            padding-top: calc(0.25rem + 1px);
+            padding-bottom: calc(0.25rem + 1px);
+            font-size: 0.875rem;
+        }
+
+        /* Room Selection Modal Styles */
+        .room-floor {
+            display: flex;
+            align-items: center;
+        }
+
+        .floor-label {
+            width: 80px;
+            font-weight: bold;
+            text-align: right;
+            padding-right: 15px;
+        }
+
+        .room-row {
+            display: flex;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .room-item {
+            width: 60px;
+            height: 50px;
+            margin: 0 10px 10px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 3px;
+        }
+
+            .room-item.available {
+                background-color: #2E8B57; /* Green */
+            }
+
+            .room-item.unavailable {
+                background-color: #808080; /* Gray */
+                cursor: not-allowed;
+            }
+
+            .room-item.occupied {
+                background-color: #DC3545; /* Red */
+                cursor: not-allowed;
+            }
+
+            .room-item.maintenance {
+                background-color: #FFA500; /* Orange/Yellow */
+                cursor: not-allowed;
+            }
+
+            .room-item.cleaning {
+                background-color: #17A2B8; /* Blue */
+                cursor: not-allowed;
+            }
+
+            .room-item.selected {
+                position: relative;
+                box-shadow: 0 0 0 3px #007bff;
+            }
+
+                .room-item.selected:after {
+                    content: "✓";
+                    position: absolute;
+                    top: 2px;
+                    right: 5px;
+                    font-size: 10px;
+                }
+
+        #roomSelectionModal .modal-header {
+            background-color: #2b7dbc;
+        }
+
+        #roomSelectionModal .modal-dialog {
+            max-width: 800px;
+        }
+
+        .room-legend {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+
+            .legend-color.available {
+                background-color: #2E8B57;
+            }
+
+            .legend-color.occupied {
+                background-color: #DC3545;
+            }
+
+            .legend-color.maintenance {
+                background-color: #FFA500;
+            }
+
+            .legend-color.cleaning {
+                background-color: #17A2B8;
+            }
+
+            .legend-color.unavailable {
+                background-color: #808080;
+            }
+
+        /* Loading spinner */
+        .spinner-border {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            vertical-align: text-bottom;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            // Selected rooms array to store room data
+            let selectedRooms = [];
+            let allRooms = []; // Store all rooms loaded from API
+
+            // Open room selection modal
+            $('#btnOpenRoomSelectionModal').on('click', function () {
+                // Get current check-in and check-out dates
+                const checkIn = $('input[name="Booking.EstCheckinTime"]').val();
+                const checkOut = $('input[name="Booking.EstCheckoutTime"]').val();
+
+                // Load rooms from API
+                loadRoomsFromApi(checkIn, checkOut);
+
+                // Show modal
+                $('#roomSelectionModal').modal('show');
+            });
+
+            // Load rooms from API
+            function loadRoomsFromApi(checkIn, checkOut) {
+                // Show loading indicator
+                $('#roomSelectionModal .modal-body').html('<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><div class="mt-2">Đang tải danh sách phòng...</div></div>');
+
+                $.ajax({
+                    url: '?handler=RoomList',
+                    type: 'GET',
+                    data: {
+                        checkIn: checkIn,
+                        checkOut: checkOut
+                    },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        // Store rooms data
+                        allRooms = response;
+
+                        // Generate room display by floors
+                        renderRoomsByFloor(response);
+
+                        // Load current selected rooms if any
+                        loadSelectedRooms();
+
+                        // Update total price
+                        updateTotalPrice();
+                    },
+                    error: function (error) {
+                        console.error('Error loading rooms:', error);
+                        $('#roomSelectionModal .modal-body').html('<div class="alert alert-danger">Đã xảy ra lỗi khi tải danh sách phòng. Vui lòng thử lại.</div>');
+                    }
+                });
+            }
+
+            // Render rooms grouped by floor
+            function renderRoomsByFloor(rooms) {
+                // Group rooms by floor
+                const roomsByFloor = {};
+                rooms.forEach(room => {
+                    if (!roomsByFloor[room.floor]) {
+                        roomsByFloor[room.floor] = [];
+                    }
+                    roomsByFloor[room.floor].push(room);
+                });
+
+                // Sort floors
+                const sortedFloors = Object.keys(roomsByFloor).sort((a, b) => parseInt(a) - parseInt(b));
+
+                // Build HTML
+                let html = `
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="chkNormalizeOrder">
+                                    <label class="custom-control-label" for="chkNormalizeOrder">Giữ nguyên hóa đơn</label>
+                                </div>
+                            </div>
+                            <div>
+                                <span>Tiền phòng: <span id="roomTotalPrice">0</span></span>
+                            </div>
+                        </div>
+
+                        <!-- Room Legend -->
+                        <div class="room-legend">
+                            <div class="legend-item">
+                                <div class="legend-color available"></div>
+                                <span>Còn trống</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color occupied"></div>
+                                <span>Đã đặt</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color maintenance"></div>
+                                <span>Bảo trì</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color cleaning"></div>
+                                <span>Đang dọn</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color unavailable"></div>
+                                <span>Không khả dụng</span>
+                            </div>
+                        </div>`;
+
+                // Add rooms by floor
+                sortedFloors.forEach(floor => {
+                    html += `
+                            <div class="room-floor mb-2">
+                                <div class="floor-label">Tầng ${floor}</div>
+                                <div class="room-row">`;
+
+                    // Sort rooms within floor by room number
+                    const sortedRooms = roomsByFloor[floor].sort((a, b) => {
+                        return a.roomNumber.localeCompare(b.roomNumber, undefined, { numeric: true });
+                    });
+
+                    // Add room items
+                    sortedRooms.forEach(room => {
+                        html += `<div class="room-item ${room.status}" data-room="${room.roomNumber}" data-id="${room.id}" data-price="${room.price}" data-type="${room.roomTypeName}">${room.roomNumber}</div>`;
+                    });
+
+                    html += `
+                                </div>
+                            </div>`;
+                });
+
+                // Update modal body
+                $('#roomSelectionModal .modal-body').html(html);
+
+                // Add click handler for available rooms
+                $('.room-item.available').on('click', function () {
+                    // Toggle selection
+                    $(this).toggleClass('selected');
+
+                    // Update total price
+                    updateTotalPrice();
+                });
+            }
+
+            // Handle save button
+            $(document).on('click', '#btnSaveRoomSelection', function () {
+                // Clear existing rooms
+                $('.table tbody tr:not(:first)').remove();
+
+                // Get all selected rooms
+                selectedRooms = [];
+                $('.room-item.selected').each(function () {
+                    const roomNumber = $(this).data('room');
+                    const roomId = $(this).data('id');
+                    const roomPrice = $(this).data('price');
+                    const roomTypeName = $(this).data('type');
+
+                    selectedRooms.push({
+                        id: roomId,
+                        roomNumber: roomNumber,
+                        roomTypeName: roomTypeName,
+                        price: roomPrice,
+                        numberOfAdults: 1,
+                        numberOfChildrent: 0
+                    });
+                });
+
+                // Add selected rooms to the main table
+                updateRoomsTable();
+
+                // Close modal
+                $('#roomSelectionModal').modal('hide');
+            });
+
+            // Function to update total price based on selected rooms
+            function updateTotalPrice() {
+                let total = 0;
+                $('.room-item.selected').each(function () {
+                    const price = parseFloat($(this).data('price'));
+                    total += price;
+                });
+
+                // Format and display total
+                $('#roomTotalPrice').text(formatCurrency(total));
+
+                // Also update the main page total
+                $('.total-price .text-danger').text(formatCurrency(total));
+            }
+
+            // Load currently selected rooms from the table
+            function loadSelectedRooms() {
+                // Reset selected state
+                $('.room-item').removeClass('selected');
+
+                // Get currently selected rooms from the table
+                const currentRooms = [];
+                $('input[name^="Booking.Rooms"][name$=".RoomNumber"]').each(function () {
+                    currentRooms.push($(this).val());
+                });
+
+                // Mark rooms as selected in the modal
+                currentRooms.forEach(function (roomNumber) {
+                    $(`.room-item[data-room="${roomNumber}"]`).addClass('selected');
+                });
+            }
+
+            // Update the rooms table with selected rooms
+            function updateRoomsTable() {
+                // Get the table body
+                const tbody = $('.table-responsive tbody');
+
+                // Clear existing rooms except the first row (guest info)
+                tbody.find('tr:not(:first)').remove();
+
+                // Add selected rooms to the table
+                selectedRooms.forEach(function (room, index) {
+                    const newRow = `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>
+                                        ${room.roomNumber}
+                                        <input type="hidden" name="Booking.Rooms[${index}].RoomNumber" value="${room.roomNumber}" />
+                                        <input type="hidden" name="Booking.Rooms[${index}].RoomId" value="${room.id}" />
+                                    </td>
+                                    <td>
+                                        ${room.roomTypeName}
+                                        <input type="hidden" name="Booking.Rooms[${index}].RoomTypeName" value="${room.roomTypeName}" />
+                                    </td>
+                                    <td>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control form-control-sm" name="Booking.Rooms[${index}].NumberOfAdults" value="1" min="1" max="10" required>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fas fa-caret-down"></i></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control form-control-sm" name="Booking.Rooms[${index}].NumberOfChildrent" value="0" min="0" max="10" required>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fas fa-caret-down"></i></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger remove-room" data-room="${room.roomNumber}">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                    tbody.append(newRow);
+                });
+
+                // Update room count in the heading
+                $('h6:contains("Danh sách phòng")').text(`Danh sách phòng (${selectedRooms.length})`);
+
+                // Add click handler for remove buttons
+                $('.remove-room').on('click', function () {
+                    const roomNumber = $(this).data('room');
+                    removeRoom(roomNumber);
+                });
+            }
+
+            // Remove a room from the selection
+            function removeRoom(roomNumber) {
+                // Remove from selected rooms array
+                selectedRooms = selectedRooms.filter(room => room.roomNumber !== roomNumber);
+
+                // Update the table
+                updateRoomsTable();
+
+                // Update total price
+                updateTotalPrice();
+            }
+
+            // Format currency helper function
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount);
+            }
+
+            // Handle delete room button in the main table
+            $(document).on('click', '.btn-danger:has(.fa-trash-alt)', function () {
+                const row = $(this).closest('tr');
+                const roomNumber = row.find('input[name$=".RoomNumber"]').val();
+
+                // Remove the room
+                removeRoom(roomNumber);
+
+                // Update UI
+                row.remove();
+
+                // Update room count in heading
+                const roomCount = $('.table-responsive tbody tr').length - 1; // Subtract 1 for the guest info row
+                $('h6:contains("Danh sách phòng")').text(`Danh sách phòng (${roomCount})`);
+            });
+
+            // Handle check-in/check-out date changes to update room availability
+            $('input[name="Booking.EstCheckinTime"], input[name="Booking.EstCheckoutTime"]').change(function () {
+                // If modal is open, reload rooms with new dates
+                if ($('#roomSelectionModal').is(':visible')) {
+                    const checkIn = $('input[name="Booking.EstCheckinTime"]').val();
+                    const checkOut = $('input[name="Booking.EstCheckoutTime"]').val();
+                    loadRoomsFromApi(checkIn, checkOut);
+                }
+            });
+        });
+    </script>
+}

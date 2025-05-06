@@ -92,11 +92,14 @@ namespace HotelBooking.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("ArrivalDate")
+                    b.Property<DateTime?>("ActualCheckInTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("BookingDateTime")
+                    b.Property<DateTime?>("ActualCheckOutTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("BookingType")
+                        .HasColumnType("int");
 
                     b.Property<int>("ChangedBy")
                         .HasColumnType("int");
@@ -107,14 +110,11 @@ namespace HotelBooking.Data.Migrations
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("DepartureDate")
+                    b.Property<DateTime>("EstCheckinTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("EstimatedArrivalTime")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EstimatedDepartureTime")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("EstCheckoutTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("GuestId")
                         .HasColumnType("int");
@@ -122,20 +122,18 @@ namespace HotelBooking.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("NumberOfAdults")
                         .HasColumnType("int");
 
                     b.Property<int>("NumberOfChildren")
                         .HasColumnType("int");
 
-                    b.Property<int>("RoomId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SpecialRequirements")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -147,11 +145,47 @@ namespace HotelBooking.Data.Migrations
 
                     b.HasIndex("GuestId");
 
-                    b.HasIndex("RoomId");
-
                     b.HasIndex("UserModelId");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("HotelBooking.Data.Models.BookingRoom", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ChangedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("BookingRooms");
                 });
 
             modelBuilder.Entity("HotelBooking.Data.Models.BranchModel", b =>
@@ -200,6 +234,92 @@ namespace HotelBooking.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Branches");
+                });
+
+            modelBuilder.Entity("HotelBooking.Data.Models.GuestModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ChangedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("IdentityIssueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IdentityIssuePlace")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("IdentityNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Nationality")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Province")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Guests");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "N/A",
+                            ChangedBy = 0,
+                            CreatedBy = 0,
+                            Email = "anonymous@guest.local",
+                            FullName = "Khách lẻ",
+                            Gender = 2,
+                            IdentityNumber = "000000000",
+                            IsDeleted = false,
+                            Nationality = "Vietnamese",
+                            Phone = "0000000000"
+                        });
                 });
 
             modelBuilder.Entity("HotelBooking.Data.Models.JWTModel", b =>
@@ -804,15 +924,9 @@ namespace HotelBooking.Data.Migrations
 
             modelBuilder.Entity("HotelBooking.Data.Models.BookingModel", b =>
                 {
-                    b.HasOne("HotelBooking.Data.Models.UserModel", "Guest")
-                        .WithMany()
+                    b.HasOne("HotelBooking.Data.Models.GuestModel", "Guest")
+                        .WithMany("Bookings")
                         .HasForeignKey("GuestId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("HotelBooking.Domain.Entities.Room", "Room")
-                        .WithMany()
-                        .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
@@ -821,6 +935,23 @@ namespace HotelBooking.Data.Migrations
                         .HasForeignKey("UserModelId");
 
                     b.Navigation("Guest");
+                });
+
+            modelBuilder.Entity("HotelBooking.Data.Models.BookingRoom", b =>
+                {
+                    b.HasOne("HotelBooking.Data.Models.BookingModel", "Booking")
+                        .WithMany("BookingRooms")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HotelBooking.Domain.Entities.Room", "Room")
+                        .WithMany("BookingRooms")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
 
                     b.Navigation("Room");
                 });
@@ -956,9 +1087,19 @@ namespace HotelBooking.Data.Migrations
                     b.Navigation("RoomType");
                 });
 
+            modelBuilder.Entity("HotelBooking.Data.Models.BookingModel", b =>
+                {
+                    b.Navigation("BookingRooms");
+                });
+
             modelBuilder.Entity("HotelBooking.Data.Models.BranchModel", b =>
                 {
                     b.Navigation("Floors");
+                });
+
+            modelBuilder.Entity("HotelBooking.Data.Models.GuestModel", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 
             modelBuilder.Entity("HotelBooking.Data.Models.PermissionModel", b =>
@@ -996,6 +1137,11 @@ namespace HotelBooking.Data.Migrations
             modelBuilder.Entity("HotelBooking.Domain.Entities.Floor", b =>
                 {
                     b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.Entities.Room", b =>
+                {
+                    b.Navigation("BookingRooms");
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.Entities.RoomType", b =>

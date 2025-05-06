@@ -1,6 +1,5 @@
 using Asp.Versioning;
 using HotelBooking.Domain.DTOs.Branch;
-using HotelBooking.Domain.Filtering;
 using HotelBooking.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
