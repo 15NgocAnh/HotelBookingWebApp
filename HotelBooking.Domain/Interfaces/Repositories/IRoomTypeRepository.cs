@@ -1,8 +1,0 @@
-using HotelBooking.Domain.Entities;
-
-namespace HotelBooking.Domain.Interfaces.Repositories
-{
-    public interface IRoomTypeRepository : IGenericRepository<RoomType>
-    {
-    }
-}
