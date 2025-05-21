@@ -19,9 +19,6 @@ namespace HotelBooking.Web.Middleware
         {
             try
             {
-                // Check if user is authenticated
-                var isAuthenticated = context.User?.Identity?.IsAuthenticated ?? false;
-                
                 // Get the current path
                 var path = context.Request.Path.Value?.ToLower() ?? string.Empty;
                 
@@ -35,6 +32,9 @@ namespace HotelBooking.Web.Middleware
                     await _next(context);
                     return;
                 }
+
+                // Check if user is authenticated
+                var isAuthenticated = context.User?.Identity?.IsAuthenticated ?? false;
 
                 // Check JWT token
                 var token = context.Request.Cookies["JWT"];

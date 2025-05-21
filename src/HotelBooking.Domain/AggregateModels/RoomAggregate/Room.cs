@@ -1,6 +1,4 @@
-﻿using HotelBooking.Domain.Common;
-
-namespace HotelBooking.Domain.AggregateModels.RoomAggregate;
+﻿namespace HotelBooking.Domain.AggregateModels.RoomAggregate;
 
 public class Room(string name, int floorId, int roomTypeId) : BaseEntity, IAggregateRoot
 {

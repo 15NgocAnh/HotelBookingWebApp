@@ -1,5 +1,5 @@
 using AutoMapper;
-using HotelBooking.Application.CQRS.Booking.Commands;
+using HotelBooking.Application.CQRS.Booking.Commands.CreateBooking;
 using HotelBooking.Application.CQRS.Booking.DTOs;
 using HotelBooking.Domain.AggregateModels.BookingAggregate;
 

@@ -1,7 +1,7 @@
+using HotelBooking.Application.Common.Base;
 using HotelBooking.Application.Common.Models;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.ExtraItem.Commands
 {
-    public record DeleteExtraItemCommand(int Id) : IRequest<Result>;
+    public record DeleteExtraItemCommand(int Id) : ICommand<Result>;
 } 

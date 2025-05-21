@@ -24,7 +24,8 @@ namespace HotelBooking.Application.CQRS.Role.Commands.CreateRole
 
         public async Task<Result<int>> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
         {
-            if (await _roleRepository.IsNameUniqueAsync(request.Name))
+            var isUniqueName = await _roleRepository.IsNameUniqueAsync(request.Name);
+            if (!isUniqueName)
             {
                 return Result<int>.Failure("Role name already exists");
             }

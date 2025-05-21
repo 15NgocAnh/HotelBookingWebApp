@@ -1,6 +1,4 @@
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Application.CQRS.User.DTOs;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.User.Queries.GetUserById
 {

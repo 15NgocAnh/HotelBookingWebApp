@@ -2,10 +2,6 @@ using HotelBooking.API.Extensions;
 using HotelBooking.API.Middleware;
 using HotelBooking.Infrastructure.Config;
 using HotelBooking.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 /// <summary>
 /// Entry point for the Hotel Booking API application.
@@ -15,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure application settings
 builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("ConnectionStrings"));
-builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("AppSettings"));
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
 // Configure database
@@ -25,7 +21,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add services
 builder.Services
-    .AddApiVersioningConfig()
     .AddSwaggerConfig()
     .AddJwtAuthentication(builder.Configuration)
     .AddCorsConfig()
@@ -33,24 +28,35 @@ builder.Services
     .AddAuthorizationConfig()
     .AddApplicationServices();
 
-// Add JWT Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-        };
-    });
-
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next.Invoke();
+    }
+    catch (FluentValidation.ValidationException ex)
+    {
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        context.Response.ContentType = "application/json";
+
+        var errors = ex.Errors
+            .GroupBy(e => e.PropertyName)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(e => e.ErrorMessage).Distinct().ToArray()
+            );
+
+        var result = new
+        {
+            status = 400,
+            errors
+        };
+
+        await context.Response.WriteAsJsonAsync(result);
+    }
+});
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
@@ -58,18 +64,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerConfig();
 }
 
-app.UseMiddleware<ExceptionHandlerMiddleware>();
-app.UseMiddleware<ValidationExceptionHandlerMiddleware>();
-app.UseMiddleware<ExpiredTokenMiddleware>();
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseCorsConfig();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseResponseCaching();
 app.MapControllers();
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
+app.UseMiddleware<ValidationExceptionHandlerMiddleware>();
+app.UseMiddleware<ExpiredTokenMiddleware>();
+app.UseMiddleware<RefreshTokenMiddleware>();
 
 app.Run();

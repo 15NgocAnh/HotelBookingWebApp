@@ -1,18 +1,29 @@
 ﻿using HotelBooking.Application.CQRS.Building.Commands;
 using HotelBooking.Application.CQRS.Building.Queries;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HotelBooking.API.Controllers
 {
     [Authorize]
-    [ApiController]
-    [Route("api/[controller]")]
     public class BuildingController : BaseController
     {
         public BuildingController(IMediator mediator) : base(mediator)
         {
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var query = new GetAllBuildingsQuery();
+            var result = await _mediator.Send(query);
+            return HandleResult(result);
+        }
+
+        [HttpGet("floor/{buildingId}")]
+        public async Task<IActionResult> GetAllFloorsByBuildingId(int buildingId)
+        {
+            var query = new GetAllFloorsByBuildingIdQuery(buildingId);
+            var result = await _mediator.Send(query);
+            return HandleResult(result);
         }
 
         [HttpGet("{id}")]

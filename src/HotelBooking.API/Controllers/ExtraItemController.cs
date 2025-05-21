@@ -1,18 +1,22 @@
-﻿using HotelBooking.Application.CQRS.ExtraItem.Commands;
+﻿using HotelBooking.Application.CQRS.ExtraCategory.Queries;
+using HotelBooking.Application.CQRS.ExtraItem.Commands;
 using HotelBooking.Application.CQRS.ExtraItem.Queries;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HotelBooking.API.Controllers
 {
     [Authorize]
-    [ApiController]
-    [Route("api/[controller]")]
     public class ExtraItemController : BaseController
     {
         public ExtraItemController(IMediator mediator) : base(mediator)
         {
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var query = new GetAllExtraItemsQuery();
+            var result = await _mediator.Send(query);
+            return HandleResult(result);
         }
 
         [HttpGet("{id}")]

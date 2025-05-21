@@ -3,13 +3,10 @@ using HotelBooking.Application.CQRS.Role.Commands.DeleteRole;
 using HotelBooking.Application.CQRS.Role.Commands.UpdateRole;
 using HotelBooking.Application.CQRS.Role.Queries.GetAllRoles;
 using HotelBooking.Application.CQRS.Role.Queries.GetRoleById;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HotelBooking.API.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "SuperAdmin")]
     public class RoleController : BaseController
     {
         public RoleController(IMediator mediator) : base(mediator)

@@ -1,16 +1,14 @@
+using HotelBooking.Application.CQRS.User.Commands.ChangePassword;
 using HotelBooking.Application.CQRS.User.Commands.CreateUser;
 using HotelBooking.Application.CQRS.User.Commands.DeleteUser;
+using HotelBooking.Application.CQRS.User.Commands.UpdateProfile;
 using HotelBooking.Application.CQRS.User.Commands.UpdateUser;
+using HotelBooking.Application.CQRS.User.DTOs;
 using HotelBooking.Application.CQRS.User.Queries.GetAllUsers;
 using HotelBooking.Application.CQRS.User.Queries.GetUserById;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HotelBooking.API.Controllers
 {
-    [Authorize]
-    [Authorize(Roles = "Admin")]
     public class UserController : BaseController
     {
         public UserController(IMediator mediator) : base(mediator)
@@ -18,7 +16,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Create([FromBody] CreateUserCommand command)
         {
             var result = await _mediator.Send(command);
@@ -26,7 +24,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserCommand command)
         {
             if (id != command.Id)
@@ -37,7 +35,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Delete(int id)
         {
             var command = new DeleteUserCommand { Id = id };
@@ -54,10 +52,47 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAll([FromQuery] GetAllUsersQuery query)
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> GetAll()
         {
+            var query = new GetAllUsersQuery();
             var result = await _mediator.Send(query);
+            return HandleResult(result);
+        }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto profile)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return BadRequest("Unauthoried");
+            }
+            var command = new UpdateProfileCommand
+            {
+                UserId = int.Parse(userId),
+                Profile = profile
+            };
+
+            var result = await _mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto password)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return BadRequest("Unauthoried");
+            }
+            var command = new ChangePasswordCommand
+            {
+                UserId = int.Parse(userId),
+                Password = password
+            };
+
+            var result = await _mediator.Send(command);
             return HandleResult(result);
         }
     }

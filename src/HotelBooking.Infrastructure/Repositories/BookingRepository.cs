@@ -1,20 +1,12 @@
-﻿using AutoMapper;
-using HotelBooking.Domain.AggregateModels.BookingAggregate;
-using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using HotelBooking.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using HotelBooking.Domain.AggregateModels.BookingAggregate;
 
 namespace HotelBooking.Infrastructure.Repositories;
 
 public class BookingRepository : GenericRepository<Booking>, IBookingRepository
 {
-    private readonly AppDbContext _context;
-
-    public BookingRepository(AppDbContext context, IMapper mapper, IUnitOfWork unitOfWork) 
-        : base(context, mapper, unitOfWork)
+    public BookingRepository(AppDbContext context, IUnitOfWork unitOfWork) 
+        : base(context, unitOfWork)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     public async Task<List<Booking>> GetBookingsByCustomerIdAsync(string citizenIdNumber)

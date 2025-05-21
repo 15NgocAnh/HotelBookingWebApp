@@ -1,6 +1,4 @@
-﻿using HotelBooking.Domain.Common;
-
-namespace HotelBooking.Domain.AggregateModels.BuildingAggregate;
+﻿namespace HotelBooking.Domain.AggregateModels.BuildingAggregate;
 public class Building : BaseEntity, IAggregateRoot
 {
     public int HotelId { get; private init; }
@@ -11,7 +9,6 @@ public class Building : BaseEntity, IAggregateRoot
 
     public Building()
     {
-        
     }
 
     public Building(int hotelId, string name, int totalFloors)
@@ -32,18 +29,23 @@ public class Building : BaseEntity, IAggregateRoot
     public void Update(string name, int totalFloors)
     {
         Name = name;
-        if (totalFloors > _floors.Count)
+        
+        // If total floors is less than current floors, remove excess floors
+        if (totalFloors < _floors.Count)
+        {
+            _floors.RemoveRange(totalFloors, _floors.Count - totalFloors);
+        }
+        // If total floors is more than current floors, add new floors
+        else if (totalFloors > _floors.Count)
         {
             var newFloors = AddFloors(totalFloors - _floors.Count);
             _floors.AddRange(newFloors);
         }
-        else if (totalFloors < _floors.Count)
+        
+        // Update floor names to ensure consistency
+        for (int i = 0; i < _floors.Count; i++)
         {
-            var floorsToRemove = _floors.Skip(totalFloors).ToList();
-            foreach (var floor in floorsToRemove)
-            {
-                _floors.Remove(floor);
-            }
+            _floors[i].Update($"Floor {i + 1}");
         }
     }
 }

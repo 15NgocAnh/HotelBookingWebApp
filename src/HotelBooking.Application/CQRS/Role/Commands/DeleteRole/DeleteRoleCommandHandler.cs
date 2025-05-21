@@ -28,7 +28,7 @@ namespace HotelBooking.Application.CQRS.Role.Commands.DeleteRole
 
             // Check if role is assigned to any users
             var usersWithRole = await _roleRepository.GetRolesByUserIdAsync(request.Id);
-            if (usersWithRole.Any())
+            if (usersWithRole != null)
             {
                 return Result.Failure("Cannot delete role that is assigned to users");
             }

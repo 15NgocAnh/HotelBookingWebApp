@@ -10,15 +10,17 @@ using HotelBooking.Domain.AggregateModels.RoomAggregate;
 using HotelBooking.Domain.AggregateModels.RoomTypeAggregate;
 using HotelBooking.Domain.AggregateModels.UserAggregate;
 using HotelBooking.Domain.Common;
+using Infrastructure.Data.Configurations;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Reflection;
 using System.Security.Claims;
 
 namespace HotelBooking.Infrastructure.Data;
 
-public class AppDbContext : DbContext, IUnitOfWork
+public class AppDbContext : DbContext
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
@@ -36,7 +38,7 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<RoomType> RoomTypes { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
+    public DbSet<UserHotel> UserHotels { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
@@ -58,28 +60,31 @@ public class AppDbContext : DbContext, IUnitOfWork
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());        
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(BuildingConfiguration).Assembly);
 
+        // Configure owned entities
         modelBuilder.Entity<Booking>().OwnsMany(b => b.ExtraUsages);
         modelBuilder.Entity<Booking>().OwnsMany(b => b.Guests);
         modelBuilder.Entity<Invoice>().OwnsMany(b => b.Items);
         modelBuilder.Entity<RoomType>().OwnsMany(b => b.AmenitySetupDetails);
-        modelBuilder.Entity<RoomType>().OwnsMany(b => b.BedTypeSetupDetails); 
-        
-        modelBuilder.Entity<UserRole>(builder =>
-        {
-            builder.HasOne(ur => ur.User)
-                .WithMany(u => u.UserRoles)
-                .HasForeignKey(ur => ur.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<RoomType>().OwnsMany(b => b.BedTypeSetupDetails);
+        //modelBuilder.Entity<Building>().OwnsMany(b => b.Floors);
+        modelBuilder.Entity<Booking>().OwnsMany(b => b.Payments);
+        modelBuilder.Entity<Invoice>().OwnsMany(b => b.Payments);
 
-            builder.HasOne(ur => ur.Role)
-                .WithMany(r => r.UserRoles)
-                .HasForeignKey(ur => ur.RoleId)
-                .OnDelete(DeleteBehavior.Cascade);
+        // Configure value converters for enums
+        modelBuilder.Entity<Booking>()
+            .Property(b => b.Status)
+            .HasConversion(new EnumToStringConverter<BookingStatus>());
 
-            builder.ToTable("UserRoles");
-        });
+        modelBuilder.Entity<Invoice>()
+            .Property(i => i.Status)
+            .HasConversion(new EnumToStringConverter<InvoiceStatus>());
+
+        modelBuilder.Entity<Room>()
+            .Property(r => r.Status)
+            .HasConversion(new EnumToStringConverter<RoomStatus>());
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -124,10 +129,5 @@ public class AppDbContext : DbContext, IUnitOfWork
             .ToList();
 
         await _domainEventDispatcher.DispatchAndClearEvents(domainEntities);
-    }
-
-    public Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
     }
 }

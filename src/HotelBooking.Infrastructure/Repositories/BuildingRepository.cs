@@ -1,20 +1,13 @@
-﻿using AutoMapper;
+﻿using HotelBooking.Application.CQRS.Building.DTOs;
 using HotelBooking.Domain.AggregateModels.BuildingAggregate;
-using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using HotelBooking.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Infrastructure.Repositories;
 
 public class BuildingRepository : GenericRepository<Building>, IBuildingRepository
 {
-    private readonly AppDbContext _context;
-
-    public BuildingRepository(AppDbContext context, IMapper mapper, IUnitOfWork unitOfWork) 
-        : base(context, mapper, unitOfWork)
+    public BuildingRepository(AppDbContext context, IUnitOfWork unitOfWork) 
+        : base(context, unitOfWork)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     public override async Task<IEnumerable<Building>> GetAllAsync()
@@ -30,7 +23,6 @@ public class BuildingRepository : GenericRepository<Building>, IBuildingReposito
     {
         return await _context.Set<Building>()
             .Include(b => b.Floors)
-            .AsNoTracking()
             .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
     }
 
@@ -45,7 +37,7 @@ public class BuildingRepository : GenericRepository<Building>, IBuildingReposito
     public async Task<bool> IsNameUniqueInHotelAsync(int hotelId, string name)
     {
         return !await _context.Set<Building>()
-            .AnyAsync(b => b.HotelId == hotelId && b.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase));
+            .AnyAsync(b => b.HotelId == hotelId && b.Name == name);
     }
 
     public async Task DeleteAsync(int id)
@@ -56,5 +48,12 @@ public class BuildingRepository : GenericRepository<Building>, IBuildingReposito
             _context.Buildings.Remove(building);
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task<IEnumerable<Floor>> GetAllFloorsByBuildingIdAsync(int buildingId)
+    {
+        return await _context.Buildings
+                .SelectMany(b => b.Floors.Select(f => new Floor(f.Number, f.Name)))
+                .ToListAsync();
     }
 }

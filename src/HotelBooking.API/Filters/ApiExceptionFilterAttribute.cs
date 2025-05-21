@@ -1,6 +1,5 @@
-using HotelBooking.Application.Common.Exceptions;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using ValidationException = HotelBooking.Application.Common.Exceptions.ValidationException;
 
 namespace HotelBooking.API.Filters;
 
@@ -30,10 +29,10 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 
     private void HandleException(ExceptionContext context)
     {
-        Type type = context.Exception.GetType();
-        if (_exceptionHandlers.ContainsKey(type))
+        var type = context.Exception.GetType();
+        if (_exceptionHandlers.TryGetValue(type, out var handler))
         {
-            _exceptionHandlers[type].Invoke(context);
+            handler.Invoke(context);
             return;
         }
 
@@ -44,12 +43,21 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
         var exception = (ValidationException)context.Exception;
 
-        var details = new ValidationProblemDetails(exception.Errors)
+        var errors = exception.Errors
+            .SelectMany(kvp => kvp.Value.Select(msg => new
+            {
+                field = kvp.Key,
+                message = msg
+            }))
+            .ToList();
+
+        var result = new
         {
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
+            status = StatusCodes.Status400BadRequest,
+            messages = errors
         };
 
-        context.Result = new BadRequestObjectResult(details);
+        context.Result = new BadRequestObjectResult(result);
         context.ExceptionHandled = true;
     }
 
@@ -57,64 +65,75 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
         var exception = (NotFoundException)context.Exception;
 
-        var details = new ProblemDetails()
+        var result = new
         {
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-            Title = "The specified resource was not found.",
-            Detail = exception.Message
+            status = StatusCodes.Status404NotFound,
+            messages = new[]
+            {
+                new { field = "", message = exception.Message }
+            }
         };
 
-        context.Result = new NotFoundObjectResult(details);
+        context.Result = new NotFoundObjectResult(result);
         context.ExceptionHandled = true;
     }
 
     private void HandleUnauthorizedAccessException(ExceptionContext context)
     {
-        var details = new ProblemDetails
+        var result = new
         {
-            Status = StatusCodes.Status401Unauthorized,
-            Title = "Unauthorized",
-            Type = "https://tools.ietf.org/html/rfc7235#section-3.1"
+            status = (int)HttpStatusCode.Unauthorized,
+            messages = new[]
+            {
+                new { field = "", message = "Unauthorized access." }
+            }
         };
 
-        context.Result = new ObjectResult(details)
+        context.Result = new ObjectResult(result)
         {
-            StatusCode = StatusCodes.Status401Unauthorized
+            StatusCode = (int)HttpStatusCode.Unauthorized
         };
+
         context.ExceptionHandled = true;
     }
 
     private void HandleForbiddenAccessException(ExceptionContext context)
     {
-        var details = new ProblemDetails
+        var result = new
         {
-            Status = StatusCodes.Status403Forbidden,
-            Title = "Forbidden",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
+            status = (int)HttpStatusCode.Forbidden,
+            messages = new[]
+            {
+                new { field = "", message = "You do not have permission to access this resource." }
+            }
         };
 
-        context.Result = new ObjectResult(details)
+        context.Result = new ObjectResult(result)
         {
-            StatusCode = StatusCodes.Status403Forbidden
+            StatusCode = (int)HttpStatusCode.Forbidden
         };
+
         context.ExceptionHandled = true;
     }
 
     private void HandleUnknownException(ExceptionContext context)
     {
-        _logger.LogError(context.Exception, "An unhandled exception has occurred");
-        
-        var details = new ProblemDetails
+        _logger.LogError(context.Exception, "An unhandled exception occurred");
+
+        var result = new
         {
-            Status = StatusCodes.Status500InternalServerError,
-            Title = "An error occurred while processing your request.",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1"
+            status = (int)HttpStatusCode.InternalServerError,
+            messages = new[]
+            {
+                new { field = "", message = "An unexpected error occurred. Please try again later." }
+            }
         };
 
-        context.Result = new ObjectResult(details)
+        context.Result = new ObjectResult(result)
         {
-            StatusCode = StatusCodes.Status500InternalServerError
+            StatusCode = (int)HttpStatusCode.InternalServerError
         };
+
         context.ExceptionHandled = true;
     }
 } 

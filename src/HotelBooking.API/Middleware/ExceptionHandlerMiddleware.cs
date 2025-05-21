@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-
+﻿using Newtonsoft.Json;
 
 namespace HotelBooking.API.Middleware
 {
@@ -70,7 +68,7 @@ namespace HotelBooking.API.Middleware
             context.Response.ContentType = "application/json";
             var response = new
             {
-                status_code = status_code,
+                status_code,
                 message = msg
             };
             var jsonResponse = JsonConvert.SerializeObject(response);

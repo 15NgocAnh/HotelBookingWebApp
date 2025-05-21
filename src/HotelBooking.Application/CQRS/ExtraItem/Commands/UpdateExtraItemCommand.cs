@@ -1,9 +1,9 @@
+using HotelBooking.Application.Common.Base;
 using HotelBooking.Application.Common.Models;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.ExtraItem.Commands
 {
-    public record UpdateExtraItemCommand : IRequest<Result>
+    public record UpdateExtraItemCommand : ICommand<Result>
     {
         public int Id { get; init; }
         public int ExtraCategoryId { get; init; }

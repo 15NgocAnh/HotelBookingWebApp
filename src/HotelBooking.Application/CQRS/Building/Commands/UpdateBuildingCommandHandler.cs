@@ -1,16 +1,16 @@
-using HotelBooking.Application.Common.Models;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
+using HotelBooking.Domain.Common;
 
 namespace HotelBooking.Application.CQRS.Building.Commands
 {
     public class UpdateBuildingCommandHandler : IRequestHandler<UpdateBuildingCommand, Result>
     {
         private readonly IBuildingRepository _buildingRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateBuildingCommandHandler(IBuildingRepository buildingRepository)
+        public UpdateBuildingCommandHandler(IBuildingRepository buildingRepository, IUnitOfWork unitOfWork)
         {
             _buildingRepository = buildingRepository ?? throw new ArgumentNullException(nameof(buildingRepository));
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result> Handle(UpdateBuildingCommand request, CancellationToken cancellationToken)
@@ -43,9 +43,9 @@ namespace HotelBooking.Application.CQRS.Building.Commands
                 
                 // Update building properties
                 building.Update(request.Name, request.TotalFloors);
-                
+
                 // Save changes
-                await _buildingRepository.UpdateAsync(building);
+                await _unitOfWork.SaveEntitiesAsync();
                 
                 return Result.Success();
             }

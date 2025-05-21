@@ -1,40 +1,54 @@
-using HotelBooking.Domain.Constant;
-using HotelBooking.Domain.DTOs.Role;
-using HotelBooking.Web.Pages.Abstract;
+using HotelBooking.Application.CQRS.Role.DTOs;
+using HotelBooking.Application.Common.Models;
+using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HotelBooking.Web.Pages.Roles
 {
-    [Authorize(Roles = CJConstant.ADMIN)]
-    public class DetailModel : AbstractPageModel
+    [Authorize(Roles = "SuperAdmin")]
+    public class DetailModel : PageModel
     {
-        public DetailModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
-            : base(configuration, httpClientFactory, httpContextAccessor)
+        private readonly IApiService _apiService;
+        private readonly ILogger<DetailModel> _logger;
+
+        public DetailModel(IApiService apiService, ILogger<DetailModel> logger)
         {
+            _apiService = apiService;
+            _logger = logger;
         }
 
-        public RoleDto Role { get; set; }
-        public Dictionary<string, List<PermissionDto>> GroupedPermissions { get; set; } = new();
+        public RoleDto Role { get; set; } = new();
+        public string? ErrorMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int id)
+        public async Task<IActionResult> OnGetAsync(string id)
         {
-            var roleResponse = await GetAsync<RoleDto>($"api/v1/roles/{id}");
-            if (roleResponse == null)
+            try
             {
-                TempData["ErrorMessage"] = "Không tìm thấy nhóm quyền.";
-                return RedirectToPage("Index");
-            }
+                var result = await _apiService.GetAsync<RoleDto>($"api/role/{id}");
+                if (result == null)
+                {
+                    return NotFound();
+                }
 
-            Role = roleResponse;
-            if (Role.Permissions != null)
+                if (result.IsSuccess && result.Data != null)
+                {
+                    Role = result.Data;
+                    return Page();
+                }
+                else
+                {
+                    ErrorMessage = result.Messages.FirstOrDefault()?.Message ?? "Failed to fetch role details.";
+                    return Page();
+                }
+            }
+            catch (Exception ex)
             {
-                GroupedPermissions = Role.Permissions
-                    .GroupBy(p => p.Module)
-                    .ToDictionary(g => g.Key, g => g.ToList());
+                _logger.LogError(ex, "Error fetching role details");
+                ErrorMessage = "An error occurred while fetching role details.";
+                return Page();
             }
-
-            return Page();
         }
     }
 } 

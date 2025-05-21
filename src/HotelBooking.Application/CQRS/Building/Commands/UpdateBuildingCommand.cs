@@ -1,9 +1,9 @@
+using HotelBooking.Application.Common.Base;
 using HotelBooking.Application.Common.Models;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.Building.Commands
 {
-    public record UpdateBuildingCommand : IRequest<Result>
+    public record UpdateBuildingCommand : ICommand<Result>
     {
         public int Id { get; init; }
         public int HotelId { get; init; }

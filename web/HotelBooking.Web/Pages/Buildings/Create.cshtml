@@ -1,0 +1,70 @@
+@page
+@model HotelBooking.Web.Pages.Buildings.CreateModel
+@{
+    ViewData["Title"] = "Create Building";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h4 class="mb-0 text-primary">
+                        <i class="fas fa-plus me-2"></i>Create New Building
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="HotelId" class="control-label">Hotel</label>
+                    <select asp-for="HotelId" class="form-control">
+                        @foreach (var hotel in Model.Hotels)
+                        {
+                            <option value="@hotel.Id">@hotel.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="HotelId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Name" class="control-label">Name</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="TotalFloors" class="control-label">Total Floors</label>
+                    <input type="number" min="1" asp-for="TotalFloors" class="form-control" rows="3" />
+                    <span asp-validation-for="TotalFloors" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Create
+                    </button>
+                    <a asp-page="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+} 

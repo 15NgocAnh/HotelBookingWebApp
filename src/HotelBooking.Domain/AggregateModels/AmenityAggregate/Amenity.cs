@@ -1,5 +1,3 @@
-using HotelBooking.Domain.Common;
-
 namespace HotelBooking.Domain.AggregateModels.AmenityAggregate;
 
 public class Amenity(string name) : BaseEntity, IAggregateRoot

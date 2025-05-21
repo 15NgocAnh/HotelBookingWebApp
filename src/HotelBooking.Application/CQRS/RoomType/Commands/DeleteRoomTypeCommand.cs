@@ -1,7 +1,7 @@
+using HotelBooking.Application.Common.Base;
 using HotelBooking.Application.Common.Models;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.RoomType.Commands
 {
-    public record DeleteRoomTypeCommand(int Id) : IRequest<Result>;
+    public record DeleteRoomTypeCommand(int Id) : ICommand<Result>;
 } 

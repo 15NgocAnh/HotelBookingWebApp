@@ -1,24 +1,15 @@
-﻿using AutoMapper;
-using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using HotelBooking.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-
-namespace HotelBooking.Infrastructure.Repositories
+﻿namespace HotelBooking.Infrastructure.Repositories
 {
-    public abstract class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         protected readonly AppDbContext _context;
-        protected readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
         public IUnitOfWork UnitOfWork => throw new NotImplementedException();
 
-        protected GenericRepository(AppDbContext context, IMapper mapper, IUnitOfWork unitOfWork)
+        protected GenericRepository(AppDbContext context, IUnitOfWork unitOfWork)
         {
             _context = context;
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
 

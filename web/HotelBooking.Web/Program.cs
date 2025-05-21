@@ -1,27 +1,16 @@
-﻿using HotelBooking.Domain.Authentication;
-using HotelBooking.Domain.AutoMapper;
-using HotelBooking.Domain.DTOs.Authentication;
-using HotelBooking.Domain.Encryption;
-using HotelBooking.Web.Middleware;
+﻿using HotelBooking.Web.Middleware;
+using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net.Http.Headers;
-using static HotelBooking.Web.Pages.Abstract.AbstractPageModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container BEFORE building the app
 builder.Services.AddRazorPages();
 
-// Add Password Hasher
-builder.Services.AddScoped<IPasswordHasher, Bcrypt>();
-
-// Add AutoMapper
-builder.Services.AddAutoMapper(cfg =>
-{
-    var serviceProvider = builder.Services.BuildServiceProvider();
-    var passwordHasher = serviceProvider.GetRequiredService<IPasswordHasher>();
-    cfg.AddProfile(new MappingProfile(passwordHasher));
-});
+// Add ApiService
+builder.Services.AddScoped<IApiService, ApiService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddDistributedMemoryCache(); // Lưu trữ session trên RAM
 builder.Services.AddSession(options =>
@@ -79,43 +68,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Check token còn hạn không, nếu hết thì gọi API refresh token
-app.Use(async (context, next) =>
-{
-    var token = context.Request.Cookies["JWT"];
-    var refreshToken = context.Request.Cookies["RefreshToken"];
-
-    if (!string.IsNullOrEmpty(token) && JWTHelper.JwtExpired(token) && !string.IsNullOrEmpty(refreshToken))
-    {
-        using var scope = app.Services.CreateScope();
-        var httpClient = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("BackendApi");
-
-        var response = await httpClient.PostAsJsonAsync("api/v1/auth/refresh", new { Token = refreshToken });
-
-        if (response.IsSuccessStatusCode)
-        {
-            var apiResponse = await response.Content.ReadFromJsonAsync<TokenDTO>();
-            var newToken = apiResponse;
-            context.Response.Cookies.Append("JWT", newToken.Token, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddMinutes(30)
-            });
-        }
-        else
-        {
-            // Refresh token không hợp lệ -> Chuyển hướng về trang đăng nhập
-            context.Response.Cookies.Delete("JWT");
-            context.Response.Cookies.Delete("RefreshToken");
-            context.Response.Redirect("/Account/Login");
-            return;
-        }
-    }
-
-    await next();
-});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

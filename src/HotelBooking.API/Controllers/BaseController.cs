@@ -1,6 +1,4 @@
 ﻿using HotelBooking.Application.Common.Models;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HotelBooking.API.Controllers
 {

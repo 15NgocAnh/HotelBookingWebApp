@@ -1,8 +1,8 @@
-﻿using HotelBooking.Application.CQRS.BedType.Commands;
-using HotelBooking.Application.CQRS.BedType.Queries;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using HotelBooking.Application.CQRS.BedType.Commands.CreateBedType;
+using HotelBooking.Application.CQRS.BedType.Commands.DeleteBedType;
+using HotelBooking.Application.CQRS.BedType.Commands.UpdateBedType;
+using HotelBooking.Application.CQRS.BedType.Queries.GetAllBedTypes;
+using HotelBooking.Application.CQRS.BedType.Queries.GetBedTypeById;
 
 namespace HotelBooking.API.Controllers
 {

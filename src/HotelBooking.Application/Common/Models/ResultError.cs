@@ -1,18 +1,27 @@
-﻿namespace HotelBooking.Application.Common.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace HotelBooking.Application.Common.Models;
 
 public class ResultError
 {
-    public string Identifier { get; init; } = "GeneralErrors";
-    public string ErrorMessage { get; init; }
+    [JsonPropertyName("field")]
+    public string Field { get; set; }
+
+    [JsonPropertyName("message")]
+    public string Message { get; set; }
+
+    public ResultError()
+    {
+    }
 
     public ResultError(string errorMessage)
     {
-        ErrorMessage = errorMessage;
+        Message = errorMessage;
     }
 
-    public ResultError(string identifier, string errorMessage)
+    public ResultError(string field, string errorMessage)
     {
-        Identifier = identifier;
-        ErrorMessage = errorMessage;
+        Field = field;
+        Message = errorMessage;
     }
 }

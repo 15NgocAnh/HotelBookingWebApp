@@ -1,4 +1,3 @@
-using HotelBooking.Domain.Common;
 using HotelBooking.Infrastructure.Extensions;
 using MediatR;
 

@@ -1,0 +1,76 @@
+@page "{id:int}"
+@model HotelBooking.Web.Pages.Hotels.EditModel
+@{
+    ViewData["Title"] = "Edit Hotel";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h4 class="mb-0 text-primary">
+                        <i class="fas fa-edit me-2"></i>Edit Hotel
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Hotel.Id" />
+                
+                <div class="form-group mb-3">
+                    <label asp-for="Hotel.Name" class="control-label">Name</label>
+                    <input asp-for="Hotel.Name" class="form-control" />
+                    <span asp-validation-for="Hotel.Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Hotel.Address" class="control-label">Address</label>
+                    <input asp-for="Hotel.Address" class="form-control" />
+                    <span asp-validation-for="Hotel.Address" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Hotel.Phone" class="control-label">Phone</label>
+                    <input asp-for="Hotel.Phone" class="form-control" />
+                    <span asp-validation-for="Hotel.Phone" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Hotel.Email" class="control-label">Email</label>
+                    <input asp-for="Hotel.Email" class="form-control" type="email" />
+                    <span asp-validation-for="Hotel.Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Hotel.Description" class="control-label">Description</label>
+                    <textarea asp-for="Hotel.Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Hotel.Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Save
+                    </button>
+                    <a asp-page="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

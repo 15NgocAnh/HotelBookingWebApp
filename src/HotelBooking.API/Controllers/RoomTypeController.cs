@@ -1,14 +1,9 @@
 using HotelBooking.Application.CQRS.RoomType.Commands;
 using HotelBooking.Application.CQRS.RoomType.Queries;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HotelBooking.API.Controllers
 {
     [Authorize]
-    [ApiController]
-    [Route("api/[controller]")]
     public class RoomTypeController : BaseController
     {
         public RoomTypeController(IMediator mediator) : base(mediator)
@@ -32,7 +27,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Create(CreateRoomTypeCommand command)
         {
             var result = await _mediator.Send(command);
@@ -40,7 +35,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Update(int id, UpdateRoomTypeCommand command)
         {
             if (id != command.Id)
@@ -52,7 +47,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Delete(int id)
         {
             var command = new DeleteRoomTypeCommand(id);

@@ -1,0 +1,52 @@
+@page "{id:int}"
+@model HotelBooking.Web.Pages.BedTypes.EditModel
+@{
+    ViewData["Title"] = "Edit Bed Type";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h4 class="mb-0 text-primary">
+                        <i class="fas fa-edit me-2"></i>Edit Bed Type
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="BedType.Id" />
+                
+                <div class="form-group mb-3">
+                    <label asp-for="BedType.Name" class="control-label">Name</label>
+                    <input asp-for="BedType.Name" class="form-control" />
+                    <span asp-validation-for="BedType.Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Save
+                    </button>
+                    <a asp-page="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

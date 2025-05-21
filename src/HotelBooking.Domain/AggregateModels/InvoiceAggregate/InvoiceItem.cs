@@ -5,7 +5,7 @@ namespace HotelBooking.Domain.AggregateModels.InvoiceAggregate
 {
     public class InvoiceItem : ValueObject
     {
-        public string Description { get; private init; }
+        public string? Description { get; private init; }
         public int Quantity { get; private init; }
         public decimal UnitPrice { get; private init; }
         public decimal TotalPrice { get; private init; }

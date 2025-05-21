@@ -1,25 +1,12 @@
-﻿using AutoMapper;
-using HotelBooking.Domain.AggregateModels.UserAggregate;
-using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using HotelBooking.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using HotelBooking.Domain.AggregateModels.UserAggregate;
 
 namespace HotelBooking.Infrastructure.Repositories
 {
     public class RoleRepository : GenericRepository<Role>, IRoleRepository
     {
-        private readonly AppDbContext _context;
-
-        public RoleRepository(AppDbContext context, IMapper mapper, IUnitOfWork unitOfWork) 
-            : base(context, mapper, unitOfWork)
+        public RoleRepository(AppDbContext context, IUnitOfWork unitOfWork) 
+            : base(context, unitOfWork)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-        }
-
-        public Task<bool> AssignRoleToUserAsync(int userId, int roleId)
-        {
-            throw new NotImplementedException();
         }
 
         public override async Task<IEnumerable<Role>> GetAllAsync()
@@ -35,26 +22,23 @@ namespace HotelBooking.Infrastructure.Repositories
                 .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
         }
 
-        public async Task<Role?> GetByNameAsync(string name)
+        public async Task<Role> GetRolesByUserIdAsync(int userId)
         {
-            return await _context.Set<Role>()
-                .FirstOrDefaultAsync(r => r.Name == name && !r.IsDeleted);
-        }
+            var sql = @"
+                    SELECT r.* 
+                    FROM Roles r
+                    JOIN Users u ON r.Id = u.RoleId
+                    WHERE u.Id = {0} AND r.IsDeleted = 0";
 
-        public Task<IEnumerable<Role>> GetRolesByUserIdAsync(int userId)
-        {
-            throw new NotImplementedException();
+            return await _context.Roles
+                .FromSqlRaw(sql, userId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<bool> IsNameUniqueAsync(string name)
         {
             return !await _context.Set<Role>()
                 .AnyAsync(r => r.Name == name && !r.IsDeleted);
-        }
-
-        public Task<bool> RemoveRoleFromUserAsync(int userId, int roleId)
-        {
-            throw new NotImplementedException();
         }
     }
 }

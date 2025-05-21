@@ -1,14 +1,9 @@
 ﻿using HotelBooking.Application.CQRS.ExtraCategory.Commands;
 using HotelBooking.Application.CQRS.ExtraCategory.Queries;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HotelBooking.API.Controllers
 {
     [Authorize]
-    [ApiController]
-    [Route("api/[controller]")]
     public class ExtraCategoryController : BaseController
     {
         public ExtraCategoryController(IMediator mediator) : base(mediator)

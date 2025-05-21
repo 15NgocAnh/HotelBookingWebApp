@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HotelBooking.Domain.AggregateModels.UserAggregate;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Infrastructure.Data
 {

@@ -1,76 +1,122 @@
-using HotelBooking.Domain.Constant;
-using HotelBooking.Domain.DTOs.Branch;
-using HotelBooking.Domain.DTOs.Floor;
-using HotelBooking.Domain.DTOs.Room;
-using HotelBooking.Domain.DTOs.RoomType;
-using HotelBooking.Web.Pages.Abstract;
-using Microsoft.AspNetCore.Authorization;
+using HotelBooking.Application.CQRS.Building.DTOs;
+using HotelBooking.Application.CQRS.Hotel.DTOs;
+using HotelBooking.Application.CQRS.Room.Commands;
+using HotelBooking.Application.CQRS.RoomType.DTOs;
+using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace HotelBooking.Web.Pages.Rooms
+namespace HotelBooking.Web.Pages.Rooms;
+
+public class CreateModel : PageModel
 {
-    [Authorize(Roles = CJConstant.ADMIN)]
-    public class CreateModel : AbstractPageModel
+    private readonly IApiService _apiService;
+    private readonly ILogger<CreateModel> _logger;
+
+    public CreateModel(IApiService apiService, ILogger<CreateModel> logger)
     {
-        public CreateModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
-            : base(configuration, httpClientFactory, httpContextAccessor)
+        _apiService = apiService;
+        _logger = logger;
+    }
+
+    [BindProperty]
+    public CreateRoomCommand Room { get; set; }
+
+    [BindProperty]
+    public List<FloorDto> Floors { get; set; } = new();
+
+    [BindProperty]
+    public List<RoomTypeDto> RoomTypes { get; set; } = new();
+
+    public async Task<IActionResult> OnGetAsync()
+    {
+        try
         {
-        }
+            var floorsResult = await _apiService.GetAsync<List<FloorDto>>("api/building/floor");
+            var roomTypesResult = await _apiService.GetAsync<List<RoomTypeDto>>("api/roomtype");
 
-        [BindProperty]
-        public CreateRoomDTO Room { get; set; } = new();
-
-        public List<SelectListItem> RoomTypes { get; set; } = new();
-        public List<SelectListItem> Floors { get; set; } = new();
-
-        public async Task OnGetAsync()
-        {
-            var roomTypes = await GetAsync<List<RoomTypeDTO>>("api/v1/roomtypes");
-            RoomTypes = roomTypes?.Select(rt => new SelectListItem
+            if (floorsResult == null || roomTypesResult == null)
             {
-                Value = rt.Id.ToString(),
-                Text = rt.Name
-            }).ToList() ?? new List<SelectListItem>();
+                TempData["ErrorMessage"] = "Failed to fetch data for room creation.";
+                return RedirectToPage("./Index");
+            }
 
-            var floors = await GetAsync<List<FloorDTO>>("api/v1/floors");
-            Floors = floors?.Select(b => new SelectListItem
+            if (floorsResult.IsSuccess && floorsResult.Data != null &&
+                roomTypesResult.IsSuccess && roomTypesResult.Data != null)
             {
-                Value = b.Id.ToString(),
-                Text = b.Name
-            }).ToList() ?? new List<SelectListItem>();
-        }
-
-        public async Task<IActionResult> OnPostAsync()
-        {
-            if (!ModelState.IsValid)
-            {
-                await OnGetAsync();
+                Floors = floorsResult.Data;
+                RoomTypes = roomTypesResult.Data;
                 return Page();
             }
 
-            try
+            var errorMessage = floorsResult.Messages.FirstOrDefault()?.Message ?? 
+                             roomTypesResult.Messages.FirstOrDefault()?.Message ?? 
+                             "Failed to fetch data for room creation.";
+            TempData["ErrorMessage"] = errorMessage;
+            return RedirectToPage("./Index");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching data for room creation");
+            TempData["ErrorMessage"] = "An error occurred while loading the form data.";
+            return RedirectToPage("./Index");
+        }
+    }
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        try
+        {
+            var floorsResult = await _apiService.GetAsync<List<FloorDto>>("api/floor");
+            var roomTypesResult = await _apiService.GetAsync<List<RoomTypeDto>>("api/roomtype");
+
+            if (floorsResult != null && floorsResult.IsSuccess && floorsResult.Data != null)
             {
-                var response = await PostAsync<CreateRoomDTO, RoomDTO>("api/v1/rooms", Room);
-                
-                if (response != null)
-                {
-                    TempData["SuccessMessage"] = "Thêm mới phòng thành công!";
-                    return RedirectToPage("./Index");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, $"Thêm mới phòng thất bại");
-                    await OnGetAsync();
-                    return Page();
-                }
+                Floors = floorsResult.Data;
             }
-            catch (Exception ex)
+            if (roomTypesResult != null && roomTypesResult.IsSuccess && roomTypesResult.Data != null)
             {
-                ModelState.AddModelError(string.Empty, $"Có lỗi xảy ra khi thêm mới phòng: {ex.Message}");
-                await OnGetAsync();
+                RoomTypes = roomTypesResult.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching data for room creation");
+            TempData["ErrorMessage"] = "An error occurred while loading the form data.";
+            return RedirectToPage("./Index");
+        }
+        if (!ModelState.IsValid)
+        {
+            return Page();
+        }
+
+        try
+        {
+            var result = await _apiService.PostAsync<int>("api/room", Room);
+            
+            if (result == null)
+            {
+                ModelState.AddModelError(string.Empty, "Failed to create room.");
                 return Page();
             }
+
+            if (result.IsSuccess)
+            {
+                TempData["SuccessMessage"] = "Room created successfully!";
+                return RedirectToPage("./Index");
+            }
+            
+            foreach (var message in result.Messages)
+            {
+                ModelState.AddModelError(string.Empty, message.Message);
+            }
+            return Page();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating room");
+            ModelState.AddModelError(string.Empty, "An error occurred while creating the room.");
+            return Page();
         }
     }
 } 

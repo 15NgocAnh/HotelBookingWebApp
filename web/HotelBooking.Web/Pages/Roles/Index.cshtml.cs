@@ -1,49 +1,76 @@
-using HotelBooking.Domain.Constant;
-using HotelBooking.Domain.DTOs.Role;
-using HotelBooking.Domain.Filtering;
-using HotelBooking.Web.Pages.Abstract;
+using HotelBooking.Application.CQRS.Role.DTOs;
+using HotelBooking.Application.Common.Models;
+using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HotelBooking.Web.Pages.Roles
 {
-    [Authorize(Roles = CJConstant.ADMIN)]
-    public class IndexModel : AbstractPageModel
+    [Authorize(Roles = "SuperAdmin")]
+    public class IndexModel : PageModel
     {
-        public IndexModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
-            : base(configuration, httpClientFactory, httpContextAccessor)
+        private readonly IApiService _apiService;
+        private readonly ILogger<IndexModel> _logger;
+
+        public IndexModel(IApiService apiService, ILogger<IndexModel> logger)
         {
+            _apiService = apiService;
+            _logger = logger;
         }
 
-        public List<RoleDto> Roles { get; private set; } = new();
+        public List<RoleDto> Roles { get; set; } = new();
+        public string? ErrorMessage { get; set; }
 
-        public async Task OnGetAsync()
-        {
-            var apiResponse = await GetAsync<List<RoleDto>>($"api/v1/roles");
-            Roles = apiResponse ?? new List<RoleDto>();
-        }
-
-        public async Task<IActionResult> OnPostDelete(string roleId)
+        public async Task<IActionResult> OnGetAsync()
         {
             try
             {
-                var response = await DeleteAsync<HttpResponseMessage>($"api/v1/roles/{roleId}") ?? new HttpResponseMessage();
-                if (response.IsSuccessStatusCode)
+                var result = await _apiService.GetAsync<List<RoleDto>>("api/role");
+                if (result == null)
                 {
-                    TempData["SuccessMessage"] = "Xóa nhóm quyền thành công!";
+                    ErrorMessage = "Failed to fetch roles.";
+                    return Page();
+                }
+
+                if (result.IsSuccess && result.Data != null)
+                {
+                    Roles = result.Data;
                 }
                 else
                 {
-                    var errorMessage = await response.Content.ReadAsStringAsync();
-                    TempData["ErrorMessage"] = $"Xóa nhóm quyền thất bại: {errorMessage}";
+                    ErrorMessage = result.Messages.FirstOrDefault()?.Message ?? "Failed to fetch roles.";
                 }
-                return Redirect("/Roles");
+                return Page();
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Có lỗi xảy ra khi xóa nhóm quyền: {ex.Message}";
-                return Redirect("/Roles");
+                _logger.LogError(ex, "Error fetching roles");
+                ErrorMessage = "An error occurred while fetching roles. Please try again later.";
+                return Page();
             }
+        }
+
+        public async Task<IActionResult> OnPostDeleteAsync(string id)
+        {
+            try
+            {
+                var result = await _apiService.DeleteAsync($"api/role/{id}");
+                if (result.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = "Role deleted successfully!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = result.Messages.FirstOrDefault()?.Message ?? "Failed to delete role.";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting role");
+                TempData["ErrorMessage"] = "An error occurred while deleting the role.";
+            }
+            return RedirectToPage();
         }
     }
 } 

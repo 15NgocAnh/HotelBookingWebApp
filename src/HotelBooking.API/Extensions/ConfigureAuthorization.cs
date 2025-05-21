@@ -1,6 +1,5 @@
 using HotelBooking.Infrastructure.Email.Policy;
 using HotelBooking.Infrastructure.Email.Policy.Requirement;
-using Microsoft.AspNetCore.Authorization;
 
 namespace HotelBooking.API.Extensions;
 

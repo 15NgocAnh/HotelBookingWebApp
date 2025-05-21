@@ -1,8 +1,8 @@
-﻿using HotelBooking.Application.CQRS.Amenity.Commands;
-using HotelBooking.Application.CQRS.Amenity.Queries;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using HotelBooking.Application.CQRS.Amenity.Commands.CreateAmenity;
+using HotelBooking.Application.CQRS.Amenity.Commands.DeleteAmentity;
+using HotelBooking.Application.CQRS.Amenity.Commands.UpdateAmenity;
+using HotelBooking.Application.CQRS.Amenity.Queries.GetAllAmenities;
+using HotelBooking.Application.CQRS.Amenity.Queries.GetAmenityById;
 
 namespace HotelBooking.API.Controllers
 {

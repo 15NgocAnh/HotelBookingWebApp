@@ -1,137 +1,130 @@
-using HotelBooking.Domain.Constant;
-using HotelBooking.Domain.DTOs.Branch;
-using HotelBooking.Domain.DTOs.Room;
-using HotelBooking.Domain.DTOs.RoomType;
-using HotelBooking.Domain.Entities;
-using HotelBooking.Web.Pages.Abstract;
-using Microsoft.AspNetCore.Authorization;
+using HotelBooking.Application.Common.Models;
+using HotelBooking.Application.CQRS.Building.DTOs;
+using HotelBooking.Application.CQRS.Room.Commands;
+using HotelBooking.Application.CQRS.Room.DTOs;
+using HotelBooking.Application.CQRS.RoomType.DTOs;
+using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace HotelBooking.Web.Pages.Rooms
+namespace HotelBooking.Web.Pages.Rooms;
+
+public class EditModel : PageModel
 {
-    [Authorize(Roles = CJConstant.ADMIN)]
-    public class EditModel : AbstractPageModel
+    private readonly IApiService _apiService;
+    private readonly ILogger<EditModel> _logger;
+
+    public EditModel(IApiService apiService, ILogger<EditModel> logger)
     {
-        public EditModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
-            : base(configuration, httpClientFactory, httpContextAccessor)
+        _apiService = apiService;
+        _logger = logger;
+    }
+
+    [BindProperty]
+    public RoomDto Room { get; set; }
+
+    [BindProperty]
+    public List<RoomTypeDto> RoomTypes { get; set; } = new();
+
+    public async Task<IActionResult> OnGetAsync(int? id)
+    {
+        if (id == null)
         {
+            return NotFound();
         }
 
-        [BindProperty]
-        public UpdateRoomDTO Room { get; set; } = new();
-
-        public List<SelectListItem> RoomTypes { get; set; } = new();
-        public List<SelectListItem> Floors { get; set; } = new();
-
-        public async Task<IActionResult> OnGetAsync(string id)
+        try
         {
-            if (string.IsNullOrEmpty(id))
+            var roomResult = await _apiService.GetAsync<RoomDto>($"api/room/{id}");
+            var roomTypesResult = await _apiService.GetAsync<List<RoomTypeDto>>("api/roomtype");
+
+            if (roomResult == null || roomTypesResult == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Failed to fetch data for room edit.";
+                return RedirectToPage("./Index");
             }
 
-            var room = await GetAsync<RoomDTO>($"api/v1/rooms/{id}");
-            if (room == null)
+            if (roomResult.IsSuccess && roomResult.Data != null)
             {
-                return NotFound();
+                Room = roomResult.Data;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = roomResult.Messages.FirstOrDefault()?.Message ?? "Failed to fetch room.";
+                return RedirectToPage("./Index");
             }
 
-            Room = new UpdateRoomDTO
+            if (roomTypesResult.IsSuccess && roomTypesResult.Data != null)
             {
-                Id = room.Id,
-                RoomNumber = room.RoomNumber,
-                Description = room.Description,
-                FloorId = room.FloorId,
-                RoomTypeId = room.RoomTypeId,
-                IsActive = room.IsActive
-            };
-
-            var roomTypes = await GetAsync<List<RoomTypeDTO>>("api/v1/roomtypes");
-            RoomTypes = roomTypes?.Select(rt => new SelectListItem
-            {
-                Value = rt.Id.ToString(),
-                Text = rt.Name,
-                Selected = rt.Id == room.RoomTypeId
-            }).ToList() ?? new List<SelectListItem>();
-
-            var floors = await GetAsync<List<RoomTypeDTO>>("api/v1/floors");
-            Floors = floors?.Select(rt => new SelectListItem
-            {
-                Value = rt.Id.ToString(),
-                Text = rt.Name,
-                Selected = rt.Id == room.FloorId
-            }).ToList() ?? new List<SelectListItem>();
+                RoomTypes = roomTypesResult.Data;
+            }
 
             return Page();
         }
-
-        public async Task<IActionResult> OnPostAsync()
+        catch (Exception ex)
         {
-            if (!ModelState.IsValid)
-            {
-                var roomTypes = await GetAsync<List<RoomTypeDTO>>("api/v1/roomtypes");
-                RoomTypes = roomTypes?.Select(rt => new SelectListItem
-                {
-                    Value = rt.Id.ToString(),
-                    Text = rt.Name,
-                    Selected = rt.Id == Room.RoomTypeId
-                }).ToList() ?? new List<SelectListItem>();
+            _logger.LogError(ex, "Error occurred while getting room with ID {Id}", id);
+            TempData["ErrorMessage"] = "An error occurred while retrieving the room.";
+            return RedirectToPage("./Index");
+        }
+    }
 
+    public async Task<IActionResult> OnPostAsync()
+    {
+        try
+        {
+            var roomTypesResult = await _apiService.GetAsync<List<RoomTypeDto>>("api/roomtype");
+
+            if (roomTypesResult != null && roomTypesResult.IsSuccess && roomTypesResult.Data != null)
+            {
+                RoomTypes = roomTypesResult.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching data for room edit");
+            TempData["ErrorMessage"] = "An error occurred while loading the form data.";
+            return RedirectToPage("./Index");
+        }
+        if (!ModelState.IsValid)
+        {
+            return Page();
+        }
+
+        try
+        {
+            var updateRoom = new UpdateRoomCommand()
+            {
+                Id = Room.Id,
+                Name = Room.Name,
+                FloorId = Room.FloorId,
+                RoomTypeId = Room.RoomTypeId
+            };
+
+            var result = await _apiService.PutAsync<Result>($"api/room/{Room.Id}", updateRoom);
+            if (result == null)
+            {
+                ModelState.AddModelError(string.Empty, "Failed to update room.");
                 return Page();
             }
 
-            try
+            if (result.IsSuccess)
             {
-                var response = await PutAsync<UpdateRoomDTO, RoomDTO>($"api/v1/rooms/{Room.Id}", Room);
-                
-                if (response != null)
-                {
-                    TempData["SuccessMessage"] = "Cập nhật phòng thành công!";
-                    return RedirectToPage("./Index");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, $"Cập nhật phòng thất bại");
-                    var roomTypes = await GetAsync<List<RoomTypeDTO>>("api/v1/roomtypes");
-                    RoomTypes = roomTypes?.Select(rt => new SelectListItem
-                    {
-                        Value = rt.Id.ToString(),
-                        Text = rt.Name,
-                        Selected = rt.Id == Room.RoomTypeId
-                    }).ToList() ?? new List<SelectListItem>();
-
-                    var floors = await GetAsync<List<RoomTypeDTO>>("api/v1/floors");
-                    Floors = floors?.Select(rt => new SelectListItem
-                    {
-                        Value = rt.Id.ToString(),
-                        Text = rt.Name,
-                        Selected = rt.Id == Room.FloorId
-                    }).ToList() ?? new List<SelectListItem>();
-                    return Page();
-                }
+                TempData["SuccessMessage"] = "Room updated successfully.";
+                return RedirectToPage("./Index");
             }
-            catch (Exception ex)
+
+            foreach (var message in result.Messages)
             {
-                ModelState.AddModelError(string.Empty, $"Có lỗi xảy ra khi cập nhật phòng: {ex.Message}");
-                var roomTypes = await GetAsync<List<RoomTypeDTO>>("api/v1/roomtypes");
-                RoomTypes = roomTypes?.Select(rt => new SelectListItem
-                {
-                    Value = rt.Id.ToString(),
-                    Text = rt.Name,
-                    Selected = rt.Id == Room.RoomTypeId
-                }).ToList() ?? new List<SelectListItem>();
-
-                var floors = await GetAsync<List<RoomTypeDTO>>("api/v1/floors");
-                Floors = floors?.Select(rt => new SelectListItem
-                {
-                    Value = rt.Id.ToString(),
-                    Text = rt.Name,
-                    Selected = rt.Id == Room.FloorId
-                }).ToList() ?? new List<SelectListItem>();
-
-                return Page();
+                ModelState.AddModelError(string.Empty, message.Message);
             }
+            return Page();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while updating room with ID {Id}", Room.Id);
+            ModelState.AddModelError(string.Empty, "An error occurred while updating the room.");
+            return Page();
         }
     }
 } 

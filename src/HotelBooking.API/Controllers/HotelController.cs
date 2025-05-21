@@ -1,14 +1,12 @@
-﻿using HotelBooking.Application.CQRS.Hotel.Commands;
-using HotelBooking.Application.CQRS.Hotel.Queries;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using HotelBooking.Application.CQRS.Hotel.Commands.CreateHotel;
+using HotelBooking.Application.CQRS.Hotel.Commands.DeleteHotel;
+using HotelBooking.Application.CQRS.Hotel.Commands.UpdateHotel;
+using HotelBooking.Application.CQRS.Hotel.Queries.GetAllHotels;
+using HotelBooking.Application.CQRS.Hotel.Queries.GetHotelById;
 
 namespace HotelBooking.API.Controllers
 {
     [Authorize]
-    [ApiController]
-    [Route("api/[controller]")]
     public class HotelController : BaseController
     {
         public HotelController(IMediator mediator) : base(mediator)

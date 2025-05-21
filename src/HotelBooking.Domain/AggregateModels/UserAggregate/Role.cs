@@ -6,14 +6,11 @@ namespace HotelBooking.Domain.AggregateModels.UserAggregate;
 public class Role : BaseEntity, IAggregateRoot
 {
     public string Name { get; private set; }
-    public string Description { get; private set; }
-
-    private readonly List<UserRole> _userRoles = [];
-    public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
+    public string? Description { get; private set; }
+    public ICollection<User> Users { get; set; } = new List<User>();
 
     public Role()
     {
-        
     }
 
     public Role(string name, string description)
@@ -29,7 +26,6 @@ public class Role : BaseEntity, IAggregateRoot
             
         Name = name;
         Description = description;
-        _userRoles = [];
     }
 
     public void Update(string name, string description = null)

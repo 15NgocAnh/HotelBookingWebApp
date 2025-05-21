@@ -1,9 +1,4 @@
-using AutoMapper;
-using HotelBooking.Application.Common.Models;
-using HotelBooking.Domain.AggregateModels.RoomAggregate;
 using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.Room.Commands
 {
@@ -46,17 +41,7 @@ namespace HotelBooking.Application.CQRS.Room.Commands
                 // Update room name and room type
                 room.Update(request.Name, request.RoomTypeId);
 
-                // Update room status if provided
-                if (!string.IsNullOrEmpty(request.Status))
-                {
-                    if (System.Enum.TryParse<RoomStatus>(request.Status, out var status))
-                    {
-                        room.UpdateStatus(status);
-                    }
-                }
-
                 await _roomRepository.UpdateAsync(room);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 return Result.Success();
             }

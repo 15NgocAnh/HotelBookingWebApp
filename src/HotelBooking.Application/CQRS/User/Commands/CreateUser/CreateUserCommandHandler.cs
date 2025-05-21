@@ -1,28 +1,25 @@
 using HotelBooking.Application.Common.Interfaces;
-using HotelBooking.Application.Common.Models;
-using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
+using HotelBooking.Domain.AggregateModels.UserAggregate;
 
 namespace HotelBooking.Application.CQRS.User.Commands.CreateUser
 {
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Result<int>>
     {
         private readonly IUserRepository _userRepository;
-        private readonly IRoleRepository _roleRepository;
+        private readonly IHotelRepository _hotelRepository;
+        private readonly IUserHotelRepository _userHotelRepository;
         private readonly IPasswordHasher _passwordHasher;
-        private readonly IUnitOfWork _unitOfWork;
 
         public CreateUserCommandHandler(
             IUserRepository userRepository,
-            IRoleRepository roleRepository,
-            IPasswordHasher passwordHasher,
-            IUnitOfWork unitOfWork)
+            IHotelRepository hotelRepository,
+            IUserHotelRepository userHotelRepository,
+            IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            _roleRepository = roleRepository ?? throw new ArgumentNullException(nameof(roleRepository));
+            _hotelRepository = hotelRepository;
+            _userHotelRepository = userHotelRepository;
             _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
         public async Task<Result<int>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -38,23 +35,21 @@ namespace HotelBooking.Application.CQRS.User.Commands.CreateUser
                 hashedPassword,
                 request.FirstName,
                 request.LastName,
-                request.Phone
+                request.PhoneNumber,
+                request.RoleId
             );
 
-            if (request.RoleIds != null && request.RoleIds.Any())
+            await _userRepository.AddAsync(user);
+
+            foreach (var hotelId in request.HotelIds)
             {
-                foreach (var roleId in request.RoleIds)
+                var hotel = await _hotelRepository.GetByIdAsync(hotelId);
+                if (hotel != null)
                 {
-                    var role = await _roleRepository.GetByIdAsync(roleId);
-                    if (role != null)
-                    {
-                        user.AddRole(role);
-                    }
+                    var userHotel = new UserHotel(user, hotel);
+                    await _userHotelRepository.AddAsync(userHotel);
                 }
             }
-
-            await _userRepository.AddAsync(user);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<int>.Success(user.Id);
         }

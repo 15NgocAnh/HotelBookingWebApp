@@ -1,4 +1,5 @@
 ﻿using HotelBooking.Application.Common.Interfaces;
+using HotelBooking.Application.Utils.Enum;
 using HotelBooking.Domain.AggregateModels.UserAggregate;
 using HotelBooking.Infrastructure.Config;
 using Microsoft.Extensions.Options;
@@ -11,30 +12,31 @@ namespace HotelBooking.Infrastructure.Authentication
 {
     public class JWTHelper : IJWTHelper
     {
-        private readonly TokenSettings _tokenSetting;
+        private readonly JwtSettings _jwtSetting;
 
-        public JWTHelper(IOptions<TokenSettings> tokenSetting)
+        public JWTHelper(IOptions<JwtSettings> jwtSetting)
         {
-
-            _tokenSetting = tokenSetting.Value;
+            _jwtSetting = jwtSetting.Value;
         }
 
-        public async Task<string> GenerateJWTToken(int id, DateTime expire, User user)
+        public async Task<string> GenerateJWTToken(int id, User user, string roleName)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var key = Encoding.ASCII.GetBytes(_tokenSetting.Secret);
+            var key = Encoding.ASCII.GetBytes(_jwtSetting.Key);
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, id.ToString()), // ID của User
                 new Claim(ClaimTypes.Email, user.Email), // Email
                 new Claim("FirstName", user.FirstName), // Họ
-                new Claim("LastName", user.LastName) // Tên
-            };
-
+                new Claim("LastName", user.LastName), // Tên
+                new Claim(ClaimTypes.Role, roleName)
+            }; 
             var token = new JwtSecurityToken(
+                issuer: _jwtSetting.Issuer,
+                audience: _jwtSetting.Audience,
                 claims: claims,
-                expires: expire,
+                expires: DateTime.UtcNow.AddMinutes(_jwtSetting.ExpireDays),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             );
             return tokenHandler.WriteToken(token);
@@ -44,7 +46,7 @@ namespace HotelBooking.Infrastructure.Authentication
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var key = Encoding.ASCII.GetBytes(_tokenSetting.Secret);
+            var key = Encoding.ASCII.GetBytes(_jwtSetting.Key);
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, id.ToString())
@@ -57,16 +59,16 @@ namespace HotelBooking.Infrastructure.Authentication
             return tokenHandler.WriteToken(token);
         }
 
-        public ClaimsPrincipal ValidateToken(string jwtToken)
+        public ClaimsPrincipal ValidateToken(string jwtToken, bool validateLifetime = true)
         {
             try
             {
                 var validationParameters = new TokenValidationParameters
                 {
-                    ValidateLifetime = true,
+                    ValidateLifetime = validateLifetime,
                     ValidateAudience = false,
                     ValidateIssuer = false,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenSetting.Secret)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSetting.Key)),
                 };
 
                 var principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out _);
@@ -82,7 +84,7 @@ namespace HotelBooking.Infrastructure.Authentication
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var key = Encoding.ASCII.GetBytes(_tokenSetting.Secret);
+            var key = Encoding.ASCII.GetBytes(_jwtSetting.Key);
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, id.ToString()),

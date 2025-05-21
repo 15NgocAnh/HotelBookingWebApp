@@ -1,6 +1,4 @@
-﻿using HotelBooking.Domain.Common;
-
-namespace HotelBooking.Domain.AggregateModels.RoomTypeAggregate;
+﻿namespace HotelBooking.Domain.AggregateModels.RoomTypeAggregate;
 public class RoomType : BaseEntity, IAggregateRoot
 {
     public string Name { get; private set; }

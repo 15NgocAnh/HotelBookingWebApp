@@ -1,77 +1,98 @@
-using HotelBooking.Domain.Constant;
-using HotelBooking.Domain.DTOs.Role;
-using HotelBooking.Web.Pages.Abstract;
+using HotelBooking.Application.Common.Models;
+using HotelBooking.Application.CQRS.Role.Commands.UpdateRole;
+using HotelBooking.Application.CQRS.Role.DTOs;
+using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HotelBooking.Web.Pages.Roles
 {
-    [Authorize(Roles = CJConstant.ADMIN)]
-    public class EditModel : AbstractPageModel
+    [Authorize(Roles = "SuperAdmin")]
+    public class EditModel : PageModel
     {
-        public EditModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
-            : base(configuration, httpClientFactory, httpContextAccessor)
+        private readonly IApiService _apiService;
+        private readonly ILogger<EditModel> _logger;
+
+        public EditModel(IApiService apiService, ILogger<EditModel> logger)
         {
+            _apiService = apiService;
+            _logger = logger;
         }
 
         [BindProperty]
-        public UpdateRoleDto Role { get; set; }
+        public UpdateRoleCommand RoleInput { get; set; } = new();
 
-        public Dictionary<string, List<PermissionDto>> GroupedPermissions { get; set; } = new();
+        public string? ErrorMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int id)
+        public async Task<IActionResult> OnGetAsync(string id)
         {
-            var roleResponse = await GetAsync<RoleDto>($"api/v1/roles/{id}");
-            if (roleResponse == null)
+            try
             {
-                TempData["ErrorMessage"] = "Không tìm thấy nhóm quyền.";
-                return RedirectToPage("Index");
+                var result = await _apiService.GetAsync<RoleDto>($"api/role/{id}");
+                if (result == null)
+                {
+                    return NotFound();
+                }
+
+                if (result.IsSuccess && result.Data != null)
+                {
+                    RoleInput = new UpdateRoleCommand
+                    {
+                        Id = result.Data.Id,
+                        Name = result.Data.Name,
+                        Description = result.Data.Description
+                    };
+                    return Page();
+                }
+                else
+                {
+                    ErrorMessage = result.Messages.FirstOrDefault()?.Message ?? "Failed to fetch role.";
+                    return Page();
+                }
             }
-
-            var permissionsResponse = await GetAsync<List<PermissionDto>>("api/v1/roles/permissions");
-            if (permissionsResponse != null)
+            catch (Exception ex)
             {
-                GroupedPermissions = permissionsResponse
-                    .GroupBy(p => p.Module)
-                    .ToDictionary(g => g.Key, g => g.ToList());
+                _logger.LogError(ex, "Error fetching role");
+                ErrorMessage = "An error occurred while fetching the role.";
+                return Page();
             }
-
-            Role = new UpdateRoleDto
-            {
-                Id = roleResponse.Id,
-                Code = roleResponse.Code,
-                Name = roleResponse.Name,
-                Description = roleResponse.Description,
-                IsActive = roleResponse.IsActive,
-                PermissionIds = roleResponse.Permissions?.Select(p => p.Id).ToList() ?? new List<int>()
-            };
-
-            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
-                var permissionsResponse = await GetAsync<List<PermissionDto>>("api/v1/roles/permissions");
-                if (permissionsResponse != null)
-                {
-                    GroupedPermissions = permissionsResponse
-                        .GroupBy(p => p.Module)
-                        .ToDictionary(g => g.Key, g => g.ToList());
-                }
                 return Page();
             }
 
-            var response = await PutAsync<UpdateRoleDto, RoleDto>($"api/v1/roles/{Role.Id}", Role);
-            if (response != null)
+            try
             {
-                TempData["SuccessMessage"] = "Cập nhật nhóm quyền thành công!";
-                return RedirectToPage("Index");
-            }
+                var result = await _apiService.PutAsync<Result>($"api/role/{RoleInput.Id}", RoleInput);
+                if (result == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Failed to update role.");
+                    return Page();
+                }
 
-            ModelState.AddModelError(string.Empty, "Có lỗi xảy ra khi cập nhật nhóm quyền.");
-            return Page();
+                if (result.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = "Role updated successfully!";
+                    return RedirectToPage("./Index");
+                }
+                
+                foreach (var message in result.Messages)
+                {
+                    ModelState.AddModelError(string.Empty, message.Message);
+                }
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating role");
+                ModelState.AddModelError(string.Empty, "An error occurred while updating the role.");
+                return Page();
+            }
         }
     }
 } 

@@ -1,9 +1,4 @@
-using AutoMapper;
 using HotelBooking.Domain.AggregateModels.AmenityAggregate;
-using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using HotelBooking.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Infrastructure.Repositories
 {
@@ -11,9 +6,8 @@ namespace HotelBooking.Infrastructure.Repositories
     {
         public AmenityRepository(
             AppDbContext context, 
-            IMapper mapper, 
             IUnitOfWork unitOfWork) 
-            : base(context, mapper, unitOfWork)
+            : base(context, unitOfWork)
         {
         }
 

@@ -1,6 +1,3 @@
-using HotelBooking.Application.Common.Models;
-using MediatR;
-
 namespace HotelBooking.Application.CQRS.User.Commands.CreateUser
 {
     public record CreateUserCommand : IRequest<Result<int>>
@@ -9,7 +6,8 @@ namespace HotelBooking.Application.CQRS.User.Commands.CreateUser
         public string Password { get; init; }
         public string FirstName { get; init; }
         public string LastName { get; init; }
-        public string Phone { get; init; }
-        public List<int> RoleIds { get; init; }
+        public string PhoneNumber { get; init; }
+        public int RoleId { get; init; }
+        public List<int> HotelIds { get; init; } = new List<int>();
     }
 } 

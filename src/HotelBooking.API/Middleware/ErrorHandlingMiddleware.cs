@@ -1,6 +1,5 @@
-using HotelBooking.Application.Common.Exceptions;
-using System.Net;
-using System.Text.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
+using ValidationException = FluentValidation.ValidationException;
 
 namespace HotelBooking.API.Middleware;
 

@@ -1,16 +1,11 @@
-﻿using AutoMapper;
-using HotelBooking.Domain.AggregateModels.HotelAggregate;
-using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using HotelBooking.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using HotelBooking.Domain.AggregateModels.HotelAggregate;
 
 namespace HotelBooking.Infrastructure.Repositories;
 
 public class HotelRepository : GenericRepository<Hotel>, IHotelRepository
 {
-    public HotelRepository(AppDbContext context, IMapper mapper, IUnitOfWork unitOfWork) 
-        : base(context, mapper, unitOfWork)
+    public HotelRepository(AppDbContext context, IUnitOfWork unitOfWork) 
+        : base(context, unitOfWork)
     {
     }
 
@@ -46,5 +41,14 @@ public class HotelRepository : GenericRepository<Hotel>, IHotelRepository
     {
         return await _context.Set<Hotel>()
             .FirstOrDefaultAsync(h => h.Name == name && !h.IsDeleted);
+    }
+
+    public async Task<List<Hotel>> GetAllByUserIdAsync(int userId)
+    {
+        return await _context.UserHotels
+        .Where(uh => uh.UserId == userId && !uh.IsDeleted && !uh.Hotel.IsDeleted)
+        .Include(uh => uh.Hotel)
+        .Select(uh => uh.Hotel)
+        .ToListAsync();
     }
 }

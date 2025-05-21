@@ -1,15 +1,10 @@
-using AutoMapper;
 using HotelBooking.Domain.AggregateModels.ExtraItemAggregate;
-using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using HotelBooking.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Infrastructure.Repositories
 {
     public class ExtraItemRepository : GenericRepository<ExtraItem>, IExtraItemRepository
     {
-        public ExtraItemRepository(AppDbContext context, IMapper mapper, IUnitOfWork unitOfWork) : base(context, mapper, unitOfWork)
+        public ExtraItemRepository(AppDbContext context, IUnitOfWork unitOfWork) : base(context, unitOfWork)
         {
         }
 

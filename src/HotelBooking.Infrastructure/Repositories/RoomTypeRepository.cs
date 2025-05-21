@@ -1,20 +1,12 @@
-﻿using AutoMapper;
-using HotelBooking.Domain.AggregateModels.RoomTypeAggregate;
-using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using HotelBooking.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using HotelBooking.Domain.AggregateModels.RoomTypeAggregate;
 
 namespace HotelBooking.Infrastructure.Repositories;
 
 public class RoomTypeRepository : GenericRepository<RoomType>, IRoomTypeRepository
 {
-    private readonly AppDbContext _context;
-
-    public RoomTypeRepository(AppDbContext context, IMapper mapper, IUnitOfWork unitOfWork) 
-        : base(context, mapper, unitOfWork)
+    public RoomTypeRepository(AppDbContext context, IUnitOfWork unitOfWork) 
+        : base(context, unitOfWork)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     public override async Task<IEnumerable<RoomType>> GetAllAsync()

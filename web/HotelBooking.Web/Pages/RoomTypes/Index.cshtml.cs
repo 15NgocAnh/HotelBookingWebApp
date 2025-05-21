@@ -1,48 +1,74 @@
-using HotelBooking.Domain.Constant;
-using HotelBooking.Domain.DTOs.RoomType;
-using HotelBooking.Web.Pages.Abstract;
-using Microsoft.AspNetCore.Authorization;
+using HotelBooking.Application.CQRS.RoomType.DTOs;
+using HotelBooking.Application.Common.Models;
+using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 
-namespace HotelBooking.Web.Pages.RoomTypes
+namespace HotelBooking.Web.Pages.RoomTypes;
+
+public class IndexModel : PageModel
 {
-    [Authorize(Roles = CJConstant.ADMIN)]
-    public class IndexModel : AbstractPageModel
+    private readonly IApiService _apiService;
+    private readonly ILogger<IndexModel> _logger;
+
+    public IndexModel(IApiService apiService, ILogger<IndexModel> logger)
     {
-        public IndexModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
-            : base(configuration, httpClientFactory, httpContextAccessor)
-        {
-        }
+        _apiService = apiService;
+        _logger = logger;
+    }
 
-        public List<RoomTypeDTO> RoomTypes { get; private set; } = new();
+    public List<RoomTypeDto> RoomTypes { get; set; } = new();
+    public string? ErrorMessage { get; set; }
 
-        public async Task OnGetAsync()
+    public async Task<IActionResult> OnGetAsync()
+    {
+        try
         {
-            var apiResponse = await GetAsync<List<RoomTypeDTO>>("api/v1/roomtypes");
-            RoomTypes = apiResponse ?? new List<RoomTypeDTO>();
-        }
-
-        public async Task<IActionResult> OnPostDeleteAsync(string roomTypeId)
-        {
-            try
+            var result = await _apiService.GetAsync<List<RoomTypeDto>>("api/roomtype");
+            if (result == null)
             {
-                var response = await DeleteAsync<HttpResponseMessage>($"api/v1/roomtypes/{roomTypeId}") ?? new HttpResponseMessage();
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["SuccessMessage"] = "Xóa loại phòng thành công!";
-                }
-                else
-                {
-                    var errorMessage = await response.Content.ReadAsStringAsync();
-                    TempData["ErrorMessage"] = $"Xóa loại phòng thất bại: {errorMessage}";
-                }
-                return Redirect("/RoomTypes");
+                ErrorMessage = "Failed to fetch room types.";
+                return Page();
             }
-            catch (Exception ex)
+
+            if (result.IsSuccess && result.Data != null)
             {
-                TempData["ErrorMessage"] = $"Có lỗi xảy ra khi xóa loại phòng: {ex.Message}";
-                return Redirect("/RoomTypes");
+                RoomTypes = result.Data;
             }
+            else
+            {
+                ErrorMessage = result.Messages.FirstOrDefault()?.Message ?? "Failed to fetch room types.";
+            }
+            return Page();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching room types");
+            ErrorMessage = "An error occurred while fetching room types. Please try again later.";
+            return Page();
         }
     }
-} 
+
+    public async Task<IActionResult> OnPostDeleteAsync(int id)
+    {
+        try
+        {
+            var result = await _apiService.DeleteAsync($"api/roomtype/{id}");
+            if (result.IsSuccess)
+            {
+                TempData["SuccessMessage"] = "Room type deleted successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = result.Messages.FirstOrDefault()?.Message ?? "Failed to delete room type.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting room type");
+            TempData["ErrorMessage"] = "An error occurred while deleting the room type.";
+        }
+        return RedirectToPage();
+    }
+}

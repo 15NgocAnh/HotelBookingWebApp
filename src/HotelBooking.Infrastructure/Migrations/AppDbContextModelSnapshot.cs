@@ -41,7 +41,8 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -51,7 +52,7 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Amenities");
+                    b.ToTable("Amenity", (string)null);
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.BedTypeAggregate.BedType", b =>
@@ -73,7 +74,8 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -83,7 +85,7 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BedTypes");
+                    b.ToTable("BedType", (string)null);
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.BookingAggregate.Booking", b =>
@@ -109,14 +111,42 @@ namespace HotelBooking.Infrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DamageReport")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("HasDamageReport")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("IsLateCheckIn")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsLateCheckOut")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PaidAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("int");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("SpecialRequests")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -126,7 +156,9 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Bookings");
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("Booking", (string)null);
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.BuildingAggregate.Building", b =>
@@ -151,7 +183,8 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -161,7 +194,9 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Buildings");
+                    b.HasIndex("HotelId");
+
+                    b.ToTable("Building", (string)null);
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.BuildingAggregate.Floor", b =>
@@ -186,7 +221,8 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Number")
                         .HasColumnType("int");
@@ -201,7 +237,7 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasIndex("BuildingId");
 
-                    b.ToTable("Floor");
+                    b.ToTable("Floor", (string)null);
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.ExtraCategoryAggregate.ExtraCategory", b =>
@@ -223,7 +259,8 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -233,7 +270,7 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ExtraCategories");
+                    b.ToTable("ExtraCategory", (string)null);
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.ExtraItemAggregate.ExtraItem", b =>
@@ -258,9 +295,11 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -271,7 +310,9 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ExtraItems");
+                    b.HasIndex("ExtraCategoryId");
+
+                    b.ToTable("ExtraItem", (string)null);
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.HotelAggregate.Hotel", b =>
@@ -293,11 +334,9 @@ namespace HotelBooking.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -305,7 +344,8 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -318,12 +358,11 @@ namespace HotelBooking.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Website")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Hotels");
+                    b.ToTable("Hotel", (string)null);
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.InvoiceAggregate.Invoice", b =>
@@ -337,6 +376,12 @@ namespace HotelBooking.Infrastructure.Migrations
                     b.Property<int>("BookingId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("CancellationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CancellationReason")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -348,6 +393,12 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("IsLatePayment")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("LatePaymentFee")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Notes")
                         .IsRequired()
@@ -366,8 +417,9 @@ namespace HotelBooking.Infrastructure.Migrations
                     b.Property<decimal>("RemainingAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
@@ -405,13 +457,15 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("RoomTypeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -421,7 +475,11 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Rooms");
+                    b.HasIndex("FloorId");
+
+                    b.HasIndex("RoomTypeId");
+
+                    b.ToTable("Room", (string)null);
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.RoomTypeAggregate.RoomType", b =>
@@ -443,9 +501,11 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -456,7 +516,7 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RoomTypes");
+                    b.ToTable("RoomType", (string)null);
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.UserAggregate.Role", b =>
@@ -474,7 +534,6 @@ namespace HotelBooking.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -535,8 +594,10 @@ namespace HotelBooking.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -546,10 +607,12 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RoleId");
+
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("HotelBooking.Domain.AggregateModels.UserAggregate.UserRole", b =>
+            modelBuilder.Entity("HotelBooking.Domain.AggregateModels.UserAggregate.UserHotel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -563,11 +626,11 @@ namespace HotelBooking.Infrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("HotelId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -580,11 +643,11 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("HotelId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserRoles", (string)null);
+                    b.ToTable("UserHotels");
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.BookingAggregate.Booking", b =>
@@ -660,9 +723,52 @@ namespace HotelBooking.Infrastructure.Migrations
                                 .HasForeignKey("BookingId");
                         });
 
+                    b.OwnsMany("HotelBooking.Domain.AggregateModels.BookingAggregate.Payment", "Payments", b1 =>
+                        {
+                            b1.Property<int>("BookingId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("PaymentMethod")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<DateTime>("PaymentTime")
+                                .HasColumnType("datetime2");
+
+                            b1.HasKey("BookingId", "Id");
+
+                            b1.ToTable("Payment");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BookingId");
+                        });
+
                     b.Navigation("ExtraUsages");
 
                     b.Navigation("Guests");
+
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.AggregateModels.BuildingAggregate.Building", b =>
+                {
+                    b.HasOne("HotelBooking.Domain.AggregateModels.HotelAggregate.Hotel", null)
+                        .WithMany("Buildings")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.BuildingAggregate.Floor", b =>
@@ -686,7 +792,6 @@ namespace HotelBooking.Infrastructure.Migrations
                             SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
 
                             b1.Property<string>("Description")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
                             b1.Property<int>("Quantity")
@@ -710,7 +815,41 @@ namespace HotelBooking.Infrastructure.Migrations
                                 .HasForeignKey("InvoiceId");
                         });
 
+                    b.OwnsMany("HotelBooking.Domain.AggregateModels.InvoiceAggregate.PaymentRecord", "Payments", b1 =>
+                        {
+                            b1.Property<int>("InvoiceId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("PaymentMethod")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<DateTime>("PaymentTime")
+                                .HasColumnType("datetime2");
+
+                            b1.HasKey("InvoiceId", "Id");
+
+                            b1.ToTable("PaymentRecord");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvoiceId");
+                        });
+
                     b.Navigation("Items");
+
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.RoomTypeAggregate.RoomType", b =>
@@ -778,21 +917,32 @@ namespace HotelBooking.Infrastructure.Migrations
                     b.Navigation("BedTypeSetupDetails");
                 });
 
-            modelBuilder.Entity("HotelBooking.Domain.AggregateModels.UserAggregate.UserRole", b =>
+            modelBuilder.Entity("HotelBooking.Domain.AggregateModels.UserAggregate.User", b =>
                 {
                     b.HasOne("HotelBooking.Domain.AggregateModels.UserAggregate.Role", "Role")
-                        .WithMany("UserRoles")
+                        .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("HotelBooking.Domain.AggregateModels.UserAggregate.UserHotel", b =>
+                {
+                    b.HasOne("HotelBooking.Domain.AggregateModels.HotelAggregate.Hotel", "Hotel")
+                        .WithMany()
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("HotelBooking.Domain.AggregateModels.UserAggregate.User", "User")
-                        .WithMany("UserRoles")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Role");
+                    b.Navigation("Hotel");
 
                     b.Navigation("User");
                 });
@@ -802,14 +952,14 @@ namespace HotelBooking.Infrastructure.Migrations
                     b.Navigation("Floors");
                 });
 
-            modelBuilder.Entity("HotelBooking.Domain.AggregateModels.UserAggregate.Role", b =>
+            modelBuilder.Entity("HotelBooking.Domain.AggregateModels.HotelAggregate.Hotel", b =>
                 {
-                    b.Navigation("UserRoles");
+                    b.Navigation("Buildings");
                 });
 
-            modelBuilder.Entity("HotelBooking.Domain.AggregateModels.UserAggregate.User", b =>
+            modelBuilder.Entity("HotelBooking.Domain.AggregateModels.UserAggregate.Role", b =>
                 {
-                    b.Navigation("UserRoles");
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

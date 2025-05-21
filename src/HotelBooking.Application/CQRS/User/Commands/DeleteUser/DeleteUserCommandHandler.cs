@@ -1,20 +1,20 @@
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.User.Commands.DeleteUser
 {
     public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Result>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserHotelRepository _userHotelRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public DeleteUserCommandHandler(
             IUserRepository userRepository,
+            IUserHotelRepository userHotelRepository,
             IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _userHotelRepository = userHotelRepository;
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
@@ -27,7 +27,9 @@ namespace HotelBooking.Application.CQRS.User.Commands.DeleteUser
             }
 
             await _userRepository.SoftDeleteAsync(user);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _userHotelRepository.DeleteAllByUserIdAsync(request.Id);
+
+            await _unitOfWork.SaveEntitiesAsync(cancellationToken);
 
             return Result.Success();
         }

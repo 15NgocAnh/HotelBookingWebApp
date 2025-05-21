@@ -1,15 +1,10 @@
-using AutoMapper;
 using HotelBooking.Domain.AggregateModels.InvoiceAggregate;
-using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using HotelBooking.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Infrastructure.Repositories
 {
     public class InvoiceRepository : GenericRepository<Invoice>, IInvoiceRepository
     {
-        public InvoiceRepository(AppDbContext context, IMapper mapper, IUnitOfWork unitOfWork) : base(context, mapper, unitOfWork)
+        public InvoiceRepository(AppDbContext context, IUnitOfWork unitOfWork) : base(context, unitOfWork)
         {
         }
 

@@ -11,9 +11,8 @@ namespace HotelBooking.Infrastructure.Repositories
     {
         public ExtraCategoryRepository(
             AppDbContext context, 
-            IMapper mapper, 
             IUnitOfWork unitOfWork) 
-            : base(context, mapper, unitOfWork)
+            : base(context, unitOfWork)
         {
         }
 

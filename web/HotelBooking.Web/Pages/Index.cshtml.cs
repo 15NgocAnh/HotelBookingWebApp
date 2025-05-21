@@ -1,15 +1,19 @@
-using HotelBooking.Domain.Constant;
+using HotelBooking.Application.Common.Models;
 using HotelBooking.Web.Pages.Abstract;
-using Microsoft.AspNetCore.Authorization;
+using HotelBooking.Web.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using System.Text.Json;
 
 namespace HotelBooking.Web.Pages
 {
-    [Authorize(Roles = CJConstant.ADMIN)]
     public class DashboardModel : AbstractPageModel
     {
-        public DashboardModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor) : base(configuration, httpClientFactory, httpContextAccessor)
+        private readonly IApiService _apiService;
+
+        public DashboardModel(IApiService apiService, IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor) : base(configuration, httpClientFactory, httpContextAccessor)
         {
+            _apiService = apiService;
         }
 
         public int TotalUsers { get; set; }

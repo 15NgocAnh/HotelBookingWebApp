@@ -1,34 +1,32 @@
-using HotelBooking.Domain.Constant;
-using HotelBooking.Domain.DTOs.Role;
-using HotelBooking.Web.Pages.Abstract;
+using HotelBooking.Application.CQRS.Role.Commands.CreateRole;
+using HotelBooking.Application.CQRS.Role.DTOs;
+using HotelBooking.Application.Common.Models;
+using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HotelBooking.Web.Pages.Roles
 {
-    [Authorize(Roles = CJConstant.ADMIN)]
-    public class CreateModel : AbstractPageModel
+    [Authorize(Roles = "SuperAdmin")]
+    public class CreateModel : PageModel
     {
-        public CreateModel(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
-            : base(configuration, httpClientFactory, httpContextAccessor)
+        private readonly IApiService _apiService;
+        private readonly ILogger<CreateModel> _logger;
+
+        public CreateModel(IApiService apiService, ILogger<CreateModel> logger)
         {
+            _apiService = apiService;
+            _logger = logger;
         }
 
         [BindProperty]
-        public CreateRoleDto Role { get; set; }
+        public CreateRoleCommand RoleInput { get; set; } = new();
 
-        public Dictionary<string, List<PermissionDto>> GroupedPermissions { get; set; } = new();
+        public string? ErrorMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public IActionResult OnGet()
         {
-            var permissionsResponse = await GetAsync<List<PermissionDto>>("api/v1/roles/permissions");
-            if (permissionsResponse != null)
-            {
-                GroupedPermissions = permissionsResponse
-                    .GroupBy(p => p.Module)
-                    .ToDictionary(g => g.Key, g => g.ToList());
-            }
-
             return Page();
         }
 
@@ -36,25 +34,36 @@ namespace HotelBooking.Web.Pages.Roles
         {
             if (!ModelState.IsValid)
             {
-                var permissionsResponse = await GetAsync<List<PermissionDto>>("api/v1/roles/permissions");
-                if (permissionsResponse != null)
-                {
-                    GroupedPermissions = permissionsResponse
-                        .GroupBy(p => p.Module)
-                        .ToDictionary(g => g.Key, g => g.ToList());
-                }
                 return Page();
             }
 
-            var response = await PostAsync<CreateRoleDto, RoleDto>("api/v1/roles", Role);
-            if (response != null)
+            try
             {
-                TempData["SuccessMessage"] = "Thêm nhóm quyền thành công!";
-                return RedirectToPage("Index");
-            }
+                var result = await _apiService.PostAsync<int>("api/role", RoleInput);
+                if (result == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Failed to create role.");
+                    return Page();
+                }
 
-            ModelState.AddModelError(string.Empty, "Có lỗi xảy ra khi thêm nhóm quyền.");
-            return Page();
+                if (result.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = "Role created successfully!";
+                    return RedirectToPage("./Index");
+                }
+                
+                foreach (var message in result.Messages)
+                {
+                    ModelState.AddModelError(string.Empty, message.Message);
+                }
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating role");
+                ModelState.AddModelError(string.Empty, "An error occurred while creating the role.");
+                return Page();
+            }
         }
     }
 } 

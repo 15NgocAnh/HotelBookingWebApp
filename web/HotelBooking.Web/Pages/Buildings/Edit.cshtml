@@ -1,0 +1,69 @@
+@page "{id:int}"
+@model HotelBooking.Web.Pages.Buildings.EditModel
+@{
+    ViewData["Title"] = "Edit Building";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h4 class="mb-0 text-primary">
+                        <i class="fas fa-edit me-2"></i>Edit Building
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Building.Id" />
+
+                <div class="form-group mb-3">
+                    <label asp-for="Building.HotelId" class="control-label">Hotel</label>
+                    <select asp-for="Building.HotelId" class="form-control">
+                        @foreach (var hotel in Model.Hotels)
+                        {
+                            <option value="@hotel.Id">@hotel.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Building.HotelId" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label asp-for="Building.Name" class="control-label">Name</label>
+                    <input asp-for="Building.Name" class="form-control" />
+                    <span asp-validation-for="Building.Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Building.TotalFloors" class="control-label">Total Floors</label>
+                    <input type="number" min="1" asp-for="Building.TotalFloors" class="form-control" rows="3"></input>
+                    <span asp-validation-for="Building.TotalFloors" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Save
+                    </button>
+                    <a asp-page="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

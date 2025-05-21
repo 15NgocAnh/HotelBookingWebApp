@@ -1,21 +1,13 @@
-﻿using AutoMapper;
-using HotelBooking.Domain.AggregateModels.BookingAggregate;
+﻿using HotelBooking.Domain.AggregateModels.BookingAggregate;
 using HotelBooking.Domain.AggregateModels.RoomAggregate;
-using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Interfaces.Repositories;
-using HotelBooking.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Infrastructure.Repositories;
 
 public class RoomRepository : GenericRepository<Room>, IRoomRepository
 {
-    private readonly AppDbContext _context;
-
-    public RoomRepository(AppDbContext context, IMapper mapper, IUnitOfWork unitOfWork) 
-        : base(context, mapper, unitOfWork)
+    public RoomRepository(AppDbContext context, IUnitOfWork unitOfWork) 
+        : base(context, unitOfWork)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     public async Task<Room?> GetByRoomNumberAsync(string roomNumber)
@@ -31,7 +23,7 @@ public class RoomRepository : GenericRepository<Room>, IRoomRepository
 
         return !await _context.Rooms
             .AnyAsync(r => building.Floors.Any(f => f.Id == r.FloorId) && 
-                          r.Name.Equals(roomNumber, StringComparison.CurrentCultureIgnoreCase));
+                          r.Name == roomNumber);
     }
 
     public async Task<bool> HasActiveBookingsAsync(int roomId)
@@ -49,5 +41,10 @@ public class RoomRepository : GenericRepository<Room>, IRoomRepository
             _context.Rooms.Remove(room);
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task<List<Room>> GetRoomsByFloorIdAsync(int floorId)
+    {
+        return await _context.Rooms.Where(r => r.FloorId == floorId).ToListAsync();
     }
 }

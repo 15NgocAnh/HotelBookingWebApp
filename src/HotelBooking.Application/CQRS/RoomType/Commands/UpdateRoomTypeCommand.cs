@@ -1,10 +1,10 @@
+using HotelBooking.Application.Common.Base;
 using HotelBooking.Application.Common.Models;
 using HotelBooking.Application.CQRS.RoomType.DTOs;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.RoomType.Commands
 {
-    public record UpdateRoomTypeCommand : IRequest<Result>
+    public record UpdateRoomTypeCommand : ICommand<Result>
     {
         public int Id { get; init; }
         public string Name { get; init; }

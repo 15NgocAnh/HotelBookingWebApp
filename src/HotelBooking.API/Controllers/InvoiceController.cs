@@ -1,9 +1,6 @@
 ﻿using HotelBooking.Application.CQRS.Invoice.Commands;
+using HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
 using HotelBooking.Application.CQRS.Invoice.Queries;
-using HotelBooking.Domain.AggregateModels.BookingAggregate;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HotelBooking.API.Controllers
 {

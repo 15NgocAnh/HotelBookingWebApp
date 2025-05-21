@@ -1,6 +1,6 @@
-using HotelBooking.Application.Common.Interfaces;
+using HotelBooking.Domain.Common;
 using HotelBooking.Domain.Interfaces.Repositories;
-using HotelBooking.Infrastructure.Persistence;
+using HotelBooking.Infrastructure.Data;
 using HotelBooking.Infrastructure.Repositories;
 
 namespace HotelBooking.API.Extensions;
@@ -20,9 +20,12 @@ public static class ConfigureRepositories
         services.AddTransient<IBuildingRepository, BuildingRepository>();
         services.AddTransient<IExtraCategoryRepository, ExtraCategoryRepository>();
         services.AddTransient<IExtraItemRepository, ExtraItemRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddTransient<IInvoiceRepository, InvoiceRepository>();
+        services.AddTransient<IHotelRepository, HotelRepository>();
+        services.AddTransient<IUserHotelRepository, UserHotelRepository>();
 
         services.AddScoped<IUnitOfWorkWithTransaction, EfUnitOfWork>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }

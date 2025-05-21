@@ -1,20 +1,16 @@
-using Asp.Versioning;
-using HotelBooking.Application.CQRS.Booking.Commands;
-using HotelBooking.Application.CQRS.Booking.DTOs;
-using HotelBooking.Application.CQRS.Booking.Queries;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using HotelBooking.Application.CQRS.Booking.Commands.CheckIn;
+using HotelBooking.Application.CQRS.Booking.Commands.CheckOut;
+using HotelBooking.Application.CQRS.Booking.Commands.CreateBooking;
+using HotelBooking.Application.CQRS.Booking.Commands.UpdateBookingStatus;
+using HotelBooking.Application.CQRS.Booking.Queries.GetAllBookings;
+using HotelBooking.Application.CQRS.Booking.Queries.GetBookingById;
+using HotelBooking.Application.CQRS.Booking.Queries.GetBookingsByCustomer;
+using HotelBooking.Application.CQRS.Booking.Queries.GetPendingCheckins;
+using HotelBooking.Application.CQRS.Booking.Queries.GetPendingCheckouts;
 
 namespace HotelBooking.API.Controllers
 {
-    [ApiController]
     [Authorize(Policy = "emailverified")]
-    [ApiVersion("1")]
-    [Route("api/v{version:apiVersion}/[controller]")]
     public class BookingController : BaseController
     {
         public BookingController(IMediator mediator) : base(mediator)
