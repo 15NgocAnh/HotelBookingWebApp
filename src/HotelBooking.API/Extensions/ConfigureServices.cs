@@ -1,4 +1,3 @@
-using HotelBooking.Application.Common.Security;
 using HotelBooking.Infrastructure.Authentication;
 using HotelBooking.Infrastructure.Email;
 using Microsoft.AspNetCore.Identity.UI.Services;

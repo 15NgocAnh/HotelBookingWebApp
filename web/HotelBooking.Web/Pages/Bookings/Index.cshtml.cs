@@ -4,6 +4,11 @@ using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using HotelBooking.Application.CQRS.Booking.Commands.UpdateBookingStatus;
+using HotelBooking.Domain.AggregateModels.BookingAggregate;
+using HotelBooking.Application.CQRS.Booking.Commands.CheckOut;
+using HotelBooking.Application.CQRS.Booking.Commands.CheckIn;
+using HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
 
 namespace HotelBooking.Web.Pages.Bookings;
 
@@ -70,5 +75,182 @@ public class IndexModel : PageModel
             TempData["ErrorMessage"] = "An error occurred while deleting the booking.";
         }
         return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostCheckInAsync(int id, string notes)
+    {
+        try
+        {
+            var resultBookings = await _apiService.GetAsync<List<BookingDto>>("api/booking");
+            if (resultBookings == null)
+            {
+                ErrorMessage = "Failed to fetch bookings.";
+            }
+
+            if (resultBookings.IsSuccess && resultBookings.Data != null)
+            {
+                Bookings = resultBookings.Data;
+            }
+            else
+            {
+                ErrorMessage = resultBookings.Messages.FirstOrDefault()?.Message ?? "Failed to fetch bookings.";
+            }
+
+            var checkInCommand = new CheckInCommand()
+            {
+                Id = id,
+                Notes = notes
+            };
+            var result = await _apiService.PutAsync<Result>($"api/booking/{id}/checkin", checkInCommand);
+
+            if (result == null || !result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result?.Messages.FirstOrDefault()?.Message ?? "Failed to checkin booking.";
+                return Page();
+            }
+
+            TempData["SuccessMessage"] = "Booking has been checkin successfully!";
+            return RedirectToPage("./Index");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checkin booking");
+            TempData["ErrorMessage"] = "An error occurred while checkin the booking.";
+            return Page();
+        }
+    }
+
+    public async Task<IActionResult> OnPostCheckOutAsync(int id)
+    {
+        try
+        {
+            var resultBookings = await _apiService.GetAsync<List<BookingDto>>("api/booking");
+            if (resultBookings == null)
+            {
+                ErrorMessage = "Failed to fetch bookings.";
+            }
+
+            if (resultBookings.IsSuccess && resultBookings.Data != null)
+            {
+                Bookings = resultBookings.Data;
+            }
+            else
+            {
+                ErrorMessage = resultBookings.Messages.FirstOrDefault()?.Message ?? "Failed to fetch bookings.";
+            }
+
+            var checkOutCommand = new CheckOutCommand()
+            {
+                Id = id
+            };
+            var result = await _apiService.PutAsync<Result>($"api/booking/{id}/checkout", checkOutCommand);
+
+            if (result == null || !result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result?.Messages.FirstOrDefault()?.Message ?? "Failed to checkout booking.";
+                return Page();
+            }
+
+            TempData["SuccessMessage"] = "Booking has been checkout successfully!";
+            return RedirectToPage("./Index");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checkin booking");
+            TempData["ErrorMessage"] = "An error occurred while checkout the booking.";
+            return Page();
+        }
+    }
+
+    public async Task<IActionResult> OnPostConfirmAsync(int id)
+    {
+        try
+        {
+            var resultBookings = await _apiService.GetAsync<List<BookingDto>>("api/booking");
+            if (resultBookings == null)
+            {
+                ErrorMessage = "Failed to fetch bookings.";
+            }
+
+            if (resultBookings.IsSuccess && resultBookings.Data != null)
+            {
+                Bookings = resultBookings.Data;
+            }
+            else
+            {
+                ErrorMessage = resultBookings.Messages.FirstOrDefault()?.Message ?? "Failed to fetch bookings.";
+            }
+
+            var updateBooking = new UpdateBookingStatusCommand()
+            {
+                Id = id,
+                Status = BookingStatus.Confirmed
+            };
+            var result = await _apiService.PutAsync<Result>($"api/booking/{id}/status", updateBooking);
+
+            if (result == null || !result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result?.Messages.FirstOrDefault()?.Message ?? "Failed to confirm booking.";
+                return Page();
+            }
+
+            TempData["SuccessMessage"] = "Booking has been confirmed successfully!"; 
+            return Page();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error confirming booking");
+            TempData["ErrorMessage"] = "An error occurred while confirming the booking.";
+            return Page();
+        }
+    }
+
+    public async Task<IActionResult> OnPostCreateInvoiceAsync(int bookingId, string paymentMethod, string? notes)
+    {
+        var resultBookings = await _apiService.GetAsync<List<BookingDto>>("api/booking");
+        if (resultBookings == null)
+        {
+            ErrorMessage = "Failed to fetch bookings.";
+        }
+
+        if (resultBookings.IsSuccess && resultBookings.Data != null)
+        {
+            Bookings = resultBookings.Data;
+        }
+        else
+        {
+            ErrorMessage = resultBookings.Messages.FirstOrDefault()?.Message ?? "Failed to fetch bookings.";
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return Page();
+        }
+
+        try
+        {
+            var createInvoice = new CreateInvoiceCommand()
+            {
+                BookingId = bookingId,
+                Notes = notes,
+                PaymentMethod = paymentMethod
+            };
+            var result = await _apiService.PostAsync<int>($"api/invoice", createInvoice);
+
+            if (result == null || !result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result?.Messages.FirstOrDefault()?.Message ?? "Failed to create invoice booking.";
+                return Page();
+            }
+
+            TempData["SuccessMessage"] = "Booking has been create invoice successfully!"; 
+            return RedirectToPage("/Invoices/Details", new { id = result.Data });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error create invoice booking");
+            TempData["ErrorMessage"] = "An error occurred while create invoice the booking.";
+            return Page();
+        }
     }
 } 

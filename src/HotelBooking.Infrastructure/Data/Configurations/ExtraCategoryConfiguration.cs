@@ -1,7 +1,7 @@
 ﻿using HotelBooking.Domain.AggregateModels.ExtraCategoryAggregate;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Data.Configurations;
+namespace HotelBooking.Infrastructure.Data.Configurations;
 public class ExtraCategoryConfiguration : IEntityTypeConfiguration<ExtraCategory>
 {
     public void Configure(EntityTypeBuilder<ExtraCategory> builder)

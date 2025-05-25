@@ -1,5 +1,4 @@
-﻿using HotelBooking.Application.Common.Interfaces;
-using HotelBooking.Application.Utils.Enum;
+﻿using HotelBooking.Domain.AggregateModels.HotelAggregate;
 using HotelBooking.Domain.AggregateModels.UserAggregate;
 using HotelBooking.Infrastructure.Config;
 using Microsoft.Extensions.Options;
@@ -19,7 +18,7 @@ namespace HotelBooking.Infrastructure.Authentication
             _jwtSetting = jwtSetting.Value;
         }
 
-        public async Task<string> GenerateJWTToken(int id, User user, string roleName)
+        public async Task<string> GenerateJWTToken(int id, User user, string roleName, List<Hotel> hotels)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -32,6 +31,12 @@ namespace HotelBooking.Infrastructure.Authentication
                 new Claim("LastName", user.LastName), // Tên
                 new Claim(ClaimTypes.Role, roleName)
             }; 
+
+            foreach (var hotel in hotels)
+            {
+                claims.Add(new Claim("HotelId", hotel.Id.ToString()));
+            }
+
             var token = new JwtSecurityToken(
                 issuer: _jwtSetting.Issuer,
                 audience: _jwtSetting.Audience,

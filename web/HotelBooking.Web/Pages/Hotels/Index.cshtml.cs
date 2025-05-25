@@ -1,4 +1,3 @@
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Application.CQRS.Hotel.DTOs;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;

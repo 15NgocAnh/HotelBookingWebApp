@@ -96,10 +96,13 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("BookingTime")
+                    b.Property<DateTime>("CheckInDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("CheckInTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CheckOutDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("CheckOutTime")
@@ -129,24 +132,12 @@ namespace HotelBooking.Infrastructure.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("PaidAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("PaymentStatus")
-                        .HasColumnType("int");
-
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
-
-                    b.Property<string>("SpecialRequests")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -391,6 +382,10 @@ namespace HotelBooking.Infrastructure.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("InvoiceNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -401,7 +396,6 @@ namespace HotelBooking.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("PaidAmount")
@@ -696,7 +690,6 @@ namespace HotelBooking.Infrastructure.Migrations
                             SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
 
                             b1.Property<string>("CitizenIdNumber")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
                             b1.Property<string>("FirstName")
@@ -708,11 +701,9 @@ namespace HotelBooking.Infrastructure.Migrations
                                 .HasColumnType("nvarchar(max)");
 
                             b1.Property<string>("PassportNumber")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
                             b1.Property<string>("PhoneNumber")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
                             b1.HasKey("BookingId", "Id");
@@ -723,43 +714,9 @@ namespace HotelBooking.Infrastructure.Migrations
                                 .HasForeignKey("BookingId");
                         });
 
-                    b.OwnsMany("HotelBooking.Domain.AggregateModels.BookingAggregate.Payment", "Payments", b1 =>
-                        {
-                            b1.Property<int>("BookingId")
-                                .HasColumnType("int");
-
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int");
-
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)");
-
-                            b1.Property<string>("Notes")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("PaymentMethod")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<DateTime>("PaymentTime")
-                                .HasColumnType("datetime2");
-
-                            b1.HasKey("BookingId", "Id");
-
-                            b1.ToTable("Payment");
-
-                            b1.WithOwner()
-                                .HasForeignKey("BookingId");
-                        });
-
                     b.Navigation("ExtraUsages");
 
                     b.Navigation("Guests");
-
-                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.BuildingAggregate.Building", b =>
@@ -815,41 +772,7 @@ namespace HotelBooking.Infrastructure.Migrations
                                 .HasForeignKey("InvoiceId");
                         });
 
-                    b.OwnsMany("HotelBooking.Domain.AggregateModels.InvoiceAggregate.PaymentRecord", "Payments", b1 =>
-                        {
-                            b1.Property<int>("InvoiceId")
-                                .HasColumnType("int");
-
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int");
-
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)");
-
-                            b1.Property<string>("Notes")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("PaymentMethod")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<DateTime>("PaymentTime")
-                                .HasColumnType("datetime2");
-
-                            b1.HasKey("InvoiceId", "Id");
-
-                            b1.ToTable("PaymentRecord");
-
-                            b1.WithOwner()
-                                .HasForeignKey("InvoiceId");
-                        });
-
                     b.Navigation("Items");
-
-                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.RoomTypeAggregate.RoomType", b =>

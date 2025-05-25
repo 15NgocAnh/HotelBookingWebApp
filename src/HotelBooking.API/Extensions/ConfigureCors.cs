@@ -2,15 +2,16 @@ namespace HotelBooking.API.Extensions;
 
 public static class ConfigureCors
 {
-    public static IServiceCollection AddCorsConfig(this IServiceCollection services)
+    public static IServiceCollection AddCorsConfig(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddCors(options =>
         {
-            options.AddPolicy("AllowAllOrigins",
+            options.AddPolicy("AllowFrontendWithCredentials",
                 builder =>
                 {
-                    builder.AllowAnyOrigin()
+                    builder.WithOrigins(configuration["Frontend"])
                            .AllowAnyMethod()
+                           .AllowCredentials()
                            .AllowAnyHeader();
                 });
         });
@@ -20,7 +21,7 @@ public static class ConfigureCors
 
     public static IApplicationBuilder UseCorsConfig(this IApplicationBuilder app)
     {
-        app.UseCors("AllowAllOrigins");
+        app.UseCors("AllowFrontendWithCredentials");
         return app;
     }
 } 

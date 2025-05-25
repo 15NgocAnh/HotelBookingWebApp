@@ -21,19 +21,7 @@ public class CreateModel : PageModel
     }
 
     [BindProperty]
-    public string Name { get; set; }
-
-    [BindProperty]
-    public string Address { get; set; }
-
-    [BindProperty]
-    public string? Phone { get; set; }
-
-    [BindProperty]
-    public string? Email { get; set; }
-
-    [BindProperty]
-    public string? Description { get; set; }
+    public CreateHotelCommand Hotel { get; set; }
 
     public IActionResult OnGet()
     {
@@ -49,16 +37,7 @@ public class CreateModel : PageModel
 
         try
         {
-            var hotel = new CreateHotelCommand
-            { 
-                Name = Name, 
-                Address = Address,
-                Phone = Phone,
-                Email = Email,
-                Description = Description
-            };
-            
-            var result = await _apiService.PostAsync<int>("api/hotel", hotel);
+            var result = await _apiService.PostAsync<int>("api/hotel", Hotel);
             
             if (result == null)
             {

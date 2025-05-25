@@ -1,5 +1,6 @@
 using HotelBooking.Application.CQRS.Room.Commands;
 using HotelBooking.Application.CQRS.Room.Queries;
+using HotelBooking.Application.CQRS.Room.Queries.GetAllRoomAvailable;
 
 namespace HotelBooking.API.Controllers
 {
@@ -18,10 +19,26 @@ namespace HotelBooking.API.Controllers
             return HandleResult(result);
         }
 
+        [HttpGet("available")]
+        public async Task<IActionResult> GetAllAvailable()
+        {
+            var query = new GetAllRoomsAvailableQuery();
+            var result = await _mediator.Send(query);
+            return HandleResult(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetRoomByIdQuery(id);
+            var result = await _mediator.Send(query);
+            return HandleResult(result);
+        }
+
+        [HttpGet("building/{buildingId}")]
+        public async Task<IActionResult> GetByBuilding(int buildingId)
+        {
+            var query = new GetRoomsByBuildingQuery(buildingId);
             var result = await _mediator.Send(query);
             return HandleResult(result);
         }

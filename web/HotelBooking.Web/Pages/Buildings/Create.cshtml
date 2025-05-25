@@ -4,6 +4,9 @@
     ViewData["Title"] = "Create Building";
     Layout = "_Layout";
 }
+@{
+    var hotelId = Model.Building.HotelId;
+}
 
 <div class="container-fluid px-4 py-4">
     <div class="card shadow-sm">
@@ -27,34 +30,43 @@
             <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                @if (Model.IsFromHotelContext)
+                {
+                    <input type="hidden" asp-for="Building.HotelId" />
+                }
+                else
+                {
+                    <div class="form-group mb-3">
+                        <label asp-for="Building.HotelId" class="control-label">Hotel</label>
+                        <select asp-for="Building.HotelId" class="form-control">
+                            @foreach (var hotel in Model.Hotels)
+                            {
+                                <option value="@hotel.Id">@hotel.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Building.HotelId" class="text-danger"></span>
+                    </div>
+                }
+
                 <div class="form-group mb-3">
-                    <label asp-for="HotelId" class="control-label">Hotel</label>
-                    <select asp-for="HotelId" class="form-control">
-                        @foreach (var hotel in Model.Hotels)
-                        {
-                            <option value="@hotel.Id">@hotel.Name</option>
-                        }
-                    </select>
-                    <span asp-validation-for="HotelId" class="text-danger"></span>
+                    <label asp-for="Building.Name" class="control-label">Name</label>
+                    <input asp-for="Building.Name" class="form-control" />
+                    <span asp-validation-for="Building.Name" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Name" class="control-label">Name</label>
-                    <input asp-for="Name" class="form-control" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="TotalFloors" class="control-label">Total Floors</label>
-                    <input type="number" min="1" asp-for="TotalFloors" class="form-control" rows="3" />
-                    <span asp-validation-for="TotalFloors" class="text-danger"></span>
+                    <label asp-for="Building.TotalFloors" class="control-label">Total Floors</label>
+                    <input type="number" min="1" asp-for="Building.TotalFloors" class="form-control" rows="3" />
+                    <span asp-validation-for="Building.TotalFloors" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save me-1"></i>Create
                     </button>
-                    <a asp-page="Index" class="btn btn-secondary">
+                    <a href="@(Model.ReturnUrl ?? Url.Page("/Buildings/Index"))" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-1"></i>Back to List
                     </a>
                 </div>

@@ -1,40 +1,25 @@
-using HotelBooking.Application.Common.Models;
-using HotelBooking.Web.Pages.Abstract;
+using HotelBooking.Application.CQRS.Dashboard.Dtos;
 using HotelBooking.Web.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HotelBooking.Web.Pages
 {
-    public class DashboardModel : AbstractPageModel
+    public class DashboardModel : PageModel
     {
         private readonly IApiService _apiService;
+        public DashboardStatisticsDto Statistics { get; set; } = new();
 
-        public DashboardModel(IApiService apiService, IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor) : base(configuration, httpClientFactory, httpContextAccessor)
+        public DashboardModel(IApiService apiService)
         {
             _apiService = apiService;
         }
 
-        public int TotalUsers { get; set; }
-        public decimal MonthlyRevenue { get; set; }
-
         public async Task OnGetAsync()
         {
-            // Gi? l?p g?i API l?y t?ng s? user
-            var userResponse = await _httpClient.GetAsync("https://jsonplaceholder.typicode.com/users");
-            if (userResponse.IsSuccessStatusCode)
+            var result = await _apiService.GetAsync<DashboardStatisticsDto>("api/dashboard/statistics");
+            if (result?.IsSuccess == true && result.Data != null)
             {
-                var users = await userResponse.Content.ReadAsStringAsync();
-                TotalUsers = JsonSerializer.Deserialize<List<object>>(users)?.Count ?? 0;
-            }
-
-            // Gi? l?p g?i API l?y doanh thu tháng (mock data)
-            var revenueResponse = await _httpClient.GetAsync("https://api.mocki.io/v1/ce5f60e2"); // API gi? l?p
-            if (revenueResponse.IsSuccessStatusCode)
-            {
-                var revenueJson = await revenueResponse.Content.ReadAsStringAsync();
-                MonthlyRevenue = JsonSerializer.Deserialize<decimal>(revenueJson);
+                Statistics = result.Data;
             }
         }
     }

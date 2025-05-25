@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace HotelBooking.Web.Services
 {
@@ -72,10 +73,13 @@ namespace HotelBooking.Web.Services
                     return HandleErrorResponse<T>(content);
                 }
 
-                var resultData = JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions
+                var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
-                });
+                };
+                options.Converters.Add(new JsonStringEnumConverter());
+
+                var resultData = JsonSerializer.Deserialize<T>(content, options);
 
                 return Result<T>.Success(resultData!);
             }
@@ -108,10 +112,13 @@ namespace HotelBooking.Web.Services
                     return HandleErrorResponse<T>(content);
                 }
 
-                var resultData = JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions
+                var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
-                });
+                };
+                options.Converters.Add(new JsonStringEnumConverter());
+
+                var resultData = JsonSerializer.Deserialize<T>(content, options);
 
                 return Result<T>.Success(resultData!);
             }

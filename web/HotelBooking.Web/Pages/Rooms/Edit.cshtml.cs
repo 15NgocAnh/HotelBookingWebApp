@@ -1,5 +1,4 @@
 using HotelBooking.Application.Common.Models;
-using HotelBooking.Application.CQRS.Building.DTOs;
 using HotelBooking.Application.CQRS.Room.Commands;
 using HotelBooking.Application.CQRS.Room.DTOs;
 using HotelBooking.Application.CQRS.RoomType.DTOs;
@@ -21,16 +20,22 @@ public class EditModel : PageModel
     }
 
     [BindProperty]
-    public RoomDto Room { get; set; }
+    public RoomDto Room { get; set; } = new();
 
     [BindProperty]
     public List<RoomTypeDto> RoomTypes { get; set; } = new();
+
+    [BindProperty(SupportsGet = true)]
+    public string? ReturnUrl { get; set; }
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
         if (id == null)
         {
-            return NotFound();
+            TempData["ErrorMessage"] = "Failed to fetch room.";
+            return !string.IsNullOrEmpty(ReturnUrl)
+                ? Redirect(ReturnUrl)
+                : RedirectToPage("./Index");
         }
 
         try
@@ -41,7 +46,9 @@ public class EditModel : PageModel
             if (roomResult == null || roomTypesResult == null)
             {
                 TempData["ErrorMessage"] = "Failed to fetch data for room edit.";
-                return RedirectToPage("./Index");
+                return !string.IsNullOrEmpty(ReturnUrl)
+                    ? Redirect(ReturnUrl)
+                    : RedirectToPage("./Index");
             }
 
             if (roomResult.IsSuccess && roomResult.Data != null)
@@ -51,7 +58,9 @@ public class EditModel : PageModel
             else
             {
                 TempData["ErrorMessage"] = roomResult.Messages.FirstOrDefault()?.Message ?? "Failed to fetch room.";
-                return RedirectToPage("./Index");
+                return !string.IsNullOrEmpty(ReturnUrl)
+                    ? Redirect(ReturnUrl)
+                    : RedirectToPage("./Index");
             }
 
             if (roomTypesResult.IsSuccess && roomTypesResult.Data != null)
@@ -65,7 +74,9 @@ public class EditModel : PageModel
         {
             _logger.LogError(ex, "Error occurred while getting room with ID {Id}", id);
             TempData["ErrorMessage"] = "An error occurred while retrieving the room.";
-            return RedirectToPage("./Index");
+            return !string.IsNullOrEmpty(ReturnUrl)
+                ? Redirect(ReturnUrl)
+                : RedirectToPage("./Index");
         }
     }
 
@@ -79,20 +90,10 @@ public class EditModel : PageModel
             {
                 RoomTypes = roomTypesResult.Data;
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error fetching data for room edit");
-            TempData["ErrorMessage"] = "An error occurred while loading the form data.";
-            return RedirectToPage("./Index");
-        }
-        if (!ModelState.IsValid)
-        {
-            return Page();
-        }
-
-        try
-        {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
             var updateRoom = new UpdateRoomCommand()
             {
                 Id = Room.Id,
@@ -111,7 +112,9 @@ public class EditModel : PageModel
             if (result.IsSuccess)
             {
                 TempData["SuccessMessage"] = "Room updated successfully.";
-                return RedirectToPage("./Index");
+                return !string.IsNullOrEmpty(ReturnUrl)
+                    ? Redirect(ReturnUrl)
+                    : RedirectToPage("./Index");
             }
 
             foreach (var message in result.Messages)
@@ -127,4 +130,4 @@ public class EditModel : PageModel
             return Page();
         }
     }
-} 
+}

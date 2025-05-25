@@ -1,10 +1,7 @@
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Domain.AggregateModels.BookingAggregate;
 using HotelBooking.Domain.AggregateModels.RoomAggregate;
 using HotelBooking.Domain.Common;
 using HotelBooking.Domain.Exceptions;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.Booking.Commands.CheckIn
 {
@@ -48,10 +45,9 @@ namespace HotelBooking.Application.CQRS.Booking.Commands.CheckIn
                 {
                     booking.Update(
                         booking.RoomId,
-                        booking.CheckInTime,
-                        booking.CheckOutTime,
+                        booking.CheckInDate,
+                        booking.CheckOutDate,
                         booking.Guests,
-                        booking.SpecialRequests,
                         request.Notes
                     );
                 }

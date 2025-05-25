@@ -1,6 +1,4 @@
 using FluentValidation;
-using HotelBooking.Application.Common.Models;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.Booking.Commands.CheckIn;
 

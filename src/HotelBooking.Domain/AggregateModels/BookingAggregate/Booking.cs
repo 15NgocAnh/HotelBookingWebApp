@@ -1,4 +1,4 @@
-using HotelBooking.Domain.Common;
+using HotelBooking.Domain.AggregateModels.RoomAggregate;
 using HotelBooking.Domain.Exceptions;
 
 namespace HotelBooking.Domain.AggregateModels.BookingAggregate;
@@ -6,14 +6,11 @@ namespace HotelBooking.Domain.AggregateModels.BookingAggregate;
 public class Booking : BaseEntity, IAggregateRoot
 {
     public int RoomId { get; private set; }
-    public DateTime BookingTime { get; private init; }
+    public DateTime CheckInDate { get; private set; }
+    public DateTime CheckOutDate { get; private set; }
     public DateTime? CheckInTime { get; private set; }
     public DateTime? CheckOutTime { get; private set; }
     public BookingStatus Status { get; private set; }
-    public PaymentStatus PaymentStatus { get; private set; }
-    public decimal TotalAmount { get; private set; }
-    public decimal PaidAmount { get; private set; }
-    public string? SpecialRequests { get; private set; }
     public string? Notes { get; private set; }
     public bool IsLateCheckIn { get; private set; }
     public bool IsLateCheckOut { get; private set; }
@@ -26,38 +23,20 @@ public class Booking : BaseEntity, IAggregateRoot
     private readonly List<ExtraUsage> _extraUsages = [];
     public IReadOnlyCollection<ExtraUsage> ExtraUsages => _extraUsages.AsReadOnly();
 
-    private readonly List<Payment> _payments = [];
-    public IReadOnlyCollection<Payment> Payments => _payments.AsReadOnly();
-
     public Booking()
     {
-        
     }
 
-    public Booking(Guest guest)
-    {
-        BookingTime = DateTime.UtcNow;
-        Status = BookingStatus.Pending;
-        PaymentStatus = PaymentStatus.Unpaid;
-        _guests.Add(guest);
-    }
-
-    public Booking(int roomId, IEnumerable<Guest> guests)
+    public Booking(int roomId)
     {
         RoomId = roomId;
-        BookingTime = DateTime.UtcNow;
-        CheckInTime = DateTime.UtcNow;
-        Status = BookingStatus.CheckedIn;
-        PaymentStatus = PaymentStatus.Unpaid;
-        _guests.AddRange(guests);
     }
 
-    public void Update(int roomId, DateTime? checkInTime, DateTime? checkOutTime, IEnumerable<Guest> guests, string? specialRequests = null, string? notes = null)
+    public void Update(int roomId, DateTime checkInDate, DateTime checkOutDate, IEnumerable<Guest> guests, string? notes = null)
     {
         RoomId = roomId;
-        CheckInTime = checkInTime;
-        CheckOutTime = checkOutTime;
-        SpecialRequests = specialRequests;
+        CheckInDate = checkInDate;
+        CheckOutDate = checkOutDate;
         Notes = notes;
         _guests.Clear();
         _guests.AddRange(guests);
@@ -66,8 +45,8 @@ public class Booking : BaseEntity, IAggregateRoot
 
     public void CheckIn()
     {
-        if (Status != BookingStatus.Pending)
-            throw new DomainException("Booking must be in Pending status to check in");
+        if (Status != BookingStatus.Confirmed)
+            throw new DomainException("Booking must be in Confirmed status to check in");
 
         if (CheckInTime.HasValue)
             throw new DomainException("Guest has already checked in");
@@ -92,6 +71,11 @@ public class Booking : BaseEntity, IAggregateRoot
         SetUpdatedAt();
     }
 
+    public bool CanGenerateInvoice()
+    {
+        return Status == BookingStatus.CheckedOut;
+    }
+
     public void AddDamageReport(string report)
     {
         if (string.IsNullOrWhiteSpace(report))
@@ -102,27 +86,28 @@ public class Booking : BaseEntity, IAggregateRoot
         SetUpdatedAt();
     }
 
-    public void AddPayment(decimal amount, string paymentMethod, string? notes = null)
-    {
-        if (amount <= 0)
-            throw new DomainException("Payment amount must be greater than zero");
-
-        var payment = new Payment(amount, paymentMethod, notes);
-        _payments.Add(payment);
-        
-        PaidAmount += amount;
-        UpdatePaymentStatus();
-        SetUpdatedAt();
-    }
-
     public void AddExtraUsage(int extraItemId, string extraItemName, int quantity, decimal unitPrice)
     {
         var totalAmount = quantity * unitPrice;
         var extraUsage = new ExtraUsage(extraItemId, extraItemName, quantity, totalAmount);
         _extraUsages.Add(extraUsage);
         
-        TotalAmount += totalAmount;
-        UpdatePaymentStatus();
+        SetUpdatedAt();
+    }
+
+    public void ClearExtraUsages()
+    {
+        _extraUsages.Clear();
+        SetUpdatedAt();
+    }
+
+    public void Cancel(string? reason = null)
+    {
+        if (Status == BookingStatus.CheckedOut)
+            throw new DomainException("Cannot cancel a checked out booking");
+
+        Status = BookingStatus.Cancelled;
+        Notes = reason ?? Notes;
         SetUpdatedAt();
     }
 
@@ -136,6 +121,11 @@ public class Booking : BaseEntity, IAggregateRoot
             case BookingStatus.Pending:
                 if (Status != BookingStatus.Cancelled)
                     throw new DomainException("Cannot set status to Pending unless it was Cancelled");
+                break;
+
+            case BookingStatus.Confirmed:
+                if (Status != BookingStatus.Pending)
+                    throw new DomainException("Cannot set status to Confirmed unless it was Pending");
                 break;
 
             case BookingStatus.CheckedIn:
@@ -155,8 +145,6 @@ public class Booking : BaseEntity, IAggregateRoot
             case BookingStatus.Cancelled:
                 if (Status == BookingStatus.CheckedOut)
                     throw new DomainException("Cannot cancel a checked out booking");
-                if (PaymentStatus == PaymentStatus.Paid)
-                    throw new DomainException("Cannot cancel a fully paid booking");
                 break;
 
             case BookingStatus.NoShow:
@@ -170,27 +158,5 @@ public class Booking : BaseEntity, IAggregateRoot
 
         Status = newStatus;
         SetUpdatedAt();
-    }
-
-    private void UpdatePaymentStatus()
-    {
-        if (TotalAmount == 0)
-        {
-            PaymentStatus = PaymentStatus.Unpaid;
-            return;
-        }
-
-        if (PaidAmount >= TotalAmount)
-        {
-            PaymentStatus = PaymentStatus.Paid;
-        }
-        else if (PaidAmount > 0)
-        {
-            PaymentStatus = PaymentStatus.PartiallyPaid;
-        }
-        else
-        {
-            PaymentStatus = PaymentStatus.Unpaid;
-        }
     }
 }

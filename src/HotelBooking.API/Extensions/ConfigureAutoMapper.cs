@@ -17,6 +17,7 @@ public static class ConfigureAutoMapper
             options.AddProfile(new RoleMappingProfile());
             options.AddProfile(new HotelMappingProfile());
             options.AddProfile(new BuildingMappingProfile());
+            options.AddProfile(new RoomMappingProfile());
         }).CreateMapper());
 
         return services;

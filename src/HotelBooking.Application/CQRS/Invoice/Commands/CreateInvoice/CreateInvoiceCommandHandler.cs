@@ -1,12 +1,7 @@
-using AutoMapper;
-using HotelBooking.Application.Common.Exceptions;
-using HotelBooking.Application.Common.Models;
-using HotelBooking.Domain.AggregateModels.BookingAggregate;
+﻿using HotelBooking.Application.Common.Exceptions;
 using HotelBooking.Domain.AggregateModels.InvoiceAggregate;
 using HotelBooking.Domain.Common;
 using HotelBooking.Domain.Exceptions;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
@@ -15,6 +10,8 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
 {
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly IBookingRepository _bookingRepository;
+    private readonly IRoomRepository _roomRepository;
+    private readonly IRoomTypeRepository _roomTypeRepository;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CreateInvoiceCommandHandler> _logger;
@@ -22,12 +19,16 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
     public CreateInvoiceCommandHandler(
         IInvoiceRepository invoiceRepository,
         IBookingRepository bookingRepository,
+        IRoomRepository roomRepository,
+        IRoomTypeRepository roomTypeRepository,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<CreateInvoiceCommandHandler> logger)
     {
         _invoiceRepository = invoiceRepository;
         _bookingRepository = bookingRepository;
+        _roomRepository = roomRepository;
+        _roomTypeRepository = roomTypeRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
@@ -44,7 +45,7 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
                 throw new NotFoundException($"Booking with ID {request.BookingId} not found");
             }
 
-            if (booking.Status != BookingStatus.Confirmed)
+            if (!booking.CanGenerateInvoice())
             {
                 throw new DomainException($"Cannot create invoice for booking in {booking.Status} status");
             }
@@ -59,27 +60,40 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
             // Create the invoice
             var invoice = new Domain.AggregateModels.InvoiceAggregate.Invoice(
                 request.BookingId,
-                request.DueDate,
+                booking.CheckOutTime?.AddDays(2) ?? DateTime.Now.AddDays(2),
                 request.PaymentMethod,
                 request.Notes
             );
 
-            // Create invoice items from DTOs
-            var invoiceItems = request.Items.Select(item => new InvoiceItem(
-                item.Description,
-                item.Quantity,
-                item.UnitPrice,
-                item.Type
-            )).ToList();
+            var invoiceNumber = await GenerateInvoiceNumberAsync();
+            invoice.SetInvoiceNumber(invoiceNumber);
 
-            invoice.AddRangeItem(invoiceItems);
+            // Create invoice items from DTOs
+            //var invoiceItems = booking.ExtraUsages.Select(item => new InvoiceItem(
+            //    item.Description,
+            //    item.Quantity,
+            //    item.UnitPrice,
+            //    item.Type
+            //)).ToList();
+
+            //invoice.AddRangeItem(invoiceItems);
+
+            var room = await _roomRepository.GetByIdAsync(booking.RoomId);
+            if (room != null)
+            {
+                var roomType = await _roomTypeRepository.GetByIdAsync(room.RoomTypeId);
+                if (roomType != null)
+                {
+                    invoice.CalculateTotalAmount(roomType.Price);
+                }
+            }
 
             // Add invoice to repository
             await _invoiceRepository.AddAsync(invoice);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation("Created invoice {InvoiceId} for booking {BookingId}", 
-                invoice.Id, request.BookingId);
+            _logger.LogInformation("Created invoice {InvoiceId} ({InvoiceNumber}) for booking {BookingId}",
+                invoice.Id, invoice.InvoiceNumber, request.BookingId);
 
             return Result<int>.Success(invoice.Id);
         }
@@ -95,5 +109,13 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
                 request.BookingId);
             return Result<int>.Failure("An error occurred while creating the invoice");
         }
+    }
+
+    private async Task<string> GenerateInvoiceNumberAsync()
+    {
+        var today = DateTime.UtcNow.Date;
+        var countToday = await _invoiceRepository.CountAsync(i => i.CreatedAt.Date == DateTime.Today.Date);
+
+        return $"INV-{today:yyyyMMdd}-{countToday + 1:0000}";
     }
 } 

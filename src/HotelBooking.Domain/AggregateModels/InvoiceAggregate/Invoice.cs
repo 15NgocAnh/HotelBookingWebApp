@@ -1,12 +1,11 @@
-﻿using HotelBooking.Domain.Common;
-using HotelBooking.Domain.Exceptions;
-using System.Xml.Linq;
+﻿using HotelBooking.Domain.Exceptions;
 
 namespace HotelBooking.Domain.AggregateModels.InvoiceAggregate
 {
     public class Invoice : BaseEntity, IAggregateRoot
     {
         public int BookingId { get; private set; }
+        public string InvoiceNumber { get; private set; } 
         public decimal TotalAmount { get; private set; }
         public decimal PaidAmount { get; private set; }
         public decimal RemainingAmount { get; private set; }
@@ -14,7 +13,7 @@ namespace HotelBooking.Domain.AggregateModels.InvoiceAggregate
         public DateTime DueDate { get; private set; }
         public DateTime? PaidDate { get; private set; }
         public string PaymentMethod { get; private set; }
-        public string Notes { get; private set; }
+        public string? Notes { get; private set; }
         public bool IsLatePayment { get; private set; }
         public decimal LatePaymentFee { get; private set; }
         public string? CancellationReason { get; private set; }
@@ -23,12 +22,9 @@ namespace HotelBooking.Domain.AggregateModels.InvoiceAggregate
         private readonly List<InvoiceItem> _items = [];
         public IReadOnlyCollection<InvoiceItem> Items => _items.AsReadOnly();
 
-        private readonly List<PaymentRecord> _payments = [];
-        public IReadOnlyCollection<PaymentRecord> Payments => _payments.AsReadOnly();
-
         private Invoice() { } // For EF Core
 
-        public Invoice(int bookingId, DateTime dueDate, string paymentMethod, string notes)
+        public Invoice(int bookingId, DateTime dueDate, string paymentMethod, string? notes)
         {
             BookingId = bookingId;
             DueDate = dueDate;
@@ -59,28 +55,6 @@ namespace HotelBooking.Domain.AggregateModels.InvoiceAggregate
             _items.Clear();
             _items.AddRange(invoiceItems);
             UpdateTotalAmount();
-        }
-
-        public void AddPayment(decimal amount, string paymentMethod, string? notes = null)
-        {
-            if (amount <= 0)
-                throw new DomainException("Payment amount must be greater than zero");
-
-            if (Status == InvoiceStatus.Cancelled)
-                throw new DomainException("Cannot add payment to a cancelled invoice");
-
-            var payment = new PaymentRecord(amount, paymentMethod, notes);
-            _payments.Add(payment);
-
-            PaidAmount += amount;
-            UpdateStatus();
-
-            if (PaidAmount >= TotalAmount)
-            {
-                PaidDate = DateTime.UtcNow;
-            }
-
-            SetUpdatedAt();
         }
 
         public void UpdateStatus(InvoiceStatus newStatus, decimal paidAmount, string paymentMethod, string notes)
@@ -189,6 +163,28 @@ namespace HotelBooking.Domain.AggregateModels.InvoiceAggregate
 
             var daysLate = (DateTime.UtcNow - DueDate).Days;
             LatePaymentFee = Math.Round(RemainingAmount * 0.01m * daysLate, 2); // 1% per day late
+        }
+
+        public void CalculateTotalAmount(decimal roomPrice)
+        {
+            TotalAmount += roomPrice;
+            foreach (var item in _items)
+            {
+                TotalAmount += item.TotalPrice;
+            }
+            CalculateRemainingAmount();
+        }
+
+        public void CalculateRemainingAmount()
+        {
+            RemainingAmount = TotalAmount - PaidAmount;
+        }
+
+        public void SetInvoiceNumber(string invoiceNumber)
+        {
+            if (!string.IsNullOrEmpty(InvoiceNumber))
+                throw new DomainException("Invoice number is already set.");
+            InvoiceNumber = invoiceNumber;
         }
     }
 }

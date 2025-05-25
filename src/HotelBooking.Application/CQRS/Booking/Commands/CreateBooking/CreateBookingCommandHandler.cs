@@ -1,10 +1,6 @@
-using AutoMapper;
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Domain.AggregateModels.BookingAggregate;
 using HotelBooking.Domain.Common;
 using HotelBooking.Domain.Exceptions;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.Booking.Commands.CreateBooking
 {
@@ -60,15 +56,15 @@ namespace HotelBooking.Application.CQRS.Booking.Commands.CreateBooking
                 )).ToList();
 
                 // Create booking with the first guest
-                var booking = new Domain.AggregateModels.BookingAggregate.Booking(guests.First());
+                var booking = new Domain.AggregateModels.BookingAggregate.Booking(request.RoomId);
 
                 // Add remaining guests and update booking details
                 booking.Update(
                     request.RoomId,
                     request.CheckInDate,
                     request.CheckOutDate,
-                    guests.Skip(1),
-                    request.SpecialRequests
+                    guests,
+                    request.Notes
                 );
 
                 // Add booking to repository

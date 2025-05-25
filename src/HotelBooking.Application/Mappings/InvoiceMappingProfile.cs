@@ -9,7 +9,7 @@ namespace HotelBooking.Application.Mappings
         public InvoiceMappingProfile()
         {
             CreateMap<Invoice, InvoiceDto>();
-            CreateMap<Payment, PaymentDto>();
+            CreateMap<InvoiceItem, InvoiceItemDto>();
         }
     }
 }

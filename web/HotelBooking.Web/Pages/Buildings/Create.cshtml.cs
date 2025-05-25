@@ -1,13 +1,8 @@
 using HotelBooking.Application.CQRS.Building.Commands;
-using HotelBooking.Application.CQRS.Building.DTOs;
 using HotelBooking.Application.CQRS.Hotel.DTOs;
-using HotelBooking.Application.CQRS.Hotel.Queries.GetHotelById;
-using HotelBooking.Application.Common.Models;
-using HotelBooking.Domain.AggregateModels.HotelAggregate;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
 
 namespace HotelBooking.Web.Pages.Buildings;
 
@@ -23,24 +18,28 @@ public class CreateModel : PageModel
     }
 
     [BindProperty]
-    public int HotelId { get; set; }
+    public CreateBuildingCommand Building { get; set; } = new();
 
     [BindProperty]
-    public List<HotelDto> Hotels { get; set; }
+    public List<HotelDto> Hotels { get; set; } = new List<HotelDto>();
 
-    [BindProperty]
-    public string Name { get; set; }
+    [BindProperty(SupportsGet = true)] 
+    public string? ReturnUrl { get; set; }
 
-    [BindProperty]
-    public int TotalFloors { get; set; }
+    public bool IsFromHotelContext => !string.IsNullOrEmpty(Building.HotelId.ToString());
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync(int? hotelId)
     {
+        if (hotelId.HasValue)
+            Building.HotelId = hotelId.Value;
+
         var result = await _apiService.GetAsync<List<HotelDto>>("api/hotel");
         if (result == null)
         {
             TempData["ErrorMessage"] = "Failed to fetch hotels.";
-            return RedirectToPage("./Index");
+            return !string.IsNullOrEmpty(ReturnUrl)
+                ? Redirect(ReturnUrl)
+                : RedirectToPage("./Index");
         }
 
         if (result.IsSuccess && result.Data != null)
@@ -50,27 +49,29 @@ public class CreateModel : PageModel
         else
         {
             TempData["ErrorMessage"] = result.Messages.FirstOrDefault()?.Message ?? "Failed to fetch hotels.";
-            return RedirectToPage("./Index");
+            return !string.IsNullOrEmpty(ReturnUrl)
+                ? Redirect(ReturnUrl)
+                : RedirectToPage("./Index");
         }
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
+        var hotels = await _apiService.GetAsync<List<HotelDto>>("api/hotel");
+        if (hotels != null && hotels.IsSuccess && hotels.Data != null)
+        {
+            Hotels = hotels.Data;
+        }
+
         if (!ModelState.IsValid)
         {
-            var result = await _apiService.GetAsync<List<HotelDto>>("api/hotel");
-            if (result != null && result.IsSuccess && result.Data != null)
-            {
-                Hotels = result.Data;
-            }
             return Page();
         }
 
         try
         {
-            var building = new CreateBuildingCommand { HotelId = HotelId, Name = Name, TotalFloors = TotalFloors };
-            var result = await _apiService.PostAsync<int>("api/building", building);
+            var result = await _apiService.PostAsync<int>("api/building", Building);
             
             if (result == null)
             {
@@ -81,7 +82,9 @@ public class CreateModel : PageModel
             if (result.IsSuccess)
             {
                 TempData["SuccessMessage"] = "Building created successfully!";
-                return RedirectToPage("./Index");
+                return !string.IsNullOrEmpty(ReturnUrl)
+                    ? Redirect(ReturnUrl)
+                    : RedirectToPage("./Index");
             }
             
             foreach (var message in result.Messages)

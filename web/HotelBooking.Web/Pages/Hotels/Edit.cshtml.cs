@@ -1,14 +1,9 @@
 using HotelBooking.Application.Common.Models;
-using HotelBooking.Application.CQRS.Hotel.Commands;
 using HotelBooking.Application.CQRS.Hotel.Commands.UpdateHotel;
 using HotelBooking.Application.CQRS.Hotel.DTOs;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using System.Net;
-using System.Numerics;
-using System.Xml.Linq;
 
 namespace HotelBooking.Web.Pages.Hotels;
 

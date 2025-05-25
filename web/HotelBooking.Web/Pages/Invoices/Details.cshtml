@@ -1,0 +1,102 @@
+﻿@page
+@using HotelBooking.Domain.AggregateModels.InvoiceAggregate
+@model HotelBooking.Web.Pages.Invoices.DetailsModel
+@{
+    ViewData["Title"] = $"Hóa đơn #{Model.Invoice?.InvoiceNumber}";
+    Layout = "_Layout";
+    var statuses = new[] {
+        InvoiceStatus.Pending,
+        InvoiceStatus.PartiallyPaid,
+        InvoiceStatus.Paid,
+        InvoiceStatus.Overdue,
+        InvoiceStatus.Cancelled
+    };
+}
+
+@if (Model.Invoice == null)
+{
+    <div class="alert alert-danger">Không tìm thấy hóa đơn.</div>
+    return;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Hóa đơn – @Model.Invoice.InvoiceNumber</h3>
+    <span class="badge bg-@GetBadgeColor(Model.Invoice.Status)">
+        @Model.Invoice.Status
+    </span>
+</div>
+
+<!-- Progress steps -->
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center position-relative" style="margin-bottom: 1rem;">
+        <div class="position-absolute top-50 start-0 w-100 translate-middle-y" style="height: 4px; background-color: #dee2e6;"></div>
+        @for (int i = 0; i < statuses.Length; i++)
+        {
+            var status = statuses[i];
+            var isActive = status == Model.Invoice.Status;
+            var isCompleted = i < Array.IndexOf(statuses, Model.Invoice.Status);
+            var badgeColor = isCompleted ? "bg-success" : isActive ? "bg-primary" : "bg-light border";
+
+            <div class="text-center position-relative z-1" style="width: 20%;">
+                <div class="rounded-circle @badgeColor text-white mx-auto mb-2" style="width: 36px; height: 36px; line-height: 36px;">
+                    @(isCompleted ? "✓" : i + 1)
+                </div>
+                <small class="d-block">@status</small>
+            </div>
+        }
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>Hạng mục</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Tiền phòng</td>
+            <td>@Model.Invoice.Items.First(i => i.Description == "Room").Quantity</td>
+            <td>@Model.Invoice.Items.First(i => i.Description == "Room").UnitPrice:N0 ₫</td>
+            <td>@Model.Invoice.Items.First(i => i.Description == "Room").TotalPrice:N0 ₫</td>
+        </tr>
+        @foreach (var item in Model.Invoice.Items.Where(i => i.Description != "Room"))
+        {
+            <tr>
+                <td>@item.Description</td>
+                <td>@item.Quantity</td>
+                <td>@item.UnitPrice:N0 ₫</td>
+                <td>@item.TotalPrice:N0 ₫</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="3" class="text-end">Tổng:</th>
+            <th>@Model.Invoice.TotalAmount:N0 ₫</th>
+        </tr>
+        <tr>
+            <th colspan="3" class="text-end">Đã thanh toán:</th>
+            <th>@Model.Invoice.PaidAmount:N0 ₫</th>
+        </tr>
+        <tr>
+            <th colspan="3" class="text-end">Còn lại:</th>
+            <th>@Model.Invoice.RemainingAmount:N0 ₫</th>
+        </tr>
+    </tfoot>
+</table>
+
+@functions {
+    string GetBadgeColor(InvoiceStatus status) => status switch
+    {
+        InvoiceStatus.Paid => "success",
+        InvoiceStatus.PartiallyPaid => "warning",
+        InvoiceStatus.Pending => "secondary",
+        InvoiceStatus.Overdue => "danger",
+        InvoiceStatus.Cancelled => "dark",
+        _ => "secondary"
+    };
+}

@@ -1,6 +1,4 @@
-using HotelBooking.Domain.Common;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Infrastructure.Extensions;
 

@@ -1,5 +1,5 @@
-﻿using HotelBooking.Application.CQRS.Invoice.Commands;
-using HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
+﻿using HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
+using HotelBooking.Application.CQRS.Invoice.Commands.UpdateInvoiceStatus;
 using HotelBooking.Application.CQRS.Invoice.Queries;
 
 namespace HotelBooking.API.Controllers

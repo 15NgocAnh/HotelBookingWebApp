@@ -17,7 +17,7 @@
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                             Tổng Khách Hàng
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalUsers</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.TotalUsers</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-users fa-2x text-gray-300"></i>
@@ -35,7 +35,7 @@
                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                             Doanh Thu Tháng
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.MonthlyRevenue.ToString("C")</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.MonthlyRevenue.ToString("C")</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -44,4 +44,114 @@
             </div>
         </div>
     </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Tổng Đặt Phòng
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.TotalBookings</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Phòng Trống
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.AvailableRooms</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-door-open fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<div class="row">
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Doanh Thu Theo Tháng</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Thống Kê Loại Phòng</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                    <canvas id="roomTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Revenue Chart
+        var revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        var revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.Statistics.MonthlyRevenueData.Select(x => x.Month))),
+                datasets: [{
+                    label: 'Doanh Thu',
+                    data: @Html.Raw(Json.Serialize(Model.Statistics.MonthlyRevenueData.Select(x => x.Revenue))),
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Room Type Chart
+        var roomTypeCtx = document.getElementById('roomTypeChart').getContext('2d');
+        var roomTypeChart = new Chart(roomTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.Statistics.RoomTypeStatistics.Select(x => x.RoomType))),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.Statistics.RoomTypeStatistics.Select(x => x.BookedCount))),
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)',
+                        'rgb(75, 192, 192)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+}

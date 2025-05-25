@@ -1,8 +1,6 @@
 using FluentValidation;
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
 using HotelBooking.Application.CQRS.Invoice.DTOs;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.Invoice.Commands.UpdateInvoice;
 

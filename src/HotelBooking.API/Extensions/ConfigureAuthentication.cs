@@ -22,6 +22,17 @@ public static class ConfigureAuthentication
                         IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
                     };
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            if (context.Request.Cookies.ContainsKey("JWT"))
+                            {
+                                context.Token = context.Request.Cookies["JWT"];
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
         return services;

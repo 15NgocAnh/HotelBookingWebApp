@@ -1,7 +1,7 @@
 ﻿using HotelBooking.Domain.AggregateModels.BedTypeAggregate;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Data.Configurations;
+namespace HotelBooking.Infrastructure.Data.Configurations;
 public class BedTypeConfiguration : IEntityTypeConfiguration<BedType>
 {
     public void Configure(EntityTypeBuilder<BedType> builder)

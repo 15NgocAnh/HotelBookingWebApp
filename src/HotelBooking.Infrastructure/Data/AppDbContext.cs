@@ -10,7 +10,7 @@ using HotelBooking.Domain.AggregateModels.RoomAggregate;
 using HotelBooking.Domain.AggregateModels.RoomTypeAggregate;
 using HotelBooking.Domain.AggregateModels.UserAggregate;
 using HotelBooking.Domain.Common;
-using Infrastructure.Data.Configurations;
+using HotelBooking.Infrastructure.Data.Configurations;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -69,9 +69,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Invoice>().OwnsMany(b => b.Items);
         modelBuilder.Entity<RoomType>().OwnsMany(b => b.AmenitySetupDetails);
         modelBuilder.Entity<RoomType>().OwnsMany(b => b.BedTypeSetupDetails);
-        //modelBuilder.Entity<Building>().OwnsMany(b => b.Floors);
-        modelBuilder.Entity<Booking>().OwnsMany(b => b.Payments);
-        modelBuilder.Entity<Invoice>().OwnsMany(b => b.Payments);
 
         // Configure value converters for enums
         modelBuilder.Entity<Booking>()

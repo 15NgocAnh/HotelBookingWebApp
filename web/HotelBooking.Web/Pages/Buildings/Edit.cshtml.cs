@@ -19,10 +19,13 @@ public class EditModel : PageModel
     }
 
     [BindProperty]
-    public List<HotelDto> Hotels { get; set; }
+    public List<HotelDto> Hotels { get; set; } = new();
 
     [BindProperty]
-    public BuildingDto Building { get; set; }
+    public BuildingDto Building { get; set; } = new();
+
+    [BindProperty(SupportsGet = true)]
+    public string? ReturnUrl { get; set; }
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
@@ -32,14 +35,19 @@ public class EditModel : PageModel
             if (hotelsResult == null || !hotelsResult.IsSuccess || hotelsResult.Data == null)
             {
                 TempData["ErrorMessage"] = hotelsResult?.Messages.FirstOrDefault()?.Message ?? "Failed to fetch hotels.";
-                return RedirectToPage("./Index");
+                return !string.IsNullOrEmpty(ReturnUrl)
+                    ? Redirect(ReturnUrl)
+                    : RedirectToPage("./Index");
             }
             Hotels = hotelsResult.Data;
 
             var buildingResult = await _apiService.GetAsync<BuildingDto>($"api/building/{id}");
             if (buildingResult == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Failed to fetch building.";
+                return !string.IsNullOrEmpty(ReturnUrl)
+                    ? Redirect(ReturnUrl)
+                    : RedirectToPage("./Index");
             }
 
             if (buildingResult.IsSuccess && buildingResult.Data != null)
@@ -50,26 +58,30 @@ public class EditModel : PageModel
             else
             {
                 TempData["ErrorMessage"] = buildingResult.Messages.FirstOrDefault()?.Message ?? "Failed to fetch building.";
-                return RedirectToPage("./Index");
+                return !string.IsNullOrEmpty(ReturnUrl)
+                    ? Redirect(ReturnUrl)
+                    : RedirectToPage("./Index");
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching building");
             TempData["ErrorMessage"] = "An error occurred while fetching the building.";
-            return RedirectToPage("./Index");
+            return !string.IsNullOrEmpty(ReturnUrl)
+                ? Redirect(ReturnUrl)
+                : RedirectToPage("./Index");
         }
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
+        var hotels = await _apiService.GetAsync<List<HotelDto>>("api/hotel");
+        if (hotels != null && hotels.IsSuccess && hotels.Data != null)
+        {
+            Hotels = hotels.Data;
+        }
         if (!ModelState.IsValid)
         {
-            var result = await _apiService.GetAsync<List<HotelDto>>("api/hotel");
-            if (result != null && result.IsSuccess && result.Data != null)
-            {
-                Hotels = result.Data;
-            }
             return Page();
         }
 
@@ -86,7 +98,9 @@ public class EditModel : PageModel
             if (result.IsSuccess)
             {
                 TempData["SuccessMessage"] = "Building updated successfully!";
-                return RedirectToPage("./Index");
+                return !string.IsNullOrEmpty(ReturnUrl)
+                    ? Redirect(ReturnUrl)
+                    : RedirectToPage("./Index");
             }
             
             foreach (var message in result.Messages)

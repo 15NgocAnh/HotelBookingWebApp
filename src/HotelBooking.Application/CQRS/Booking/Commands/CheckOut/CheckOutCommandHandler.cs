@@ -1,7 +1,5 @@
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Domain.AggregateModels.RoomAggregate;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
+using HotelBooking.Domain.Common;
 
 namespace HotelBooking.Application.CQRS.Booking.Commands.CheckOut
 {
@@ -9,13 +7,16 @@ namespace HotelBooking.Application.CQRS.Booking.Commands.CheckOut
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IRoomRepository _roomRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public CheckOutCommandHandler(
             IBookingRepository bookingRepository,
-            IRoomRepository roomRepository)
+            IRoomRepository roomRepository,
+            IUnitOfWork unitOfWork)
         {
             _bookingRepository = bookingRepository;
             _roomRepository = roomRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result> Handle(CheckOutCommand request, CancellationToken cancellationToken)
@@ -36,7 +37,7 @@ namespace HotelBooking.Application.CQRS.Booking.Commands.CheckOut
                 booking.CheckOut();
                 room.UpdateStatus(RoomStatus.CleaningUp);
 
-                await _bookingRepository.UnitOfWork.SaveChangesAsync(cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 return Result.Success();
             }

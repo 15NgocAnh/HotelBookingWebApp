@@ -1,7 +1,7 @@
 ﻿using HotelBooking.Domain.AggregateModels.ExtraItemAggregate;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Data.Configurations;
+namespace HotelBooking.Infrastructure.Data.Configurations;
 public class ExtraItemConfiguration : IEntityTypeConfiguration<ExtraItem>
 {
     public void Configure(EntityTypeBuilder<ExtraItem> builder)

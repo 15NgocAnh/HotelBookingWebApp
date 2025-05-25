@@ -1,4 +1,4 @@
-﻿namespace HotelBooking.Application.Utils.Variable
+﻿namespace HotelBooking.Domain.Utils.Variable
 {
     public static class RegexUtils
     {

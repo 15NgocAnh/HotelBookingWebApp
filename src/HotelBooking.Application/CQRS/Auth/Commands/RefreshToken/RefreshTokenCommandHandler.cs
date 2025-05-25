@@ -1,5 +1,6 @@
 using HotelBooking.Application.Common.Interfaces;
 using HotelBooking.Application.CQRS.Auth.DTOs;
+using HotelBooking.Domain.Interfaces.Repositories;
 using System.Security.Claims;
 
 namespace HotelBooking.Application.CQRS.Auth.Commands.RefreshToken
@@ -8,17 +9,20 @@ namespace HotelBooking.Application.CQRS.Auth.Commands.RefreshToken
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IUserHotelRepository _userHotelRepository;
         private readonly IJWTHelper _jWTHelper;
         private readonly IMapper _mapper;
 
         public RefreshTokenCommandHandler(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
+            IUserHotelRepository userHotelRepository,
             IJWTHelper jWTHelper,
             IMapper mapper)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            _userHotelRepository = userHotelRepository;
             _jWTHelper = jWTHelper;
             _mapper = mapper;
         }
@@ -38,8 +42,9 @@ namespace HotelBooking.Application.CQRS.Auth.Commands.RefreshToken
                 return Result<LoginResponseDto>.Failure("User account is inactive");
 
             var role = await _roleRepository.GetRolesByUserIdAsync(user.Id);
+            var hotels = await _userHotelRepository.GetAllByUserAsync(user.Id);
 
-            var newAccessToken = await _jWTHelper.GenerateJWTToken(user.Id, user, role.Name);
+            var newAccessToken = await _jWTHelper.GenerateJWTToken(user.Id, user, role.Name, hotels);
             var refreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             var newRefreshToken = await _jWTHelper.GenerateJWTRefreshToken(user.Id, refreshTokenExpiryTime);
 
@@ -48,6 +53,7 @@ namespace HotelBooking.Application.CQRS.Auth.Commands.RefreshToken
             response.RefreshToken = newRefreshToken;
             response.RefreshTokenExpiryTime = refreshTokenExpiryTime;
             response.Role = role.Name;
+            response.HotelIds = hotels.Select(h => h.Id).ToList();
 
             return Result<LoginResponseDto>.Success(response);
         }

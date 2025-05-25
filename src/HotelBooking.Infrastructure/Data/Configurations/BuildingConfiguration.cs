@@ -1,7 +1,7 @@
 ﻿using HotelBooking.Domain.AggregateModels.BuildingAggregate;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Data.Configurations;
+namespace HotelBooking.Infrastructure.Data.Configurations;
 public class BuildingConfiguration : IEntityTypeConfiguration<Building>
 {
     public void Configure(EntityTypeBuilder<Building> builder)

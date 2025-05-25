@@ -10,9 +10,8 @@ namespace HotelBooking.Application.CQRS.Invoice.DTOs
         public DateTime IssueDate { get; set; }
         public DateTime DueDate { get; set; }
         public decimal TotalAmount { get; set; }
-        public decimal TaxAmount { get; set; }
-        public decimal DiscountAmount { get; set; }
-        public decimal FinalAmount { get; set; }
+        public decimal PaidAmount { get; set; }
+        public decimal RemainingAmount { get; set; }
         public InvoiceStatus Status { get; set; }
         public string? Notes { get; set; }
         public List<InvoiceItemDto> Items { get; set; } = new();

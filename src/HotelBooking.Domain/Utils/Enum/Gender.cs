@@ -1,4 +1,4 @@
-﻿namespace HotelBooking.Application.Utils.Enum
+﻿namespace HotelBooking.Domain.Utils.Enum
 {
     public enum Gender
     {

@@ -1,7 +1,4 @@
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Application.CQRS.Building.DTOs;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.Building.Queries
 {

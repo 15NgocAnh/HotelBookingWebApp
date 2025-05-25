@@ -7,6 +7,8 @@ public static class ConfigureControllers
 {
     public static IServiceCollection AddControllersConfig(this IServiceCollection services)
     {
+        services.AddHttpContextAccessor();
+
         services.AddControllers(options =>
         {
             options.Filters.Add<ApiExceptionFilterAttribute>();

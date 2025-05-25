@@ -57,5 +57,27 @@ namespace HotelBooking.Infrastructure.Repositories
             return await _context.Invoices
                 .AnyAsync(i => i.BookingId == bookingId && i.Status == InvoiceStatus.Pending);
         }
+
+        public async Task<decimal> GetMonthlyRevenueBookingAsync(int currentMonth, int currentYear)
+        {
+            return await _context.Invoices.Where(
+                b => b.CreatedAt.Month == currentMonth 
+                && b.CreatedAt.Year == currentYear 
+                && !b.IsDeleted && 
+                b.Status == InvoiceStatus.Paid)
+                .SumAsync(b => b.TotalAmount);
+        }
+
+        public async Task<List<(DateTime CreatedAt, decimal TotalAmount)>> GetInvoiceSummariesAsync(
+            Expression<Func<Invoice, bool>> predicate,
+            CancellationToken cancellationToken)
+        {
+            return await _context.Invoices
+                .Where(predicate)
+                .Select(i => new { i.CreatedAt, i.TotalAmount })
+                .AsNoTracking()
+                .ToListAsync(cancellationToken)
+                .ContinueWith(t => t.Result.Select(x => (x.CreatedAt, x.TotalAmount)).ToList(), cancellationToken);
+        }
     }
 } 

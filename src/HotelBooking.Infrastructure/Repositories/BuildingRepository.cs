@@ -1,5 +1,5 @@
-﻿using HotelBooking.Application.CQRS.Building.DTOs;
-using HotelBooking.Domain.AggregateModels.BuildingAggregate;
+﻿using HotelBooking.Domain.AggregateModels.BuildingAggregate;
+using Microsoft.Data.SqlClient;
 
 namespace HotelBooking.Infrastructure.Repositories;
 
@@ -53,7 +53,19 @@ public class BuildingRepository : GenericRepository<Building>, IBuildingReposito
     public async Task<IEnumerable<Floor>> GetAllFloorsByBuildingIdAsync(int buildingId)
     {
         return await _context.Buildings
-                .SelectMany(b => b.Floors.Select(f => new Floor(f.Number, f.Name)))
+                .Where(b => b.Id == buildingId)
+                .SelectMany(b => b.Floors
+                    .Where(f => !f.IsDeleted)
+                    .Select(f => new Floor(f.Id, f.Number, f.Name)))
                 .ToListAsync();
+    }
+
+    public async Task<Floor> GetFloorByIdAsync(int floorId)
+    {
+        var building = await _context.Buildings
+            .Include(b => b.Floors) 
+            .FirstOrDefaultAsync(b => b.Floors.Any(f => f.Id == floorId));
+
+        return building?.Floors.FirstOrDefault(f => f.Id == floorId);
     }
 }

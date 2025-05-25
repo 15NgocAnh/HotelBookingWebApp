@@ -2,6 +2,8 @@ using HotelBooking.API.Extensions;
 using HotelBooking.API.Middleware;
 using HotelBooking.Infrastructure.Config;
 using HotelBooking.Infrastructure.Data;
+using OfficeOpenXml;
+using QuestPDF.Infrastructure;
 
 /// <summary>
 /// Entry point for the Hotel Booking API application.
@@ -23,10 +25,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services
     .AddSwaggerConfig()
     .AddJwtAuthentication(builder.Configuration)
-    .AddCorsConfig()
+    .AddCorsConfig(builder.Configuration)
     .AddControllersConfig()
     .AddAuthorizationConfig()
     .AddApplicationServices();
+
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial; 
+QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 

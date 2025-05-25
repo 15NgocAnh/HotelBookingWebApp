@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Data.Configurations;
+﻿namespace HotelBooking.Infrastructure.Data.Configurations;
 public class DataSchemaConstants
 {
     public const int DEFAULT_NAME_LENGTH = 100;

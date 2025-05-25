@@ -1,6 +1,8 @@
+using HotelBooking.Application.Common.Models;
 using HotelBooking.Application.CQRS.Booking.Commands.CheckIn;
 using HotelBooking.Application.CQRS.Booking.Commands.CheckOut;
 using HotelBooking.Application.CQRS.Booking.Commands.CreateBooking;
+using HotelBooking.Application.CQRS.Booking.Commands.UpdateBooking;
 using HotelBooking.Application.CQRS.Booking.Commands.UpdateBookingStatus;
 using HotelBooking.Application.CQRS.Booking.Queries.GetAllBookings;
 using HotelBooking.Application.CQRS.Booking.Queries.GetBookingById;
@@ -34,7 +36,7 @@ namespace HotelBooking.API.Controllers
             return HandleResult(result);
         }
 
-        [HttpPost("{id}/checkin")]
+        [HttpPut("{id}/checkin")]
         public async Task<IActionResult> CheckIn(int id, [FromBody] CheckInCommand command)
         {
             if (id != command.Id)
@@ -44,7 +46,7 @@ namespace HotelBooking.API.Controllers
             return HandleResult(result);
         }
 
-        [HttpPost("{id}/checkout")]
+        [HttpPut("{id}/checkout")]
         public async Task<IActionResult> CheckOut(int id, [FromBody] CheckOutCommand command)
         {
             if (id != command.Id)
@@ -91,6 +93,19 @@ namespace HotelBooking.API.Controllers
         {
             var query = new GetPendingCheckoutsQuery { Date = date };
             var result = await _mediator.Send(query);
+            return HandleResult(result);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateBooking(int id, [FromBody] UpdateBookingCommand command)
+        {
+            if (id != command.Id)
+            {
+                return BadRequest(Result.Failure("Invalid booking ID"));
+            }
+
+            var result = await _mediator.Send(command);
+
             return HandleResult(result);
         }
     }

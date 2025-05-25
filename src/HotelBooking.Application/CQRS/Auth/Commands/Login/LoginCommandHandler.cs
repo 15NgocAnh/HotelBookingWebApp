@@ -11,6 +11,7 @@ namespace HotelBooking.Application.CQRS.Auth.Commands.Login
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IUserHotelRepository _userHotelRepository;
         private readonly IJWTHelper _jWTHelper;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IMapper _mapper;
@@ -18,12 +19,14 @@ namespace HotelBooking.Application.CQRS.Auth.Commands.Login
         public LoginCommandHandler(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
+            IUserHotelRepository userHotelRepository,
             IJWTHelper jWTHelper,
             IPasswordHasher passwordHasher,
             IMapper mapper)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            _userHotelRepository = userHotelRepository;
             _jWTHelper = jWTHelper;
             _passwordHasher = passwordHasher;
             _mapper = mapper;
@@ -45,8 +48,9 @@ namespace HotelBooking.Application.CQRS.Auth.Commands.Login
             await _userRepository.UpdateAsync(user);
 
             var role = await _roleRepository.GetRolesByUserIdAsync(user.Id);
+            var hotels = await _userHotelRepository.GetAllByUserAsync(user.Id);
 
-            var token = await _jWTHelper.GenerateJWTToken(user.Id, user, role.Name);
+            var token = await _jWTHelper.GenerateJWTToken(user.Id, user, role.Name, hotels);
             var refreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             var refreshToken = await _jWTHelper.GenerateJWTRefreshToken(user.Id, refreshTokenExpiryTime);
 
@@ -55,6 +59,7 @@ namespace HotelBooking.Application.CQRS.Auth.Commands.Login
             response.RefreshToken = refreshToken;
             response.RefreshTokenExpiryTime = refreshTokenExpiryTime;
             response.Role = role.Name;
+            response.HotelIds = hotels.Select(h => h.Id).ToList();
 
             return Result<LoginResponseDto>.Success(response);
         }

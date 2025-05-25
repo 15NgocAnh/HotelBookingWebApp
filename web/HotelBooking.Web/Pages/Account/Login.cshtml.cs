@@ -1,5 +1,6 @@
 ﻿using HotelBooking.Application.CQRS.Auth.Commands.Login;
 using HotelBooking.Application.CQRS.Auth.DTOs;
+using HotelBooking.Domain.AggregateModels.HotelAggregate;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -76,6 +77,11 @@ namespace HotelBooking.Web.Pages.Account
                         new Claim(ClaimTypes.Role, userData.Role),
                         new Claim("LocationAccess", "true")
                     };
+
+                    foreach (var hotelId in userData.HotelIds)
+                    {
+                        claims.Add(new Claim("HotelId", hotelId.ToString()));
+                    }
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var authProperties = new AuthenticationProperties

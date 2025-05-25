@@ -1,10 +1,9 @@
-using HotelBooking.Application.CQRS.Booking.DTOs;
+using HotelBooking.Application.CQRS.Booking.Commands.CreateBooking;
+using HotelBooking.Application.CQRS.ExtraItem.DTOs;
 using HotelBooking.Application.CQRS.Room.DTOs;
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
 
 namespace HotelBooking.Web.Pages.Bookings;
 
@@ -20,54 +19,40 @@ public class CreateModel : PageModel
     }
 
     [BindProperty]
-    public string GuestName { get; set; }
-
-    [BindProperty]
-    public string GuestEmail { get; set; }
-
-    [BindProperty]
-    public string GuestPhone { get; set; }
-
-    [BindProperty]
-    public int RoomId { get; set; }
-
-    [BindProperty]
-    public DateTime CheckInDate { get; set; }
-
-    [BindProperty]
-    public DateTime CheckOutDate { get; set; }
-
-    [BindProperty]
-    public string SpecialRequests { get; set; }
+    public CreateBookingCommand Booking { get; set; } = new();
 
     public List<RoomDto> AvailableRooms { get; set; } = new();
+    public List<ExtraItemDto> AvailableExtraItems { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync()
     {
         try
         {
-            var result = await _apiService.GetAsync<List<RoomDto>>("api/room/available");
-            if (result == null)
+            // Get available rooms
+            var roomsResult = await _apiService.GetAsync<List<RoomDto>>("api/room/available");
+            if (roomsResult == null || !roomsResult.IsSuccess || roomsResult.Data == null)
             {
-                TempData["ErrorMessage"] = "Failed to fetch available rooms.";
+                TempData["ErrorMessage"] = roomsResult?.Messages.FirstOrDefault()?.Message ?? "Failed to fetch available rooms.";
                 return RedirectToPage("./Index");
             }
 
-            if (result.IsSuccess && result.Data != null)
+            // Get available extra items
+            var extraItemsResult = await _apiService.GetAsync<List<ExtraItemDto>>("api/extraitem");
+            if (extraItemsResult == null || !extraItemsResult.IsSuccess || extraItemsResult.Data == null)
             {
-                AvailableRooms = result.Data;
-                return Page();
-            }
-            else
-            {
-                TempData["ErrorMessage"] = result.Messages.FirstOrDefault()?.Message ?? "Failed to fetch available rooms.";
+                TempData["ErrorMessage"] = extraItemsResult?.Messages.FirstOrDefault()?.Message ?? "Failed to fetch extra items.";
                 return RedirectToPage("./Index");
             }
+
+            AvailableRooms = roomsResult.Data;
+            AvailableExtraItems = extraItemsResult.Data;
+
+            return Page();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching available rooms");
-            TempData["ErrorMessage"] = "An error occurred while loading available rooms.";
+            _logger.LogError(ex, "Error loading create booking page");
+            TempData["ErrorMessage"] = "An error occurred while loading the page.";
             return RedirectToPage("./Index");
         }
     }
@@ -76,61 +61,39 @@ public class CreateModel : PageModel
     {
         if (!ModelState.IsValid)
         {
-            try
+            // Reload available rooms and extra items
+            var roomsResult = await _apiService.GetAsync<List<RoomDto>>("api/room/available");
+            if (roomsResult?.IsSuccess == true && roomsResult.Data != null)
             {
-                var result = await _apiService.GetAsync<List<RoomDto>>("api/room/available");
-                if (result != null && result.IsSuccess && result.Data != null)
-                {
-                    AvailableRooms = result.Data;
-                }
+                AvailableRooms = roomsResult.Data;
             }
-            catch (Exception ex)
+
+            var extraItemsResult = await _apiService.GetAsync<List<ExtraItemDto>>("api/extraitem");
+            if (extraItemsResult?.IsSuccess == true && extraItemsResult.Data != null)
             {
-                _logger.LogError(ex, "Error fetching available rooms");
-                TempData["ErrorMessage"] = "An error occurred while loading available rooms.";
-                return RedirectToPage("./Index");
+                AvailableExtraItems = extraItemsResult.Data;
             }
+
             return Page();
         }
 
         try
         {
-            var booking = new BookingDto
-            {
-                CustomerName = GuestName,
-                CustomerEmail = GuestEmail,
-                CustomerPhone = GuestPhone,
-                RoomId = RoomId,
-                CheckInDate = CheckInDate,
-                CheckOutDate = CheckOutDate,
-                SpecialRequests = SpecialRequests,
-                Status = Domain.AggregateModels.BookingAggregate.BookingStatus.Pending
-            };
+            var result = await _apiService.PostAsync<int>("api/booking", Booking);
 
-            var result = await _apiService.PostAsync<BookingDto>("api/booking", booking);
-
-            if (result == null)
+            if (result == null || !result.IsSuccess)
             {
-                ModelState.AddModelError(string.Empty, "Failed to create booking.");
+                TempData["ErrorMessage"] = result?.Messages.FirstOrDefault()?.Message ?? "Failed to create booking.";
                 return Page();
             }
 
-            if (result.IsSuccess)
-            {
-                TempData["SuccessMessage"] = "Booking created successfully!";
-                return RedirectToPage("./Index");
-            }
-
-            foreach (var message in result.Messages)
-            {
-                ModelState.AddModelError(string.Empty, message.Message);
-            }
-            return Page();
+            TempData["SuccessMessage"] = "Booking created successfully!";
+            return RedirectToPage("./Index");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating booking");
-            ModelState.AddModelError(string.Empty, "An error occurred while creating the booking.");
+            TempData["ErrorMessage"] = "An error occurred while creating the booking.";
             return Page();
         }
     }

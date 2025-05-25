@@ -1,18 +1,16 @@
 using FluentValidation;
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Application.CQRS.Booking.DTOs;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.Booking.Commands.CreateBooking
 {
     public record CreateBookingCommand : IRequest<Result<int>>
     {
         public int RoomId { get; init; }
-        public int CustomerId { get; init; }
-        public DateTime CheckInDate { get; init; }
-        public DateTime CheckOutDate { get; init; }
-        public string? SpecialRequests { get; init; }
+        public DateTime CheckInDate { get; init; } = DateTime.UtcNow;
+        public DateTime CheckOutDate { get; init; } = DateTime.UtcNow.AddDays(1);
+        public string? Notes { get; init; }
         public List<GuestDto> Guests { get; init; } = new();
+        public List<ExtraUsageDto> ExtraUsages { get; init; } = new();
     }
 
     public class CreateBookingCommandValidator : AbstractValidator<CreateBookingCommand>

@@ -1,7 +1,7 @@
 using HotelBooking.Application.Common.Interfaces;
 using BC = BCrypt.Net.BCrypt;
 
-namespace HotelBooking.Application.Common.Security
+namespace HotelBooking.Infrastructure.Authentication
 {
     public class PasswordHasher : IPasswordHasher
     {
@@ -15,4 +15,4 @@ namespace HotelBooking.Application.Common.Security
             return BC.Verify(password, hash);
         }
     }
-} 
+}

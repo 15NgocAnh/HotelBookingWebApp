@@ -1,6 +1,4 @@
-﻿using HotelBooking.Domain.Common;
-
-namespace HotelBooking.Domain.AggregateModels.BookingAggregate;
+﻿namespace HotelBooking.Domain.AggregateModels.BookingAggregate;
 public class ExtraUsage(int extraItemId, string extraItemName, int quantity, decimal totalAmount) : ValueObject
 {
     public int ExtraItemId { get; private init; } = extraItemId;

@@ -1,7 +1,7 @@
 ﻿using HotelBooking.Domain.AggregateModels.AmenityAggregate;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Data.Configurations;
+namespace HotelBooking.Infrastructure.Data.Configurations;
 public class AmenityConfiguration : IEntityTypeConfiguration<Amenity>
 {
     public void Configure(EntityTypeBuilder<Amenity> builder)
