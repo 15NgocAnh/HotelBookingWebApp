@@ -1,0 +1,109 @@
+@page
+@model HotelBooking.Web.Pages.Rooms.CreateModel
+@{
+    ViewData["Title"] = "Create Room";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h4 class="mb-0 text-primary">
+                        <i class="fas fa-edit me-2"></i>Create Room
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                @if (Model.IsFromBuildingContext)
+                {
+                    <input type="hidden" asp-for="SelectedHotelId" />
+                }
+                else
+                {
+                    <div class="form-group mb-3">
+                        <label asp-for="SelectedHotelId" class="control-label">Hotel</label>
+                        <select asp-for="SelectedHotelId" class="form-control" onchange="this.form.submit();">
+                            @foreach (var hotel in Model.Hotels)
+                            {
+                                <option value="@hotel.Id">@hotel.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="SelectedHotelId" class="text-danger"></span>
+                    </div>
+
+                    @if (Model.SelectedHotelId != null && Model.SelectedHotelId != 0)
+                    {
+                        <div class="form-group mb-3">
+                            <label asp-for="SelectedBuildingId" class="control-label">Building</label>
+                            <select asp-for="SelectedBuildingId" class="form-control" onchange="this.form.submit();">
+                                @foreach (var building in Model.Buildings)
+                                {
+                                    <option value="@building.Id">@building.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SelectedBuildingId" class="text-danger"></span>
+                        </div>
+                    }
+                }
+
+                <div class="form-group mb-3">
+                    <label asp-for="Room.FloorId" class="control-label">Floor</label>
+                    <select asp-for="Room.FloorId" class="form-control">
+                        @foreach (var floor in Model.Floors)
+                        {
+                            <option value="@floor.Id">@floor.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Room.FloorId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Room.Name" class="control-label">Room Number</label>
+                    <input asp-for="Room.Name" class="form-control" />
+                    <span asp-validation-for="Room.Name" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label asp-for="Room.RoomTypeId" class="control-label">Room Type</label>
+                    <select asp-for="Room.RoomTypeId" class="form-control">
+                        @foreach (var roomType in Model.RoomTypes)
+                        {
+                            <option value="@roomType.Id">@roomType.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Room.RoomTypeId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" asp-page-handler="Save" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Save
+                    </button>
+                    <a href="@(Model.ReturnUrl ?? Url.Page("/Rooms/Index"))" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+} 

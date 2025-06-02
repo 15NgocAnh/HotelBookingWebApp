@@ -1,0 +1,116 @@
+@page
+@model HotelBooking.Web.Pages.Users.CreateModel
+@{
+    ViewData["Title"] = "Create User";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row justify-content-between align-items-center">
+                <div class="col">
+                    <h4 class="mb-0 text-primary">
+                        <i class="fas fa-user-plus me-2"></i>Create New User
+                    </h4>
+                </div>
+                <div class="col-auto">
+                    <a asp-page="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @Model.ErrorMessage
+                </div>
+            }
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="UserInput.Email" class="form-label">Email</label>
+                            <input asp-for="UserInput.Email" class="form-control" type="email" />
+                            <span asp-validation-for="UserInput.Email" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="UserInput.Password" class="form-label">Password</label>
+                            <input asp-for="UserInput.Password" class="form-control" type="password" />
+                            <span asp-validation-for="UserInput.Password" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="UserInput.FirstName" class="form-label">First Name</label>
+                            <input asp-for="UserInput.FirstName" class="form-control" />
+                            <span asp-validation-for="UserInput.FirstName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="UserInput.LastName" class="form-label">Last Name</label>
+                            <input asp-for="UserInput.LastName" class="form-control" />
+                            <span asp-validation-for="UserInput.LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="UserInput.HotelIds" class="control-label">Hotel</label>
+                            <select multiple asp-for="UserInput.HotelIds" class="form-control">
+                                @foreach (var hotel in Model.Hotels)
+                                {
+                                    <option value="@hotel.Id">@hotel.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="UserInput.HotelIds" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="UserInput.RoleId" class="control-label">Hotel</label>
+                            <select asp-for="UserInput.RoleId" class="form-control">
+                                @foreach (var role in Model.Roles)
+                                {
+                                    <option value="@role.Id">@role.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="UserInput.RoleId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserInput.PhoneNumber" class="form-label">Phone Number</label>
+                    <input asp-for="UserInput.PhoneNumber" class="form-control" />
+                    <span asp-validation-for="UserInput.PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Create User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} 

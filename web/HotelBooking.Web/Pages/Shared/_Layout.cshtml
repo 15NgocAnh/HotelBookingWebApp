@@ -1,0 +1,295 @@
+﻿@using System.Security.Claims
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    var fullName = string.Empty;
+
+    if (User.Identity.IsAuthenticated)
+    {
+        var firstName = User.FindFirst("FirstName")?.Value ?? "";
+        var lastName = User.FindFirst("LastName")?.Value ?? "";
+        fullName = $"{firstName} {lastName}";
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>@ViewData["Title"] - Admin</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/proton/style.min.css" />
+
+    <!-- Custom styles for this template-->
+    <link rel="stylesheet" href="~/css/sb-admin-2.min.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    @RenderSection("Styles", required: false)
+</head>
+
+<div id="globalLoadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#ffffffcc; z-index:9999; text-align:center; padding-top:20%;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden"></span>
+    </div>
+</div>
+<body id="page-top">
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" asp-page="/Index">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-hotel"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Hotel Admin</div>
+            </a>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Quản Lý</div>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHotel"
+                   aria-expanded="true" aria-controls="collapseHotel">
+                    <i class="fas fa-hotel"></i>
+                    <span>Quản lý khách sạn</span>
+                </a>
+                <div id="collapseHotel" class="collapse" aria-labelledby="headingHotel" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-page="/Hotels/Index">Danh sách khách sạn</a>
+                        <a class="collapse-item" asp-page="/Hotels/Create">Thêm mới khách sạn</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBuilding"
+                   aria-expanded="true" aria-controls="collapseBuilding">
+                    <i class="fas fa-building"></i>
+                    <span>Quản lý tòa nhà</span>
+                </a>
+                <div id="collapseBuilding" class="collapse" aria-labelledby="headingBuilding" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-page="/Buildings/Index">Danh sách tòa nhà</a>
+                        <a class="collapse-item" asp-page="/Buildings/Create">Thêm mới tòa nhà</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRoom"
+                   aria-expanded="true" aria-controls="collapseRoom">
+                    <i class="fas fa-door-open"></i>
+                    <span>Quản lý phòng</span>
+                </a>
+                <div id="collapseRoom" class="collapse" aria-labelledby="headingRoom" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-page="/RoomTypes/Index">Danh sách loại phòng</a>
+                        <a class="collapse-item" asp-page="/Rooms/Index">Danh sách phòng</a>
+                        <a class="collapse-item" asp-page="/Rooms/Create">Thêm mới phòng</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseExtra"
+                   aria-expanded="true" aria-controls="collapseExtra">
+                    <i class="fas fa-utensils"></i>
+                    <span>Quản lý dịch vụ bổ sung</span>
+                </a>
+                <div id="collapseExtra" class="collapse" aria-labelledby="headingExtra" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-page="/ExtraCategories/Index">Danh mục dịch vụ</a>
+                        <a class="collapse-item" asp-page="/ExtraItems/Index">Danh sách dịch vụ</a>
+                        <a class="collapse-item" asp-page="/ExtraItems/Create">Thêm mới dịch vụ </a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAmenity"
+                   aria-expanded="true" aria-controls="collapseAmenity">
+                    <i class="fas fa-concierge-bell"></i>
+                    <span>Quản lý tiện ích</span>
+                </a>
+                <div id="collapseAmenity" class="collapse" aria-labelledby="headingAmentity" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-page="/Amenities/Index">Danh sách tiện ích</a>
+                        <a class="collapse-item" asp-page="/Amenities/Create">Thêm mới tiện ích</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBed"
+                   aria-expanded="true" aria-controls="collapseBed">
+                    <i class="fas fa-bed"></i>
+                    <span>Quản lý giường</span>
+                </a>
+                <div id="collapseBed" class="collapse" aria-labelledby="headingBed" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-page="/BedTypes/Index">Loại giường</a>
+                        <a class="collapse-item" asp-page="/BedTypes/Create">Thêm mới loại giường</a>
+                    </div>
+                </div>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Đặt phòng & Hóa đơn</div>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBooking"
+                   aria-expanded="true" aria-controls="collapseBooking">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Quản lý đặt phòng</span>
+                </a>
+                <div id="collapseBooking" class="collapse" aria-labelledby="headingBooking" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-page="/Bookings/Index">Danh sách đặt phòng</a>
+                        <a class="collapse-item" asp-page="/Bookings/Create">Tạo đặt phòng mới</a>
+                        <a class="collapse-item" asp-page="/Bookings/Calendar">Lịch đặt phòng</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInvoice"
+                   aria-expanded="true" aria-controls="collapseInvoice">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Quản lý hóa đơn</span>
+                </a>
+                <div id="collapseInvoice" class="collapse" aria-labelledby="headingInvoice" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-page="/Invoices/Index">Danh sách hóa đơn</a>
+                        <a class="collapse-item" asp-page="/Invoices/Create">Tạo hóa đơn mới</a>
+                        <a class="collapse-item" asp-page="/Invoices/Reports">Báo cáo doanh thu</a>
+                    </div>
+                </div>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Hệ thống</div>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
+                   aria-expanded="true" aria-controls="collapseUsers">
+                    <i class="fas fa-users"></i>
+                    <span>Quản lý người dùng</span>
+                </a>
+                <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-page="/Users/Index">Danh sách người dùng</a>
+                        <a class="collapse-item" asp-page="/Users/Create">Thêm mới người dùng</a>
+                        <a class="collapse-item" asp-page="/Roles/Index">Quản lý vai trò</a>
+                    </div>
+                </div>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Thống kê</div>
+
+            <!-- Thống kê -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStatistics"
+                   aria-expanded="true" aria-controls="collapseStatistics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Thống kê & Báo cáo</span>
+                </a>
+                <div id="collapseStatistics" class="collapse" aria-labelledby="headingStatistics" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-page="/Statistics/Index">Tổng quan</a>
+                        <a class="collapse-item" asp-page="/Statistics/Revenue">Doanh thu</a>
+                        <a class="collapse-item" asp-page="/Statistics/Room">Thống kê phòng</a>
+                        <a class="collapse-item" asp-page="/Statistics/Bookings">Thống kê đặt phòng</a>
+                    </div>
+                </div>
+            </li>
+
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+        </ul>
+        <!-- End Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+                        <div class="topbar-divider d-none d-sm-block"></div>
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">@fullName</span>
+                                <img class="img-profile rounded-circle" src="~/img/undraw_profile.svg">
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="userDropdown">
+                                <a class="dropdown-item" asp-page="/Account/Profile">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Thông tin cá nhân
+                                </a>
+                                <a class="dropdown-item" asp-page="/Account/ChangePassword">
+                                    <i class="fas fa-key fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Đổi mật khẩu
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a type="submit" asp-page="/Account/Logout" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Đăng xuất
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- End of Topbar -->
+
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+            <div class="text-center my-auto">
+                <span>Copyright &copy; Hotel Booking 2025</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/sb-admin-2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+    @RenderSection("Scripts", required: false)
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Apply to all forms on the page
+            const forms = document.querySelectorAll("form");
+            forms.forEach(form => {
+                form.addEventListener("submit", function () {
+                    document.getElementById("globalLoadingOverlay").style.display = "block";
+                });
+            });
+        });
+    </script>
+</body>
+</html>

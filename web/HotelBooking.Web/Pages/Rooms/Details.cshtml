@@ -1,0 +1,53 @@
+@page "{id:int}"
+@model HotelBooking.Web.Pages.Rooms.DetailsModel
+@{
+    ViewData["Title"] = "Room Details";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h4 class="mb-0 text-primary">
+                        <i class="fas fa-info-circle me-2"></i>Room Details
+                    </h4>
+                </div>
+                <div class="col-auto">
+                    <a href="@(Model.ReturnUrl ?? Url.Page("/Rooms/Index"))" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <dl class="row">
+                <dt class="col-sm-2">Room Number</dt>
+                <dd class="col-sm-10">@Model.Room.Name</dd>
+
+                <dt class="col-sm-2">Floor</dt>
+                <dd class="col-sm-10">@Model.Room.FloorName</dd>
+
+                <dt class="col-sm-2">Room Type</dt>
+                <dd class="col-sm-10">@Model.Room.RoomTypeName</dd>
+
+                <dt class="col-sm-2">Status</dt>
+                <dd class="col-sm-10">@Model.Room.Status</dd>
+            </dl>
+
+            <div>
+                <a asp-page="./Edit" asp-route-id="@Model.Room.Id" class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+            </div>
+        </div>
+    </div>
+</div> 

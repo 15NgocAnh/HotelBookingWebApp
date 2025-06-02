@@ -1,0 +1,403 @@
+﻿@page
+@model HotelBooking.Web.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_LayoutBasic";
+}
+
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        width: 100%;
+        max-width: 450px;
+        transform: translateY(0);
+        transition: all 0.3s ease;
+    }
+
+    .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .hotel-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hotel-icon::before {
+        content: '🏨';
+        font-size: 40px;
+        filter: grayscale(1) brightness(10);
+    }
+
+    .hotel-icon::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+        transform: rotate(45deg);
+        animation: shimmer 3s infinite;
+    }
+
+    @@keyframes shimmer {
+        0% {
+            transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
+        100% {
+            transform: translateX(100%) translateY(100%) rotate(45deg);
+        }
+    }
+
+    .welcome-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .welcome-subtitle {
+        color: #6c757d;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 1rem;
+    }
+
+    .form-floating {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .form-floating label::after {
+        background-color: transparent !important;
+        content: none !important;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 16px;
+        padding: 20px 20px 8px 20px;
+        font-size: 16px;
+        background: rgba(248, 249, 250, 0.8);
+        transition: all 0.3s ease;
+        height: auto;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        background: white;
+        transform: translateY(-2px);
+    }
+
+    .form-floating label {
+        position: absolute;
+        top: 50%;
+        left: 20px;
+        transform: translateY(-50%);
+        color: #6c757d;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        background: transparent;
+        background-color: transparent;
+        padding: 0;
+    }
+
+    .form-control:focus + label,
+    .form-control:not(:placeholder-shown) + label {
+        top: 12px;
+        font-size: 12px;
+        color: #667eea;
+        transform: translateY(0);
+    }
+
+    .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 16px;
+        padding: 16px;
+        font-size: 16px;
+        font-weight: 600;
+        color: white;
+        width: 100%;
+        margin-top: 10px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-login:hover::before {
+        left: 100%;
+    }
+
+    .alert-danger {
+        background: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .forgot-password {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .forgot-password a {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.3s ease;
+    }
+
+    .forgot-password a:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 25px 0;
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #e9ecef;
+    }
+
+    .divider span {
+        padding: 0 15px;
+    }
+
+    .social-login {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .btn-social {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        background: white;
+        color: #6c757d;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .btn-social:hover {
+        border-color: #667eea;
+        color: #667eea;
+        transform: translateY(-2px);
+    }
+
+    .signup-link {
+        text-align: center;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .signup-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .signup-link a:hover {
+        color: #764ba2;
+    }
+
+    /* Loading animation */
+    .btn-login.loading {
+        pointer-events: none;
+    }
+
+    .btn-login.loading::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    @@keyframes spin {
+        0% { transform: translateY(-50%) rotate(0deg); }
+        100% { transform: translateY(-50%) rotate(360deg); }
+    }
+
+    /* Responsive design */
+    @@media (max-width: 768px) {
+        .login-card {
+            padding: 30px 25px;
+            border-radius: 20px;
+        }
+        
+        .welcome-title {
+            font-size: 1.75rem;
+        }
+        
+        .hotel-icon {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .hotel-icon::before {
+            font-size: 35px;
+        }
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="hotel-icon"></div>
+        
+        <h1 class="welcome-title">Welcome Back</h1>
+        
+        <form method="post" id="loginForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="alert alert-danger d-none" id="errorMessage"></div>
+            
+            <div class="form-floating">
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                <label for="email">Email Address</label>
+            </div>
+            
+            <div class="form-floating">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                <label for="password">Password</label>
+            </div>
+            
+            <button type="submit" class="btn btn-login" id="loginBtn">
+                Sign In
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Enhanced form interactions
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const inputs = document.querySelectorAll('.form-control');
+        
+        // Add floating label effect
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+            
+            // Check if input has value on page load
+            if (input.value) {
+                input.parentElement.classList.add('focused');
+            }
+        });
+        
+        // Form submission with loading animation
+        form.addEventListener('submit', function(e) {
+            loginBtn.classList.add('loading');
+            loginBtn.innerHTML = 'Signing In...';
+            
+            // Remove loading state after 3 seconds (adjust based on your backend response time)
+            setTimeout(() => {
+                loginBtn.classList.remove('loading');
+                loginBtn.innerHTML = 'Sign In';
+            }, 3000);
+        });
+        
+        // Add smooth hover effects
+        const card = document.querySelector('.login-card');
+        
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,73 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches: [ main ]
+    
+  # Allows manual trigger
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: hotel-booking-app
+  AZURE_WEBAPP_PACKAGE_PATH: 'publish'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    
+    - name: Test
+      run: dotnet test --configuration Release --no-build
+      
+    - name: Publish
+      run: |
+        dotnet publish HotelBooking.API/HotelBooking.API.csproj \
+          --configuration Release \
+          --no-build \
+          --output ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    
+    - name: Generate EF Migrations Script
+      run: |
+        dotnet tool install --global dotnet-ef
+        dotnet ef migrations script --output ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/Migrations/migrate.sql --idempotent --project HotelBooking.Infrastructure/HotelBooking.Infrastructure.csproj
+      
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        
+    - name: Apply Database Migrations
+      uses: azure/sql-action@v1
+      with:
+        connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
+        path: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/Migrations/migrate.sql'
+        
+  notify:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Notify on Success
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_CHANNEL: deployments
+        SLACK_COLOR: good
+        SLACK_TITLE: Deployment Successful
+        SLACK_MESSAGE: 'HotelBooking API has been deployed to Azure'
+        SLACK_FOOTER: 'HotelBooking CD Pipeline' 

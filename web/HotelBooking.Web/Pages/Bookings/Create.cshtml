@@ -1,0 +1,358 @@
+﻿@page
+@model HotelBooking.Web.Pages.Bookings.CreateModel
+@{
+    ViewData["Title"] = "Create Booking";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-5">
+    <div class="card shadow-sm border-0 rounded-4" style="background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);">
+        <div class="card-header bg-primary text-white py-3 rounded-top-4">
+            <h4 class="mb-0">
+                <i class="fas fa-plus me-2"></i>Create New Booking
+            </h4>
+        </div>
+        <div class="card-body p-4">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" id="errorAlert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <form method="post" id="bookingForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-4" role="alert" aria-live="assertive"></div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <select asp-for="Booking.RoomId" class="form-select" asp-items="@(new SelectList(Model.AvailableRooms, "Id", "Name"))" id="RoomId" aria-required="true">
+                                <option value="">-- Select Room --</option>
+                            </select>
+                            <label for="RoomId" class="form-label">Room</label>
+                            <span asp-validation-for="Booking.RoomId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input asp-for="Booking.CheckInDate" class="form-control" type="date" id="CheckInDate" aria-required="true" />
+                            <label for="CheckInDate" class="form-label">Check-in Date</label>
+                            <span asp-validation-for="Booking.CheckInDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Booking.CheckOutDate" class="form-control" type="date" id="CheckOutDate" aria-required="true" />
+                            <label for="CheckOutDate" class="form-label">Check-out Date</label>
+                            <span asp-validation-for="Booking.CheckOutDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-floating mb-4">
+                    <textarea asp-for="Booking.Notes" class="form-control" rows="4" id="Notes" placeholder="Enter any special requests"></textarea>
+                    <label for="Notes" class="form-label">Special Requests</label>
+                    <span asp-validation-for="Booking.Notes" class="text-danger"></span>
+                </div>
+
+                <!-- Guest Management Section -->
+                <div class="card mb-4 border-0 shadow-sm">
+                    <div class="card-header bg-light py-3">
+                        <h5 class="mb-0">Guests</h5>
+                    </div>
+                    <div class="card-body p-3">
+                        <div id="guestContainer" class="accordion" role="region" aria-label="Guest Information">
+                            @if (Model.Booking.Guests != null && Model.Booking.Guests.Any())
+                            {
+                                @for (int i = 0; i < Model.Booking.Guests.Count; i++)
+                                {
+                                    <div class="guest-entry accordion-item mb-3 border rounded-3">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#guestCollapse_@i" aria-expanded="false" aria-controls="guestCollapse_@i">
+                                                Guest @(i + 1)
+                                            </button>
+                                        </h2>
+                                        <div id="guestCollapse_@i" class="accordion-collapse collapse" data-bs-parent="#guestContainer">
+                                            <div class="accordion-body p-3">
+                                                <input type="hidden" asp-for="Booking.Guests[i].Id" />
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <div class="form-floating">
+                                                            <input asp-for="Booking.Guests[i].FirstName" class="form-control" id="GuestFirstName_@i" placeholder="Enter first name" aria-required="true" />
+                                                            <label for="GuestFirstName_@i">First Name</label>
+                                                            <span asp-validation-for="Booking.Guests[i].FirstName" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-floating">
+                                                            <input asp-for="Booking.Guests[i].LastName" class="form-control" id="GuestLastName_@i" placeholder="Enter last name" aria-required="true" />
+                                                            <label for="GuestLastName_@i">Last Name</label>
+                                                            <span asp-validation-for="Booking.Guests[i].LastName" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-floating">
+                                                            <input asp-for="Booking.Guests[i].PhoneNumber" class="form-control" id="GuestPhoneNumber_@i" placeholder="+1234567890" pattern="^\+?[1-9]\d{1,14}$" aria-describedby="phoneHelp_@i" />
+                                                            <label for="GuestPhoneNumber_@i">Phone Number</label>
+                                                            <small id="phoneHelp_@i" class="form-text text-muted">E.g., +1234567890</small>
+                                                            <span asp-validation-for="Booking.Guests[i].PhoneNumber" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-floating">
+                                                            <input asp-for="Booking.Guests[i].CitizenIdNumber" class="form-control" id="GuestCitizenIdNumber_@i" placeholder="Enter citizen ID" aria-describedby="citizenIdHelp_@i" />
+                                                            <label for="GuestCitizenIdNumber_@i">Citizen ID Number</label>
+                                                            <small id="citizenIdHelp_@i" class="form-text text-muted">Optional, if applicable</small>
+                                                            <span asp-validation-for="Booking.Guests[i].CitizenIdNumber" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-floating">
+                                                            <input asp-for="Booking.Guests[i].PassportNumber" class="form-control" id="GuestPassportNumber_@i" placeholder="Enter passport number" aria-describedby="passportHelp_@i" />
+                                                            <label for="GuestPassportNumber_@i">Passport Number</label>
+                                                            <small id="passportHelp_@i" class="form-text text-muted">Optional, if applicable</small>
+                                                            <span asp-validation-for="Booking.Guests[i].PassportNumber" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn btn-outline-danger btn-sm mt-3 remove-guest" aria-label="Remove Guest @(i + 1)">Remove Guest</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <button type="button" class="btn btn-outline-primary mt-3" id="addGuest" aria-label="Add New Guest">
+                            <i class="fas fa-user-plus me-1"></i>Add Guest
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Extra Usage Section -->
+                <div class="card mb-4 border-0 shadow-sm">
+                    <div class="card-header bg-light py-3">
+                        <h5 class="mb-0">Extra Services</h5>
+                    </div>
+                    <div class="card-body p-3">
+                        <div id="extraUsageContainer" class="accordion" role="region" aria-label="Extra Services">
+                            @if (Model.Booking.ExtraUsages != null && Model.Booking.ExtraUsages.Any())
+                            {
+                                @for (int i = 0; i < Model.Booking.ExtraUsages.Count; i++)
+                                {
+                                    <div class="extra-usage-entry accordion-item mb-3 border rounded-3">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#extraCollapse_@i" aria-expanded="false" aria-controls="extraCollapse_@i">
+                                                Extra Service @(i + 1)
+                                            </button>
+                                        </h2>
+                                        <div id="extraCollapse_@i" class="accordion-collapse collapse" data-bs-parent="#extraUsageContainer">
+                                            <div class="accordion-body p-3">
+                                                <input type="hidden" asp-for="Booking.ExtraUsages[i].Id" />
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <div class="form-floating">
+                                                            <select asp-for="Booking.ExtraUsages[i].ExtraItemId" class="form-select" asp-items="@(new SelectList(Model.AvailableExtraItems, "Id", "Name"))" id="ExtraItemId_@i" aria-required="true">
+                                                                <option value="">-- Select Service --</option>
+                                                            </select>
+                                                            <label for="ExtraItemId_@i">Service</label>
+                                                            <span asp-validation-for="Booking.ExtraUsages[i].ExtraItemId" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-floating">
+                                                            <input asp-for="Booking.ExtraUsages[i].Quantity" class="form-control" type="number" min="1" id="Quantity_@i" aria-required="true" />
+                                                            <label for="Quantity_@i">Quantity</label>
+                                                            <span asp-validation-for="Booking.ExtraUsages[i].Quantity" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn btn-outline-danger btn-sm mt-3 remove-extra" aria-label="Remove Extra Service @(i + 1)">Remove Service</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <button type="button" class="btn btn-outline-primary mt-3" id="addExtra" aria-label="Add New Extra Service">
+                            <i class="fas fa-plus me-1"></i>Add Extra Service
+                        </button>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" aria-label="Create Booking">
+                        <i class="fas fa-save me-1"></i>Create Booking
+                    </button>
+                    <a asp-page="Index" class="btn btn-outline-secondary" aria-label="Back to List">
+                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Date validation
+            const checkInDate = document.getElementById('CheckInDate');
+            const checkOutDate = document.getElementById('CheckOutDate');
+            const today = new Date().toISOString().split('T')[0];
+
+            checkInDate.min = today;
+            checkOutDate.min = today;
+
+            checkInDate.addEventListener('change', function () {
+                checkOutDate.min = this.value;
+                if (checkOutDate.value && checkOutDate.value < this.value) {
+                    checkOutDate.value = this.value;
+                }
+            });
+
+            // Guest management
+            let guestIndex = @(Model.Booking.Guests?.Count ?? 0);
+            const guestContainer = document.getElementById('guestContainer');
+            const addGuestBtn = document.getElementById('addGuest');
+
+            addGuestBtn.addEventListener('click', function () {
+                const guestHtml = `
+                            <div class="guest-entry accordion-item mb-3 border rounded-3">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#guestCollapse_${guestIndex}" aria-expanded="false" aria-controls="guestCollapse_${guestIndex}">
+                                        Guest ${guestIndex + 1}
+                                    </button>
+                                </h2>
+                                <div id="guestCollapse_${guestIndex}" class="accordion-collapse collapse" data-bs-parent="#guestContainer">
+                                    <div class="accordion-body p-3">
+                                        <input type="hidden" name="Booking.Guests[${guestIndex}].Id" value="0" />
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="form-floating">
+                                                    <input name="Booking.Guests[${guestIndex}].FirstName" class="form-control" id="GuestFirstName_${guestIndex}" placeholder="Enter first name" aria-required="true" />
+                                                    <label for="GuestFirstName_${guestIndex}">First Name</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating">
+                                                    <input name="Booking.Guests[${guestIndex}].LastName" class="form-control" id="GuestLastName_${guestIndex}" placeholder="Enter last name" aria-required="true" />
+                                                    <label for="GuestLastName_${guestIndex}">Last Name</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-floating">
+                                                    <input name="Booking.Guests[${guestIndex}].PhoneNumber" class="form-control" id="GuestPhoneNumber_${guestIndex}" placeholder="+1234567890" pattern="^\+?[1-9]\d{1,14}$" aria-describedby="phoneHelp_${guestIndex}" />
+                                                    <label for="GuestPhoneNumber_${guestIndex}">Phone Number</label>
+                                                    <small id="phoneHelp_${guestIndex}" class="form-text text-muted">E.g., +1234567890</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-floating">
+                                                    <input name="Booking.Guests[${guestIndex}].CitizenIdNumber" class="form-control" id="GuestCitizenIdNumber_${guestIndex}" placeholder="Enter citizen ID" aria-describedby="citizenIdHelp_${guestIndex}" />
+                                                    <label for="GuestCitizenIdNumber_${guestIndex}">Citizen ID Number</label>
+                                                    <small id="citizenIdHelp_${guestIndex}" class="form-text text-muted">Optional, if applicable</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-floating">
+                                                    <input name="Booking.Guests[${guestIndex}].PassportNumber" class="form-control" id="GuestPassportNumber_${guestIndex}" placeholder="Enter passport number" aria-describedby="passportHelp_${guestIndex}" />
+                                                    <label for="GuestPassportNumber_${guestIndex}">Passport Number</label>
+                                                    <small id="passportHelp_${guestIndex}" class="form-text text-muted">Optional, if applicable</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-danger btn-sm mt-3 remove-guest" aria-label="Remove Guest ${guestIndex + 1}">Remove Guest</button>
+                                    </div>
+                                </div>
+                            </div>`;
+                guestContainer.insertAdjacentHTML('beforeend', guestHtml);
+                guestIndex++;
+            });
+
+            guestContainer.addEventListener('click', function (e) {
+                if (e.target.classList.contains('remove-guest')) {
+                    const guestEntry = e.target.closest('.guest-entry');
+                    const guestNumber = guestEntry.querySelector('.accordion-button').textContent.trim();
+                    guestEntry.remove();
+                }
+            });
+
+            // Real-time phone number validation
+            guestContainer.addEventListener('input', function (e) {
+                if (e.target.matches('[id^="GuestPhoneNumber_"]')) {
+                    const phoneInput = e.target;
+                    const phonePattern = /^\+?[1-9]\d{1,14}$/;
+                    if (!phonePattern.test(phoneInput.value) && phoneInput.value !== '') {
+                        phoneInput.classList.add('is-invalid');
+                        phoneInput.nextElementSibling.nextElementSibling.textContent = 'Please enter a valid phone number (e.g., +1234567890)';
+                    } else {
+                        phoneInput.classList.remove('is-invalid');
+                        phoneInput.nextElementSibling.nextElementSibling.textContent = 'E.g., +1234567890';
+                    }
+                }
+            });
+
+            // Extra Usage management
+            let extraIndex = @(Model.Booking.ExtraUsages?.Count ?? 0);
+            const extraContainer = document.getElementById('extraUsageContainer');
+            const addExtraBtn = document.getElementById('addExtra');
+
+            addExtraBtn.addEventListener('click', function () {
+                const extraHtml = `
+                    <div class="extra-usage-entry accordion-item mb-3 border rounded-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#extraCollapse_${extraIndex}" aria-expanded="false" aria-controls="extraCollapse_${extraIndex}">
+                                Extra Service ${extraIndex + 1}
+                            </button>
+                        </h2>
+                        <div id="extraCollapse_${extraIndex}" class="accordion-collapse collapse" data-bs-parent="#extraUsageContainer">
+                            <div class="accordion-body p-3">
+                                <input type="hidden" name="Booking.ExtraUsages[${extraIndex}].Id" value="0" />
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <select name="Booking.ExtraUsages[${extraIndex}].ExtraItemId" class="form-select" id="ExtraItemId_${extraIndex}" aria-required="true">
+                                                <option value="">-- Select Service --</option>
+                                                @foreach (var item in Model.AvailableExtraItems)
+                                                {
+                                                    <option value="@item.Id">@item.Name</option>
+                                                }
+                                            </select>
+                                            <label for="ExtraItemId_${extraIndex}">Service</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input name="Booking.ExtraUsages[${extraIndex}].Quantity" class="form-control" type="number" min="1" id="Quantity_${extraIndex}" aria-required="true" />
+                                            <label for="Quantity_${extraIndex}">Quantity</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-outline-danger btn-sm mt-3 remove-extra" aria-label="Remove Extra Service ${extraIndex + 1}">Remove Service</button>
+                            </div>
+                        </div>
+                    </div>`;
+                extraContainer.insertAdjacentHTML('beforeend', extraHtml);
+                extraIndex++;
+            });
+
+            extraContainer.addEventListener('click', function (e) {
+                if (e.target.classList.contains('remove-extra')) {
+                    const extraEntry = e.target.closest('.extra-usage-entry');
+                    extraEntry.remove();
+                }
+            });
+        });
+    </script>
+}

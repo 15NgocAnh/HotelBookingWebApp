@@ -1,0 +1,132 @@
+@page
+@model HotelBooking.Web.Pages.Rooms.IndexModel
+@{
+    ViewData["Title"] = "Rooms";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row justify-content-between align-items-center">
+                <div class="col">
+                    <h4 class="mb-0 text-primary">
+                        <i class="fas fa-door-open me-2"></i>Rooms List
+                    </h4>
+                </div>
+                <div class="col-auto">
+                    <a asp-page="Create" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Add New
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @Model.ErrorMessage
+                </div>
+            }
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success" role="alert">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Room Number</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Rooms)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.RoomTypeName</td>
+                                <td>@item.RoomTypePrice</td>
+                                <td>@item.Status</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a asp-page="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal" data-id="@item.Id" data-name="@item.Name">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!Model.Rooms.Any())
+            {
+                <div class="alert alert-info" role="alert">
+                    No rooms found.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this room?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post">
+                    <input type="hidden" id="deleteId" name="id" />
+                    <button type="submit" asp-page-handler="Delete" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-id');
+                const name = button.getAttribute('data-name');
+                
+                const modalTitle = deleteModal.querySelector('.modal-title');
+                const modalBody = deleteModal.querySelector('.modal-body');
+                const deleteIdInput = deleteModal.querySelector('#deleteId');
+                
+                modalTitle.textContent = 'Confirm Delete';
+                modalBody.textContent = `Are you sure you want to delete room "${name}"?`;
+                deleteIdInput.value = id;
+            });
+        });
+    </script>
+} 

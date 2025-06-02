@@ -1,0 +1,79 @@
+@page
+@model HotelBooking.Web.Pages.Bookings.ConfirmModel
+@{
+    ViewData["Title"] = "Confirm Booking";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-5">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-primary text-white py-3 rounded-top-4">
+            <h4 class="mb-0">
+                <i class="fas fa-check-circle me-2"></i>Confirm Booking Details
+            </h4>
+        </div>
+        <div class="card-body p-4">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-3">Room Information</h5>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <p><strong>Room:</strong> @Model.Booking.RoomName</p>
+                            <p><strong>Check-in Date:</strong> @Model.Booking.CheckInDate.ToShortDateString()</p>
+                            <p><strong>Check-out Date:</strong> @Model.Booking.CheckOutDate.ToShortDateString()</p>
+                            <p><strong>Duration:</strong> @((Model.Booking.CheckOutDate - Model.Booking.CheckInDate).Days) days</p>
+                            @if (!string.IsNullOrEmpty(Model.Booking.Notes))
+                            {
+                                <p><strong>Special Requests:</strong> @Model.Booking.Notes</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="mb-3">Guest Information</h5>
+                    @foreach (var guest in Model.Booking.Guests)
+                    {
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">@guest.FirstName @guest.LastName</h6>
+                                <p class="mb-1"><strong>Phone:</strong> @guest.PhoneNumber</p>
+                                @if (!string.IsNullOrEmpty(guest.CitizenIdNumber))
+                                {
+                                    <p class="mb-1"><strong>Citizen ID:</strong> @guest.CitizenIdNumber</p>
+                                }
+                                @if (!string.IsNullOrEmpty(guest.PassportNumber))
+                                {
+                                    <p class="mb-1"><strong>Passport:</strong> @guest.PassportNumber</p>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <form method="post" asp-page-handler="Confirm">
+                    <input type="hidden" asp-for="Booking.Id" />
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-1"></i>Confirm Booking
+                    </button>
+                </form>
+                <a asp-page="Create" asp-route-bookingId="@Model.Booking.Id" class="btn btn-outline-primary">
+                    <i class="fas fa-edit me-1"></i>Back to Edit
+                </a>
+                <a asp-page="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+</div> 
