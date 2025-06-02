@@ -36,33 +36,30 @@ We've applied DDD principles:
 
 ## Technology Stack
 
-- **.NET 7** - Core framework
+- **.NET 8** - Core framework
 - **Entity Framework Core** - ORM
 - **MediatR** - For implementing CQRS
 - **FluentValidation** - For request validation
 - **xUnit** - For testing
 - **SQL Server** - Database
-- **Redis** - Caching
-- **Azure** - Hosting
-
+  
 ## Getting Started
 
 ### Prerequisites
 
-- .NET 7 SDK
+- .NET 8 SDK
 - SQL Server
-- Redis (optional for caching)
 
 ### Installation
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/HotelBooking.git
+git clone https://github.com/15NgocAnh/HotelBookingWebApp.git
 ```
 
 2. Navigate to the project directory
 ```bash
-cd HotelBooking
+cd HotelBookingWebApp
 ```
 
 3. Restore NuGet packages
