@@ -1,7 +1,7 @@
 # Hotel Booking System
 
-![CI Status](https://github.com/yourusername/HotelBooking/workflows/Continuous%20Integration/badge.svg)
-![CD Status](https://github.com/yourusername/HotelBooking/workflows/Continuous%20Deployment/badge.svg)
+![CI Status](https://github.com/15NgocAnh/HotelBookingWebApp/workflows/Continuous%20Integration/badge.svg)
+![CD Status](https://github.com/15NgocAnh/HotelBookingWebApp/workflows/Continuous%20Deployment/badge.svg)
 
 ## Overview
 
