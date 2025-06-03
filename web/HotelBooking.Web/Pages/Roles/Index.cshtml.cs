@@ -1,5 +1,4 @@
 using HotelBooking.Application.CQRS.Role.DTOs;
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,12 +44,13 @@ namespace HotelBooking.Web.Pages.Roles
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching roles");
+                _logger.LogError(ex, "Error occurred while fetching roles");
                 ErrorMessage = "An error occurred while fetching roles. Please try again later.";
                 return Page();
             }
         }
 
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> OnPostDeleteAsync(string id)
         {
             try
@@ -67,9 +67,10 @@ namespace HotelBooking.Web.Pages.Roles
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting role");
-                TempData["ErrorMessage"] = "An error occurred while deleting the role.";
+                _logger.LogError(ex, "Error occurred while deleting role {RoleId}", id);
+                TempData["ErrorMessage"] = "An error occurred while deleting the role. Please try again later.";
             }
+
             return RedirectToPage();
         }
     }

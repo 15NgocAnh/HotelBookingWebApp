@@ -5,5 +5,6 @@ namespace HotelBooking.Application.CQRS.Booking.Queries.GetBookingById
     public record GetBookingByIdQuery : IRequest<Result<BookingDto>>
     {
         public int Id { get; init; }
+        public List<int> HotelIds { get; set; } = new();
     }
 }

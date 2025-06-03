@@ -7,6 +7,7 @@ using HotelBooking.Application.CQRS.BedType.Queries.GetBedTypeById;
 namespace HotelBooking.API.Controllers
 {
     [Authorize]
+    [Authorize(Roles = "SuperAdmin,HotelManager")]
     public class BedTypeController : BaseController
     {
         public BedTypeController(IMediator mediator) : base(mediator)

@@ -1,4 +1,5 @@
 ﻿@using System.Security.Claims
+@using HotelBooking.Web.Helpers
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @{
     var fullName = string.Empty;
@@ -49,33 +50,39 @@
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Quản Lý</div>
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHotel"
-                   aria-expanded="true" aria-controls="collapseHotel">
-                    <i class="fas fa-hotel"></i>
-                    <span>Quản lý khách sạn</span>
-                </a>
-                <div id="collapseHotel" class="collapse" aria-labelledby="headingHotel" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-page="/Hotels/Index">Danh sách khách sạn</a>
-                        <a class="collapse-item" asp-page="/Hotels/Create">Thêm mới khách sạn</a>
+            @if (MenuAuthorizationHelper.CanAccessHotelManagement(User))
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHotel"
+                       aria-expanded="true" aria-controls="collapseHotel">
+                        <i class="fas fa-hotel"></i>
+                        <span>Quản lý khách sạn</span>
+                    </a>
+                    <div id="collapseHotel" class="collapse" aria-labelledby="headingHotel" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" asp-page="/Hotels/Index">Danh sách khách sạn</a>
+                            <a class="collapse-item" asp-page="/Hotels/Create">Thêm mới khách sạn</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            }
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBuilding"
-                   aria-expanded="true" aria-controls="collapseBuilding">
-                    <i class="fas fa-building"></i>
-                    <span>Quản lý tòa nhà</span>
-                </a>
-                <div id="collapseBuilding" class="collapse" aria-labelledby="headingBuilding" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-page="/Buildings/Index">Danh sách tòa nhà</a>
-                        <a class="collapse-item" asp-page="/Buildings/Create">Thêm mới tòa nhà</a>
+            @if (MenuAuthorizationHelper.CanAccessBuildingManagement(User))
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBuilding"
+                       aria-expanded="true" aria-controls="collapseBuilding">
+                        <i class="fas fa-building"></i>
+                        <span>Quản lý tòa nhà</span>
+                    </a>
+                    <div id="collapseBuilding" class="collapse" aria-labelledby="headingBuilding" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" asp-page="/Buildings/Index">Danh sách tòa nhà</a>
+                            <a class="collapse-item" asp-page="/Buildings/Create">Thêm mới tòa nhà</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            }
 
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRoom"
@@ -85,126 +92,150 @@
                 </a>
                 <div id="collapseRoom" class="collapse" aria-labelledby="headingRoom" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-page="/RoomTypes/Index">Danh sách loại phòng</a>
+                        @if (MenuAuthorizationHelper.CanAccessRoomManagement(User))
+                        {
+                            <a class="collapse-item" asp-page="/RoomTypes/Index">Danh sách loại phòng</a>
+                        }
                         <a class="collapse-item" asp-page="/Rooms/Index">Danh sách phòng</a>
-                        <a class="collapse-item" asp-page="/Rooms/Create">Thêm mới phòng</a>
+                        @if (MenuAuthorizationHelper.CanAccessRoomManagement(User))
+                        {
+                            <a class="collapse-item" asp-page="/Rooms/Create">Thêm mới phòng</a>
+                        }
                     </div>
                 </div>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseExtra"
-                   aria-expanded="true" aria-controls="collapseExtra">
-                    <i class="fas fa-utensils"></i>
-                    <span>Quản lý dịch vụ bổ sung</span>
-                </a>
-                <div id="collapseExtra" class="collapse" aria-labelledby="headingExtra" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-page="/ExtraCategories/Index">Danh mục dịch vụ</a>
-                        <a class="collapse-item" asp-page="/ExtraItems/Index">Danh sách dịch vụ</a>
-                        <a class="collapse-item" asp-page="/ExtraItems/Create">Thêm mới dịch vụ </a>
+            @if (MenuAuthorizationHelper.CanAccessExtraServiceManagement(User))
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseExtra"
+                       aria-expanded="true" aria-controls="collapseExtra">
+                        <i class="fas fa-utensils"></i>
+                        <span>Quản lý dịch vụ bổ sung</span>
+                    </a>
+                    <div id="collapseExtra" class="collapse" aria-labelledby="headingExtra" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" asp-page="/ExtraCategories/Index">Danh mục dịch vụ</a>
+                            <a class="collapse-item" asp-page="/ExtraItems/Index">Danh sách dịch vụ</a>
+                            <a class="collapse-item" asp-page="/ExtraItems/Create">Thêm mới dịch vụ </a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            }
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAmenity"
-                   aria-expanded="true" aria-controls="collapseAmenity">
-                    <i class="fas fa-concierge-bell"></i>
-                    <span>Quản lý tiện ích</span>
-                </a>
-                <div id="collapseAmenity" class="collapse" aria-labelledby="headingAmentity" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-page="/Amenities/Index">Danh sách tiện ích</a>
-                        <a class="collapse-item" asp-page="/Amenities/Create">Thêm mới tiện ích</a>
+            @if (MenuAuthorizationHelper.CanAccessAmenityManagement(User))
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAmenity"
+                       aria-expanded="true" aria-controls="collapseAmenity">
+                        <i class="fas fa-concierge-bell"></i>
+                        <span>Quản lý tiện ích</span>
+                    </a>
+                    <div id="collapseAmenity" class="collapse" aria-labelledby="headingAmentity" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" asp-page="/Amenities/Index">Danh sách tiện ích</a>
+                            <a class="collapse-item" asp-page="/Amenities/Create">Thêm mới tiện ích</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            }
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBed"
-                   aria-expanded="true" aria-controls="collapseBed">
-                    <i class="fas fa-bed"></i>
-                    <span>Quản lý giường</span>
-                </a>
-                <div id="collapseBed" class="collapse" aria-labelledby="headingBed" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-page="/BedTypes/Index">Loại giường</a>
-                        <a class="collapse-item" asp-page="/BedTypes/Create">Thêm mới loại giường</a>
+            @if (MenuAuthorizationHelper.CanAccessBedManagement(User))
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBed"
+                       aria-expanded="true" aria-controls="collapseBed">
+                        <i class="fas fa-bed"></i>
+                        <span>Quản lý giường</span>
+                    </a>
+                    <div id="collapseBed" class="collapse" aria-labelledby="headingBed" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" asp-page="/BedTypes/Index">Loại giường</a>
+                            <a class="collapse-item" asp-page="/BedTypes/Create">Thêm mới loại giường</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            }
 
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Đặt phòng & Hóa đơn</div>
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBooking"
-                   aria-expanded="true" aria-controls="collapseBooking">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Quản lý đặt phòng</span>
-                </a>
-                <div id="collapseBooking" class="collapse" aria-labelledby="headingBooking" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-page="/Bookings/Index">Danh sách đặt phòng</a>
-                        <a class="collapse-item" asp-page="/Bookings/Create">Tạo đặt phòng mới</a>
-                        <a class="collapse-item" asp-page="/Bookings/Calendar">Lịch đặt phòng</a>
+            @if (MenuAuthorizationHelper.CanAccessBookingManagement(User))
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBooking"
+                       aria-expanded="true" aria-controls="collapseBooking">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Quản lý đặt phòng</span>
+                    </a>
+                    <div id="collapseBooking" class="collapse" aria-labelledby="headingBooking" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" asp-page="/Bookings/Index">Danh sách đặt phòng</a>
+                            <a class="collapse-item" asp-page="/Bookings/Create">Tạo đặt phòng mới</a>
+                            <a class="collapse-item" asp-page="/Bookings/Calendar">Lịch đặt phòng</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            }
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInvoice"
-                   aria-expanded="true" aria-controls="collapseInvoice">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    <span>Quản lý hóa đơn</span>
-                </a>
-                <div id="collapseInvoice" class="collapse" aria-labelledby="headingInvoice" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-page="/Invoices/Index">Danh sách hóa đơn</a>
-                        <a class="collapse-item" asp-page="/Invoices/Create">Tạo hóa đơn mới</a>
-                        <a class="collapse-item" asp-page="/Invoices/Reports">Báo cáo doanh thu</a>
+            @if (MenuAuthorizationHelper.CanAccessInvoiceManagement(User))
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInvoice"
+                       aria-expanded="true" aria-controls="collapseInvoice">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Quản lý hóa đơn</span>
+                    </a>
+                    <div id="collapseInvoice" class="collapse" aria-labelledby="headingInvoice" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" asp-page="/Invoices/Index">Danh sách hóa đơn</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            }
 
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Hệ thống</div>
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
-                   aria-expanded="true" aria-controls="collapseUsers">
-                    <i class="fas fa-users"></i>
-                    <span>Quản lý người dùng</span>
-                </a>
-                <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-page="/Users/Index">Danh sách người dùng</a>
-                        <a class="collapse-item" asp-page="/Users/Create">Thêm mới người dùng</a>
-                        <a class="collapse-item" asp-page="/Roles/Index">Quản lý vai trò</a>
+            @if (MenuAuthorizationHelper.CanAccessUserManagement(User))
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
+                       aria-expanded="true" aria-controls="collapseUsers">
+                        <i class="fas fa-users"></i>
+                        <span>Quản lý người dùng</span>
+                    </a>
+                    <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" asp-page="/Users/Index">Danh sách người dùng</a>
+                            <a class="collapse-item" asp-page="/Users/Create">Thêm mới người dùng</a>
+                            <a class="collapse-item" asp-page="/Roles/Index">Quản lý vai trò</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            }
 
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Thống kê</div>
 
-            <!-- Thống kê -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStatistics"
-                   aria-expanded="true" aria-controls="collapseStatistics">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Thống kê & Báo cáo</span>
-                </a>
-                <div id="collapseStatistics" class="collapse" aria-labelledby="headingStatistics" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-page="/Statistics/Index">Tổng quan</a>
-                        <a class="collapse-item" asp-page="/Statistics/Revenue">Doanh thu</a>
-                        <a class="collapse-item" asp-page="/Statistics/Room">Thống kê phòng</a>
-                        <a class="collapse-item" asp-page="/Statistics/Bookings">Thống kê đặt phòng</a>
+            @if (MenuAuthorizationHelper.CanAccessStatistics(User))
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStatistics"
+                       aria-expanded="true" aria-controls="collapseStatistics">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Thống kê & Báo cáo</span>
+                    </a>
+                    <div id="collapseStatistics" class="collapse" aria-labelledby="headingStatistics" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" asp-page="/Statistics/Index">Tổng quan</a>
+                            <a class="collapse-item" asp-page="/Statistics/Revenue">Doanh thu</a>
+                            <a class="collapse-item" asp-page="/Statistics/Room">Thống kê phòng</a>
+                            <a class="collapse-item" asp-page="/Statistics/Bookings">Thống kê đặt phòng</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            }
 
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -214,7 +245,6 @@
             </div>
         </ul>
         <!-- End Sidebar -->
-
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
             <!-- Main Content -->

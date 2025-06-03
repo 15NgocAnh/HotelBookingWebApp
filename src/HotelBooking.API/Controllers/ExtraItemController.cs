@@ -1,5 +1,4 @@
-﻿using HotelBooking.Application.CQRS.ExtraCategory.Queries;
-using HotelBooking.Application.CQRS.ExtraItem.Commands;
+﻿using HotelBooking.Application.CQRS.ExtraItem.Commands;
 using HotelBooking.Application.CQRS.ExtraItem.Queries;
 
 namespace HotelBooking.API.Controllers
@@ -36,6 +35,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Create([FromBody] CreateExtraItemCommand command)
         {
             var result = await _mediator.Send(command);
@@ -43,6 +43,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateExtraItemCommand command)
         {
             if (id != command.Id)
@@ -55,6 +56,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Delete(int id)
         {
             var command = new DeleteExtraItemCommand(id);

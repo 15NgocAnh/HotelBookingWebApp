@@ -12,6 +12,8 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
     private readonly IBookingRepository _bookingRepository;
     private readonly IRoomRepository _roomRepository;
     private readonly IRoomTypeRepository _roomTypeRepository;
+    private readonly IExtraItemRepository _extraItemRepository;
+    private readonly IExtraCategoryRepository _extraCategoryRepository;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CreateInvoiceCommandHandler> _logger;
@@ -21,6 +23,8 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
         IBookingRepository bookingRepository,
         IRoomRepository roomRepository,
         IRoomTypeRepository roomTypeRepository,
+        IExtraItemRepository extraItemRepository,
+        IExtraCategoryRepository extraCategoryRepository,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<CreateInvoiceCommandHandler> logger)
@@ -29,6 +33,8 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
         _bookingRepository = bookingRepository;
         _roomRepository = roomRepository;
         _roomTypeRepository = roomTypeRepository;
+        _extraItemRepository = extraItemRepository;
+        _extraCategoryRepository = extraCategoryRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
@@ -61,32 +67,31 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
             var invoice = new Domain.AggregateModels.InvoiceAggregate.Invoice(
                 request.BookingId,
                 booking.CheckOutTime?.AddDays(2) ?? DateTime.Now.AddDays(2),
-                request.PaymentMethod,
                 request.Notes
             );
 
             var invoiceNumber = await GenerateInvoiceNumberAsync();
             invoice.SetInvoiceNumber(invoiceNumber);
 
-            // Create invoice items from DTOs
-            //var invoiceItems = booking.ExtraUsages.Select(item => new InvoiceItem(
-            //    item.Description,
-            //    item.Quantity,
-            //    item.UnitPrice,
-            //    item.Type
-            //)).ToList();
-
-            //invoice.AddRangeItem(invoiceItems);
-
             var room = await _roomRepository.GetByIdAsync(booking.RoomId);
-            if (room != null)
+            var roomType = await _roomTypeRepository.GetByIdAsync(room.RoomTypeId);
+
+            invoice.CalculateTotalAmount(roomType.Price);
+
+            // Create invoice items from DTOs
+            var invoiceItems = new List<InvoiceItem>
             {
-                var roomType = await _roomTypeRepository.GetByIdAsync(room.RoomTypeId);
-                if (roomType != null)
-                {
-                    invoice.CalculateTotalAmount(roomType.Price);
-                }
+                new InvoiceItem("Room", 1, roomType.Price, room.Name)
+            };
+
+            foreach ( var item in booking.ExtraUsages)
+            {
+                var extraItem = await _extraItemRepository.GetByIdAsync(item.ExtraItemId);
+                var extraCategory = await _extraCategoryRepository.GetByIdAsync(extraItem.ExtraCategoryId);
+                invoiceItems.Add(new InvoiceItem(item.ExtraItemName, item.Quantity, extraItem.Price, extraCategory.Name));
             }
+
+            invoice.AddRangeItem(invoiceItems);
 
             // Add invoice to repository
             await _invoiceRepository.AddAsync(invoice);

@@ -1,10 +1,12 @@
 using HotelBooking.Application.CQRS.Hotel.DTOs;
 using HotelBooking.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HotelBooking.Web.Pages.Hotels;
 
+[Authorize(Roles = "SuperAdmin,HotelManager")]
 public class IndexModel : PageModel
 {
     private readonly IApiService _apiService;
@@ -48,6 +50,7 @@ public class IndexModel : PageModel
         }
     }
 
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {
         try

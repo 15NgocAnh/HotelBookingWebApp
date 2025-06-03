@@ -1,6 +1,6 @@
 using HotelBooking.Application.CQRS.Room.DTOs;
 
-namespace HotelBooking.Application.CQRS.Room.Queries
+namespace HotelBooking.Application.CQRS.Room.Queries.GetRoomsByBuilding
 {
     public class GetRoomsByBuildingQueryHandler : IRequestHandler<GetRoomsByBuildingQuery, Result<List<RoomDto>>>
     {
@@ -25,6 +25,17 @@ namespace HotelBooking.Application.CQRS.Room.Queries
         {
             try
             {
+                var building = await _buildingRepository.GetByIdAsync(request.BuildingId);
+                if (building == null)
+                {
+                    return Result<List<RoomDto>>.Failure("Building not found.");
+                }
+
+                if (!request.HotelIds.Contains(building.HotelId))
+                {
+                    return Result<List<RoomDto>>.Failure("Access denied: Building does not belong to your hotels.");
+                }
+
                 var rooms = await _roomRepository.GetRoomsByBuildingAsync(request.BuildingId);
                 var roomDtos = _mapper.Map<List<RoomDto>>(rooms);
                 foreach (var roomDto in roomDtos)

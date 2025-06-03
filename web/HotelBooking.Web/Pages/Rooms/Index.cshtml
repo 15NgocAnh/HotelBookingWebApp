@@ -1,4 +1,4 @@
-@page
+﻿@page
 @model HotelBooking.Web.Pages.Rooms.IndexModel
 @{
     ViewData["Title"] = "Rooms";
@@ -15,9 +15,11 @@
                     </h4>
                 </div>
                 <div class="col-auto">
-                    <a asp-page="Create" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i>Add New
-                    </a>
+                    <authorize-button module="Room" action="create">
+                        <a asp-page="Create" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Add New
+                        </a>
+                    </authorize-button>
                 </div>
             </div>
         </div>
@@ -41,42 +43,69 @@
                 </div>
             }
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Room Number</th>
-                            <th>Type</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.Rooms)
-                        {
-                            <tr>
-                                <td>@item.Name</td>
-                                <td>@item.RoomTypeName</td>
-                                <td>@item.RoomTypePrice</td>
-                                <td>@item.Status</td>
-                                <td>
-                                    <div class="btn-group">
-                                        <a asp-page="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
-                                                data-bs-target="#deleteModal" data-id="@item.Id" data-name="@item.Name">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                @{
+                    var groupedByFloor = Model.Rooms
+                    .GroupBy(r => r.FloorName)
+                    .OrderBy(g => g.Key);
+                }
+
+                @foreach (var floor in groupedByFloor)
+                {
+                    <div class="mb-4">
+                        <h5 class="fw-bold text-uppercase text-primary">@floor.Key</h5>
+                        <div class="row g-2">
+                            @foreach (var room in floor.OrderBy(r => r.Name))
+                            {
+                                var cardClass = room.Status switch
+                                {
+                                    "Available" => "bg-success text-white",
+                                    "Occupied" => "bg-danger text-white",
+                                    "Reserved" => "bg-warning text-dark",
+                                    "OutOfService" => "bg-secondary text-white",
+                                    _ => "bg-light"
+                                };
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="card @cardClass rounded-3 shadow-sm" 
+                                         oncontextmenu="showRoomContextMenu(event, '@room.Id', '@room.Name', '@room.Status')">
+                                        <div class="card-body p-2 text-center">
+                                            <div class="fw-bold fs-5">@room.Name</div>
+                                            <div class="small">@room.RoomTypeName</div>
+                                            <div class="small">Giá: @room.RoomTypePrice.ToString("N0") VNĐ</div>
+                                            <div class="small">Trạng thái: @room.Status</div>
+                                            @if (room.Status != "Booked")
+                                            {
+                                                <div class="mt-2 d-flex justify-content-center gap-2">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fas fa-exchange-alt"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><a class="dropdown-item" href="#" onclick="changeStatus('@room.Id', 'Available')">Available</a></li>
+                                                            <li><a class="dropdown-item" href="#" onclick="changeStatus('@room.Id', 'CleaningUp')">Cleaning Up</a></li>
+                                                            <li><a class="dropdown-item" href="#" onclick="changeStatus('@room.Id', 'UnderMaintenance')">Under Maintenance</a></li>
+                                                        </ul>
+                                                    </div>
+                                                    <authorize-button module="Room" action="view">
+                                                        <a asp-page="Details" asp-route-id="@room.Id" class="btn btn-sm btn-light border"><i class="fas fa-eye"></i></a>
+                                                    </authorize-button>
+                                                    <authorize-button module="Room" action="edit">
+                                                        <a asp-page="Edit" asp-route-id="@room.Id" class="btn btn-sm btn-light border"><i class="fas fa-edit"></i></a>
+                                                    </authorize-button>
+                                                    <authorize-button module="Room" action="delete">
+                                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
+                                                                data-bs-target="#deleteModal" data-id="@room.Id" data-name="@room.Name">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </authorize-button>
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
             @if (!Model.Rooms.Any())
             {
@@ -110,23 +139,190 @@
     </div>
 </div>
 
+<!-- Room Context Menu -->
+<div class="context-menu" id="roomContextMenu">
+    <ul class="list-unstyled mb-0">
+        <li class="context-menu-item" id="bookRoomItem">
+            <a href="#" class="text-decoration-none">
+                <i class="fas fa-calendar-plus me-2"></i>Đặt phòng
+            </a>
+        </li>
+        <li class="context-menu-item" id="checkInItem">
+            <a href="#" class="text-decoration-none">
+                <i class="fas fa-sign-in-alt me-2"></i>Check In
+            </a>
+        </li>
+        <li class="context-menu-item" id="checkOutItem">
+            <a href="#" class="text-decoration-none">
+                <i class="fas fa-sign-out-alt me-2"></i>Check Out
+            </a>
+        </li>
+    </ul>
+</div>
+
+@section Styles {
+    <style>
+        .context-menu {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            padding: 8px 0;
+            min-width: 150px;
+        }
+        .context-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .context-menu-item:hover {
+            background-color: #f8f9fa;
+        }
+        .context-menu-item a {
+            color: #333;
+            display: block;
+        }
+    </style>
+}
+
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const deleteModal = document.getElementById('deleteModal');
+        const deleteModal = document.getElementById('deleteModal');
+        if (deleteModal) {
             deleteModal.addEventListener('show.bs.modal', function (event) {
                 const button = event.relatedTarget;
                 const id = button.getAttribute('data-id');
                 const name = button.getAttribute('data-name');
-                
                 const modalTitle = deleteModal.querySelector('.modal-title');
                 const modalBody = deleteModal.querySelector('.modal-body');
                 const deleteIdInput = deleteModal.querySelector('#deleteId');
-                
+
                 modalTitle.textContent = 'Confirm Delete';
                 modalBody.textContent = `Are you sure you want to delete room "${name}"?`;
                 deleteIdInput.value = id;
             });
+        }
+
+        function changeStatus(roomId, newStatus) {
+            if (confirm(`Are you sure you want to change the room status to ${newStatus}?`)) {
+                fetch(`/Rooms/Index?handler=ChangeStatus&id=${roomId}&status=${newStatus}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to change room status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while changing room status');
+                });
+            }
+        }
+
+        function handleCheckIn(roomId, roomName) {
+            if (confirm(`Are you sure you want to check in room "${roomName}"?`)) {
+                fetch(`/Rooms/Index?handler=CheckIn&id=${roomId}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to check in room');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while checking in room');
+                });
+            }
+        }
+
+        function handleCheckOut(roomId, roomName) {
+            if (confirm(`Are you sure you want to check out room "${roomName}"?`)) {
+                fetch(`/Rooms/Index?handler=CheckOut&id=${roomId}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to check out room');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while checking out room');
+                });
+            }
+        }
+
+        let currentRoomId = null;
+        let currentRoomName = null;
+
+        function showRoomContextMenu(event, roomId, roomName, status) {
+            event.preventDefault();
+            
+            currentRoomId = roomId;
+            currentRoomName = roomName;
+            
+            const menu = document.getElementById('roomContextMenu');
+            const bookItem = document.getElementById('bookRoomItem');
+            const checkInItem = document.getElementById('checkInItem');
+            const checkOutItem = document.getElementById('checkOutItem');
+            
+            // Show/hide menu items based on room status
+            bookItem.style.display = status === 'Available' ? 'block' : 'none';
+            checkInItem.style.display = status === 'Booked' ? 'block' : 'none';
+            checkOutItem.style.display = status === 'Booked' ? 'block' : 'none';
+            
+            // Position the menu
+            menu.style.display = 'block';
+            menu.style.left = event.pageX + 'px';
+            menu.style.top = event.pageY + 'px';
+            
+            // Add click handlers
+            bookItem.onclick = () => {
+                window.location.href = `/Bookings/Create?roomId=${roomId}`;
+                hideContextMenu();
+            };
+            
+            checkInItem.onclick = () => {
+                handleCheckIn(roomId, roomName);
+                hideContextMenu();
+            };
+            
+            checkOutItem.onclick = () => {
+                handleCheckOut(roomId, roomName);
+                hideContextMenu();
+            };
+        }
+
+        function hideContextMenu() {
+            const menu = document.getElementById('roomContextMenu');
+            menu.style.display = 'none';
+        }
+
+        // Hide context menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('roomContextMenu');
+            if (!menu.contains(event.target)) {
+                hideContextMenu();
+            }
         });
     </script>
 } 

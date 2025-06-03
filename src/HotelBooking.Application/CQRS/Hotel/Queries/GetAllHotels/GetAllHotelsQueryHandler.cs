@@ -1,7 +1,4 @@
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Application.CQRS.Hotel.DTOs;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.Hotel.Queries.GetAllHotels
 {
@@ -18,7 +15,7 @@ namespace HotelBooking.Application.CQRS.Hotel.Queries.GetAllHotels
         {
             try
             {
-                var hotels = await _hotelRepository.GetAllAsync();
+                var hotels = await _hotelRepository.FindAsync(h => request.HotelIds.Count == 0 || request.HotelIds.Contains(h.Id));
                 var hotelDtos = new List<HotelDto>();
 
                 foreach (var hotel in hotels)

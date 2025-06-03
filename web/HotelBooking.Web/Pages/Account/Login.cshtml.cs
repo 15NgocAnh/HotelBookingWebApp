@@ -83,17 +83,11 @@ namespace HotelBooking.Web.Pages.Account
                         claims.Add(new Claim("HotelId", hotelId.ToString()));
                     }
 
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var authProperties = new AuthenticationProperties
-                    {
-                        IsPersistent = true,
-                        ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30)
-                    };
 
-                    await HttpContext.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(claimsIdentity),
-                        authProperties);
+                    var identity = new ClaimsIdentity(claims, "Bearer");
+                    var principal = new ClaimsPrincipal(identity);
+
+                    await HttpContext.SignInAsync(principal);
 
                     return RedirectToPage("/Index");
                 }

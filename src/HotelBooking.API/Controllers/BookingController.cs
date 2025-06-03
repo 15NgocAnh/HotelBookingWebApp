@@ -6,13 +6,12 @@ using HotelBooking.Application.CQRS.Booking.Commands.UpdateBooking;
 using HotelBooking.Application.CQRS.Booking.Commands.UpdateBookingStatus;
 using HotelBooking.Application.CQRS.Booking.Queries.GetAllBookings;
 using HotelBooking.Application.CQRS.Booking.Queries.GetBookingById;
-using HotelBooking.Application.CQRS.Booking.Queries.GetBookingsByCustomer;
 using HotelBooking.Application.CQRS.Booking.Queries.GetPendingCheckins;
 using HotelBooking.Application.CQRS.Booking.Queries.GetPendingCheckouts;
 
 namespace HotelBooking.API.Controllers
 {
-    [Authorize(Policy = "emailverified")]
+    [Authorize]
     public class BookingController : BaseController
     {
         public BookingController(IMediator mediator) : base(mediator)
@@ -31,7 +30,6 @@ namespace HotelBooking.API.Controllers
         {
             if (id != command.Id)
                 return BadRequest("Id mismatch");
-
             var result = await _mediator.Send(command);
             return HandleResult(result);
         }
@@ -41,7 +39,6 @@ namespace HotelBooking.API.Controllers
         {
             if (id != command.Id)
                 return BadRequest("Id mismatch");
-
             var result = await _mediator.Send(command);
             return HandleResult(result);
         }
@@ -51,7 +48,6 @@ namespace HotelBooking.API.Controllers
         {
             if (id != command.Id)
                 return BadRequest("Id mismatch");
-
             var result = await _mediator.Send(command);
             return HandleResult(result);
         }
@@ -64,18 +60,20 @@ namespace HotelBooking.API.Controllers
             return HandleResult(result);
         }
 
-        [HttpGet("customer/{guestCitizenIdNumber}")]
-        public async Task<IActionResult> GetBookingsByCustomer(string guestCitizenIdNumber)
-        {
-            var query = new GetBookingsByCustomerQuery { GuestCitizenIdNumber = guestCitizenIdNumber };
-            var result = await _mediator.Send(query);
-            return HandleResult(result);
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAllBookings([FromQuery] bool includeInactive = false)
         {
             var query = new GetAllBookingsQuery { IncludeInactive = includeInactive };
+            if (!IsSuperAdmin)
+            {
+                var hotelIds = GetUserHotelIds();
+                if (hotelIds == null || hotelIds.Count == 0)
+                {
+                    return Unauthorized("User không có hotelId hợp lệ.");
+                }
+                query.HotelIds = hotelIds;
+            }
+
             var result = await _mediator.Send(query);
             return HandleResult(result);
         }
@@ -84,6 +82,16 @@ namespace HotelBooking.API.Controllers
         public async Task<IActionResult> GetPendingCheckins([FromQuery] DateTime date)
         {
             var query = new GetPendingCheckinsQuery { Date = date };
+            if (!IsSuperAdmin)
+            {
+                var hotelIds = GetUserHotelIds();
+                if (hotelIds == null || hotelIds.Count == 0)
+                {
+                    return Unauthorized("User không có hotelId hợp lệ.");
+                }
+                query.HotelIds = hotelIds;
+            }
+
             var result = await _mediator.Send(query);
             return HandleResult(result);
         }
@@ -92,6 +100,16 @@ namespace HotelBooking.API.Controllers
         public async Task<IActionResult> GetPendingCheckouts([FromQuery] DateTime date)
         {
             var query = new GetPendingCheckoutsQuery { Date = date };
+            if (!IsSuperAdmin)
+            {
+                var hotelIds = GetUserHotelIds();
+                if (hotelIds == null || hotelIds.Count == 0)
+                {
+                    return Unauthorized("User không có hotelId hợp lệ.");
+                }
+                query.HotelIds = hotelIds;
+            }
+
             var result = await _mediator.Send(query);
             return HandleResult(result);
         }
@@ -105,7 +123,6 @@ namespace HotelBooking.API.Controllers
             }
 
             var result = await _mediator.Send(command);
-
             return HandleResult(result);
         }
     }

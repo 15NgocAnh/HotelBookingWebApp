@@ -27,6 +27,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Create([FromBody] CreateExtraCategoryCommand command)
         {
             var result = await _mediator.Send(command);
@@ -34,6 +35,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateExtraCategoryCommand command)
         {
             if (id != command.Id)
@@ -46,6 +48,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Delete(int id)
         {
             var command = new DeleteExtraCategoryCommand(id);

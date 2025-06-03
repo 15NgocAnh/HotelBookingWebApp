@@ -15,9 +15,11 @@
                     </h4>
                 </div>
                 <div class="col-auto">
-                    <a asp-page="Create" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i>Add New
-                    </a>
+                    <authorize-button module="Hotel" action="create">
+                        <a asp-page="Create" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Add New
+                        </a>
+                    </authorize-button>
                 </div>
             </div>
         </div>
@@ -61,16 +63,22 @@
                                 <td>@item.Email</td>
                                 <td>
                                     <div class="btn-group">
-                                        <a asp-page="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
-                                                data-bs-target="#deleteModal" data-id="@item.Id" data-name="@item.Name">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <authorize-button module="Hotel" action="view">
+                                            <a asp-page="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </authorize-button>
+                                        <authorize-button module="Hotel" action="edit">
+                                            <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </authorize-button>
+                                        <authorize-button module="Hotel" action="delete">
+                                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal" data-id="@item.Id" data-name="@item.Name">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </authorize-button>
                                     </div>
                                 </td>
                             </tr>
@@ -114,19 +122,20 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const deleteModal = document.getElementById('deleteModal');
-            deleteModal.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                const id = button.getAttribute('data-id');
-                const name = button.getAttribute('data-name');
-                
-                const modalTitle = deleteModal.querySelector('.modal-title');
-                const modalBody = deleteModal.querySelector('.modal-body');
-                const deleteIdInput = deleteModal.querySelector('#deleteId');
-                
-                modalTitle.textContent = 'Confirm Delete';
-                modalBody.textContent = `Are you sure you want to delete the hotel "${name}"?`;
-                deleteIdInput.value = id;
-            });
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const id = button.getAttribute('data-id');
+                    const name = button.getAttribute('data-name');
+                    const modalTitle = deleteModal.querySelector('.modal-title');
+                    const modalBody = deleteModal.querySelector('.modal-body');
+                    const deleteIdInput = deleteModal.querySelector('#deleteId');
+
+                    modalTitle.textContent = 'Confirm Delete';
+                    modalBody.textContent = `Are you sure you want to delete hotel "${name}"?`;
+                    deleteIdInput.value = id;
+                });
+            }
         });
     </script>
 } 

@@ -10,5 +10,6 @@ namespace HotelBooking.Application.CQRS.Room.DTOs
         public int RoomTypeId { get; set; }
         public string RoomTypeName { get; set; } = string.Empty;
         public decimal RoomTypePrice { get; set; }
+        public int HotelId { get; set; }
     }
 } 

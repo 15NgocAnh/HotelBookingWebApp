@@ -19,13 +19,26 @@ namespace HotelBooking.Application.CQRS.Building.Queries
         {
             try
             {
+                // Kiểm tra quyền truy cập building
+                var building = await _buildingRepository.GetByIdAsync(request.Id);
+                if (building == null)
+                {
+                    return Result<List<FloorDto>>.Failure($"Building with ID {request.Id} not found");
+                }
+
+                // Kiểm tra quyền truy cập hotel
+                if (request.HotelIds != null && request.HotelIds.Any() && !request.HotelIds.Contains(building.HotelId))
+                {
+                    return Result<List<FloorDto>>.Failure("Access denied: Building does not belong to your hotels.");
+                }
+
                 var floors = await _buildingRepository.GetAllFloorsByBuildingIdAsync(request.Id);
                 
                 return Result<List<FloorDto>>.Success(_mapper.Map<List<FloorDto>>(floors));
             }
             catch (Exception ex)
             {
-                return Result<List<FloorDto>>.Failure($"Failed to get all buildings: {ex.Message}");
+                return Result<List<FloorDto>>.Failure($"Failed to get all floors: {ex.Message}");
             }
         }
     }

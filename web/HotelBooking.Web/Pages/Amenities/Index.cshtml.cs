@@ -1,11 +1,12 @@
 using HotelBooking.Application.CQRS.Amenity.DTOs;
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HotelBooking.Web.Pages.Amenities
 {
+    [Authorize(Roles = "SuperAdmin,HotelManager")]
     public class IndexModel : PageModel
     {
         private readonly IApiService _apiService;
@@ -17,8 +18,8 @@ namespace HotelBooking.Web.Pages.Amenities
             _logger = logger;
         }
 
-        public List<AmenityDto> Amenities { get; set; } = new();
-        public string? ErrorMessage { get; set; }
+        public List<AmenityDto> Amenities { get; set; } = new List<AmenityDto>();
+        public string ErrorMessage { get; set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -37,19 +38,20 @@ namespace HotelBooking.Web.Pages.Amenities
                 }
                 else
                 {
-                    ErrorMessage = result.Messages.FirstOrDefault()?.Message ?? "Failed to fetch amenities.";
+                    Amenities = new List<AmenityDto>();
                 }
                 return Page();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching amenities");
+                _logger.LogError(ex, "Error occurred while fetching amenities");
                 ErrorMessage = "An error occurred while fetching amenities. Please try again later.";
                 return Page();
             }
         }
 
-        public async Task<IActionResult> OnPostDeleteAsync(string id)
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
+        public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
             try
             {
@@ -65,9 +67,10 @@ namespace HotelBooking.Web.Pages.Amenities
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting amenity");
-                TempData["ErrorMessage"] = "An error occurred while deleting the amenity.";
+                _logger.LogError(ex, "Error occurred while deleting amenity {AmenityId}", id);
+                TempData["ErrorMessage"] = "An error occurred while deleting the amenity. Please try again later.";
             }
+
             return RedirectToPage();
         }
     }

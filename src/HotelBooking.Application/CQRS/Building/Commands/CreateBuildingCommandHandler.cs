@@ -1,22 +1,28 @@
-using HotelBooking.Application.Common.Models;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
-
 namespace HotelBooking.Application.CQRS.Building.Commands
 {
     public class CreateBuildingCommandHandler : IRequestHandler<CreateBuildingCommand, Result<int>>
     {
         private readonly IBuildingRepository _buildingRepository;
+        private readonly IHotelRepository _hotelRepository;
 
-        public CreateBuildingCommandHandler(IBuildingRepository buildingRepository)
+        public CreateBuildingCommandHandler(
+            IBuildingRepository buildingRepository,
+            IHotelRepository hotelRepository)
         {
             _buildingRepository = buildingRepository ?? throw new ArgumentNullException(nameof(buildingRepository));
+            _hotelRepository = hotelRepository;
         }
 
         public async Task<Result<int>> Handle(CreateBuildingCommand request, CancellationToken cancellationToken)
         {
             try
             {
+                // Kiểm tra quyền truy cập hotel
+                if (request.HotelIds != null && request.HotelIds.Any() && !request.HotelIds.Contains(request.HotelId))
+                {
+                    return Result<int>.Failure("Access denied: You don't have permission to create building for this hotel.");
+                }
+
                 // Check if building name is unique in the hotel
                 var isNameUnique = await _buildingRepository.IsNameUniqueInHotelAsync(request.HotelId, request.Name);
                 if (!isNameUnique)

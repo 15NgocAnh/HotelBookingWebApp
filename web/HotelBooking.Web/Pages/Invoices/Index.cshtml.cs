@@ -1,5 +1,5 @@
 using HotelBooking.Application.CQRS.Invoice.DTOs;
-using HotelBooking.Application.Common.Models;
+using HotelBooking.Application.CQRS.Invoice.Queries;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -26,26 +26,19 @@ public class IndexModel : PageModel
         try
         {
             var result = await _apiService.GetAsync<List<InvoiceDto>>("api/invoice");
-            if (result == null)
+            if (result == null || !result.IsSuccess || result.Data == null)
             {
-                ErrorMessage = "Failed to fetch invoices.";
+                ErrorMessage = result?.Messages.FirstOrDefault()?.Message ?? "Failed to fetch invoices.";
                 return Page();
             }
 
-            if (result.IsSuccess && result.Data != null)
-            {
-                Invoices = result.Data;
-            }
-            else
-            {
-                ErrorMessage = result.Messages.FirstOrDefault()?.Message ?? "Failed to fetch invoices.";
-            }
+            Invoices = result.Data;
             return Page();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching invoices");
-            ErrorMessage = "An error occurred while fetching invoices. Please try again later.";
+            _logger.LogError(ex, "Error loading invoices");
+            ErrorMessage = "An error occurred while loading the invoices.";
             return Page();
         }
     }
@@ -55,20 +48,20 @@ public class IndexModel : PageModel
         try
         {
             var result = await _apiService.DeleteAsync($"api/invoice/{id}");
-            if (result.IsSuccess)
+            if (result == null || !result.IsSuccess)
             {
-                TempData["SuccessMessage"] = "Invoice deleted successfully!";
+                TempData["ErrorMessage"] = result?.Messages.FirstOrDefault()?.Message ?? "Failed to delete invoice.";
+                return RedirectToPage();
             }
-            else
-            {
-                TempData["ErrorMessage"] = result.Messages.FirstOrDefault()?.Message ?? "Failed to delete invoice.";
-            }
+
+            TempData["SuccessMessage"] = "Invoice deleted successfully!";
+            return RedirectToPage();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting invoice");
             TempData["ErrorMessage"] = "An error occurred while deleting the invoice.";
+            return RedirectToPage();
         }
-        return RedirectToPage();
     }
 } 

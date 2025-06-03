@@ -24,10 +24,15 @@ public class CreateModel : PageModel
     public List<RoomDto> AvailableRooms { get; set; } = new();
     public List<ExtraItemDto> AvailableExtraItems { get; set; } = new();
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync(int roomId = 0)
     {
         try
         {
+            if (roomId != 0)
+            {
+                Booking.RoomId = roomId;
+            }
+
             // Get available rooms
             var roomsResult = await _apiService.GetAsync<List<RoomDto>>("api/room/available");
             if (roomsResult == null || !roomsResult.IsSuccess || roomsResult.Data == null)
@@ -88,7 +93,7 @@ public class CreateModel : PageModel
             }
 
             TempData["SuccessMessage"] = "Booking created successfully!";
-            return RedirectToPage("./Index");
+            return RedirectToPage("./Confirm", new {Id = result.Data});
         }
         catch (Exception ex)
         {

@@ -1,12 +1,14 @@
 using HotelBooking.Application.CQRS.Building.DTOs;
 using HotelBooking.Application.Common.Models;
 using HotelBooking.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 
 namespace HotelBooking.Web.Pages.Buildings;
 
+[Authorize(Roles = "SuperAdmin,HotelManager")]
 public class IndexModel : PageModel
 {
     private readonly IApiService _apiService;
@@ -25,7 +27,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            var result = await _apiService.GetAsync<List<BuildingDto>>("api/building");
+            var result = await _apiService.GetAsync<List<BuildingDto>>("api/building") ?? new();
             if (result == null)
             {
                 ErrorMessage = "Failed to fetch buildings.";
@@ -50,6 +52,7 @@ public class IndexModel : PageModel
         }
     }
 
+    [Authorize(Roles = "SuperAdmin,HotelManager")]
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {
         try

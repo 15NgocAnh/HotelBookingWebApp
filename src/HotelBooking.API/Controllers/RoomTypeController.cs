@@ -3,7 +3,7 @@ using HotelBooking.Application.CQRS.RoomType.Queries;
 
 namespace HotelBooking.API.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,HotelManager")]
     public class RoomTypeController : BaseController
     {
         public RoomTypeController(IMediator mediator) : base(mediator)

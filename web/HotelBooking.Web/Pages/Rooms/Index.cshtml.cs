@@ -1,9 +1,12 @@
 using HotelBooking.Application.CQRS.Room.DTOs;
 using HotelBooking.Application.Common.Models;
 using HotelBooking.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using HotelBooking.Application.CQRS.Room.Commands;
+using HotelBooking.Domain.AggregateModels.RoomAggregate;
 
 namespace HotelBooking.Web.Pages.Rooms;
 
@@ -25,7 +28,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            var result = await _apiService.GetAsync<List<RoomDto>>("api/room");
+            var result = await _apiService.GetAsync<List<RoomDto>>("api/room") ?? new();
             if (result == null)
             {
                 ErrorMessage = "Failed to fetch rooms.";
@@ -50,6 +53,7 @@ public class IndexModel : PageModel
         }
     }
 
+    [Authorize(Roles = "SuperAdmin,HotelManager")]
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {
         try
@@ -68,6 +72,33 @@ public class IndexModel : PageModel
         {
             _logger.LogError(ex, "Error deleting room");
             TempData["ErrorMessage"] = "An error occurred while deleting the room.";
+        }
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostChangeStatusAsync(int id, string status)
+    {
+        try
+        {
+            var updateRoomStatus = new ChangeRoomStatusCommand()
+            {
+                Id = id,
+                Status = Enum.Parse<RoomStatus>(status, ignoreCase: true)
+            };
+            var result = await _apiService.PutAsync<Result>($"api/room/{id}/status", updateRoomStatus);
+            if (result.IsSuccess)
+            {
+                TempData["SuccessMessage"] = "Room status updated successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = result.Messages.FirstOrDefault()?.Message ?? "Failed to update room status.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating room status");
+            TempData["ErrorMessage"] = "An error occurred while updating room status.";
         }
         return RedirectToPage();
     }

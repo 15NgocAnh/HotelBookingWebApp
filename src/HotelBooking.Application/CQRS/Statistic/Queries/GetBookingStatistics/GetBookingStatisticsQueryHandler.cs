@@ -5,10 +5,17 @@ namespace HotelBooking.Application.CQRS.Statistic.Queries.GetBookingStatistics
     public class GetBookingStatisticsQueryHandler : IRequestHandler<GetBookingStatisticsQuery, Result<BookingStatisticsDto>>
     {
         private readonly IBookingRepository _bookingRepository;
+        private readonly IRoomRepository _roomRepository;
+        private readonly IBuildingRepository _buildingRepository;
 
-        public GetBookingStatisticsQueryHandler(IBookingRepository bookingRepository)
+        public GetBookingStatisticsQueryHandler(
+            IBookingRepository bookingRepository,
+            IRoomRepository roomRepository,
+            IBuildingRepository buildingRepository)
         {
             _bookingRepository = bookingRepository;
+            _roomRepository = roomRepository;
+            _buildingRepository = buildingRepository;
         }
 
         public async Task<Result<BookingStatisticsDto>> Handle(GetBookingStatisticsQuery request, CancellationToken cancellationToken)
@@ -48,7 +55,7 @@ namespace HotelBooking.Application.CQRS.Statistic.Queries.GetBookingStatistics
             }
             catch (Exception ex)
             {
-                return Result<BookingStatisticsDto>.Failure("Something went wrong", ex);
+                return Result<BookingStatisticsDto>.Failure($"Failed to get booking statistics: {ex.Message}");
             }
         }
     }

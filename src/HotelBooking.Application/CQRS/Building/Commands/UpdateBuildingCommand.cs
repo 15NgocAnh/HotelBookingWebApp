@@ -9,5 +9,6 @@ namespace HotelBooking.Application.CQRS.Building.Commands
         public int HotelId { get; init; }
         public string Name { get; init; }
         public int TotalFloors { get; init; }
+        public List<int> HotelIds { get; set; } = new();
     }
 } 

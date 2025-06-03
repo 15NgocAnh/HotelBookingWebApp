@@ -404,10 +404,6 @@ namespace HotelBooking.Infrastructure.Migrations
                     b.Property<DateTime?>("PaidDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal>("RemainingAmount")
                         .HasColumnType("decimal(18,2)");
 
@@ -426,7 +422,9 @@ namespace HotelBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Invoices");
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("Invoice", (string)null);
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.RoomAggregate.Room", b =>
@@ -772,7 +770,37 @@ namespace HotelBooking.Infrastructure.Migrations
                                 .HasForeignKey("InvoiceId");
                         });
 
+                    b.OwnsMany("HotelBooking.Domain.AggregateModels.InvoiceAggregate.Payment", "Payments", b1 =>
+                        {
+                            b1.Property<int>("InvoiceId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.Property<DateTime>("PaidAt")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<int>("PaymentMethod")
+                                .HasColumnType("int");
+
+                            b1.HasKey("InvoiceId", "Id");
+
+                            b1.ToTable("Payment");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvoiceId");
+                        });
+
                     b.Navigation("Items");
+
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("HotelBooking.Domain.AggregateModels.RoomTypeAggregate.RoomType", b =>

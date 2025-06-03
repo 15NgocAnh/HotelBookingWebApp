@@ -1,8 +1,4 @@
-using AutoMapper;
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Application.CQRS.Booking.DTOs;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.Booking.Queries.GetAllBookings
 {
@@ -29,11 +25,19 @@ namespace HotelBooking.Application.CQRS.Booking.Queries.GetAllBookings
         {
             try
             {
-                var bookings = await _bookingRepository.GetAllAsync();
+                var bookings = new List<Domain.AggregateModels.BookingAggregate.Booking>();
+                if (request.HotelIds != null && request.HotelIds.Any())
+                {
+                    bookings = await _bookingRepository.GetBookingsByHotelIdsAsync(request.HotelIds);
+                }
+                else
+                {
+                    bookings = (await _bookingRepository.GetAllAsync()).ToList();
+                }
 
                 var bookingDtos = _mapper.Map<List<BookingDto>>(bookings);
 
-                foreach ( var bookingDto in bookingDtos)
+                foreach (var bookingDto in bookingDtos)
                 {
                     var room = await _roomRepository.GetByIdAsync(bookingDto.RoomId);
                     if (room != null)
@@ -55,7 +59,7 @@ namespace HotelBooking.Application.CQRS.Booking.Queries.GetAllBookings
             }
             catch (Exception ex)
             {
-                return Result<List<BookingDto>>.Failure($"Error retrieving bookings: {ex.Message}");
+                return Result<List<BookingDto>>.Failure($"Failed to get bookings: {ex.Message}");
             }
         }
     }

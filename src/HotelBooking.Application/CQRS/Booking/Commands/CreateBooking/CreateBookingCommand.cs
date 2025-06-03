@@ -5,7 +5,7 @@ namespace HotelBooking.Application.CQRS.Booking.Commands.CreateBooking
 {
     public record CreateBookingCommand : IRequest<Result<int>>
     {
-        public int RoomId { get; init; }
+        public int RoomId { get; set; }
         public DateTime CheckInDate { get; init; } = DateTime.UtcNow;
         public DateTime CheckOutDate { get; init; } = DateTime.UtcNow.AddDays(1);
         public string? Notes { get; init; }

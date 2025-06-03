@@ -1,9 +1,11 @@
+using HotelBooking.Application.Common.Base;
+using HotelBooking.Application.Common.Models;
 using HotelBooking.Application.CQRS.User.DTOs;
 
 namespace HotelBooking.Application.CQRS.User.Queries.GetUserById
 {
-    public record GetUserByIdQuery : IRequest<Result<UserDto>>
+    public record GetUserByIdQuery(int Id) : IQuery<Result<UserDto>>
     {
-        public int Id { get; init; }
+        public List<int> HotelIds { get; set; } = new();
     }
 } 

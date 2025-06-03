@@ -7,17 +7,21 @@
 
 <style>
     body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #054f72 0%, #4698bb 100%); /* Sử dụng Sea Green và một màu sáng hơn */
         min-height: 100vh;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .login-container {
-        min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+    .login-container {
+        /* Removed min-height, display, align-items, justify-content as it's now on body */
         padding: 20px;
+        width: 100%; /* Ensure it takes full width within body's flex */
+        display: flex; /* Added for centering the card itself */
+        align-items: center;
+        justify-content: center;
     }
 
     .login-card {
@@ -31,80 +35,92 @@
         max-width: 450px;
         transform: translateY(0);
         transition: all 0.3s ease;
+        overflow: hidden; /* Important for shimmer effect */
     }
 
-    .login-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-    }
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
 
-    .hotel-icon {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        border-radius: 20px;
+    /* --- LOGO STYLES --- */
+    .hotel-logo {
+        width: 120px; /* Increased size for prominence */
+        height: 120px; /* Increased size for prominence */
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 20px;
+        margin: 0 auto 30px; /* Increased margin-bottom */
         position: relative;
         overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        transition: transform 0.3s ease;
     }
 
-    .hotel-icon::before {
-        content: '🏨';
-        font-size: 40px;
-        filter: grayscale(1) brightness(10);
-    }
+        .hotel-logo:hover {
+            transform: scale(1.05); /* Slight zoom on hover */
+        }
 
-    .hotel-icon::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-        transform: rotate(45deg);
-        animation: shimmer 3s infinite;
-    }
+        .hotel-logo img {
+            max-width: 80%; /* Adjust as needed */
+            max-height: 80%; /* Adjust as needed */
+            object-fit: contain; /* Ensure the image fits well */
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); /* Add a subtle shadow to the logo image */
+        }
+
+        /* Shimmer effect for the logo container (optional, depends on logo design) */
+        .hotel-logo::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+            opacity: 0.8; /* Make shimmer slightly more visible */
+        }
 
     @@keyframes shimmer {
         0% {
             transform: translateX(-100%) translateY(-100%) rotate(45deg);
         }
+
         100% {
             transform: translateX(100%) translateY(100%) rotate(45deg);
         }
     }
+    /* --- END LOGO STYLES --- */
 
     .welcome-title {
-        font-size: 2rem;
+        font-size: 2.5rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: linear-gradient(135deg, #054f72, #4698bb); /* Cũng áp dụng gradient cho tiêu đề */
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         text-align: center;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
     }
 
     .welcome-subtitle {
         color: #6c757d;
         text-align: center;
-        margin-bottom: 30px;
-        font-size: 1rem;
+        margin-bottom: 40px; /* Increased margin-bottom */
+        font-size: 1.1rem; /* Slightly larger subtitle */
+        line-height: 1.5;
     }
 
     .form-floating {
         position: relative;
-        margin-bottom: 20px;
+        margin-bottom: 25px; /* Increased margin-bottom */
     }
 
-    .form-floating label::after {
-        background-color: transparent !important;
-        content: none !important;
-    }
+        .form-floating label::after {
+            background-color: transparent !important;
+            content: none !important;
+        }
 
     .form-control {
         border: 2px solid #e9ecef;
@@ -116,12 +132,12 @@
         height: auto;
     }
 
-    .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
-        background: white;
-        transform: translateY(-2px);
-    }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+            background: white;
+            transform: translateY(-2px);
+        }
 
     .form-floating label {
         position: absolute;
@@ -145,8 +161,10 @@
         transform: translateY(0);
     }
 
+
+
     .btn-login {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #054f72; /* Sử dụng Sea Green làm màu nền chính */
         border: none;
         border-radius: 16px;
         padding: 16px;
@@ -160,29 +178,28 @@
         overflow: hidden;
     }
 
-    .btn-login:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-    }
+        .btn-login:hover {
+            box-shadow: 0 10px 25px rgba(46, 139, 87, 0.5); /* Điều chỉnh bóng đổ cho phù hợp */
+        }
 
-    .btn-login:active {
-        transform: translateY(0);
-    }
+        .btn-login:active {
+            transform: translateY(0);
+        }
 
-    .btn-login::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s;
-    }
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
 
-    .btn-login:hover::before {
-        left: 100%;
-    }
+        .btn-login:hover::before {
+            left: 100%;
+        }
 
     .alert-danger {
         background: rgba(220, 53, 69, 0.1);
@@ -199,17 +216,17 @@
         margin-top: 20px;
     }
 
-    .forgot-password a {
-        color: #667eea;
-        text-decoration: none;
-        font-size: 14px;
-        transition: color 0.3s ease;
-    }
+        .forgot-password a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
 
-    .forgot-password a:hover {
-        color: #764ba2;
-        text-decoration: underline;
-    }
+            .forgot-password a:hover {
+                color: #764ba2;
+                text-decoration: underline;
+            }
 
     .divider {
         display: flex;
@@ -219,17 +236,17 @@
         font-size: 14px;
     }
 
-    .divider::before,
-    .divider::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: #e9ecef;
-    }
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e9ecef;
+        }
 
-    .divider span {
-        padding: 0 15px;
-    }
+        .divider span {
+            padding: 0 15px;
+        }
 
     .social-login {
         display: flex;
@@ -249,11 +266,11 @@
         font-weight: 500;
     }
 
-    .btn-social:hover {
-        border-color: #667eea;
-        color: #667eea;
-        transform: translateY(-2px);
-    }
+        .btn-social:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
 
     .signup-link {
         text-align: center;
@@ -264,38 +281,43 @@
         font-size: 14px;
     }
 
-    .signup-link a {
-        color: #667eea;
-        text-decoration: none;
-        font-weight: 600;
-    }
+        .signup-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
 
-    .signup-link a:hover {
-        color: #764ba2;
-    }
+            .signup-link a:hover {
+                color: #764ba2;
+            }
 
     /* Loading animation */
     .btn-login.loading {
         pointer-events: none;
     }
 
-    .btn-login.loading::after {
-        content: '';
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        border: 2px solid transparent;
-        border-top: 2px solid white;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-    }
+        .btn-login.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
 
     @@keyframes spin {
-        0% { transform: translateY(-50%) rotate(0deg); }
-        100% { transform: translateY(-50%) rotate(360deg); }
+        0% {
+            transform: translateY(-50%) rotate(0deg);
+        }
+
+        100% {
+            transform: translateY(-50%) rotate(360deg);
+        }
     }
 
     /* Responsive design */
@@ -304,45 +326,49 @@
             padding: 30px 25px;
             border-radius: 20px;
         }
-        
+
         .welcome-title {
-            font-size: 1.75rem;
+            font-size: 2rem;
         }
-        
-        .hotel-icon {
-            width: 70px;
-            height: 70px;
+
+        .hotel-logo {
+            width: 100px;
+            height: 100px;
         }
-        
-        .hotel-icon::before {
-            font-size: 35px;
-        }
+
+            .hotel-logo img {
+                max-width: 70%;
+                max-height: 70%;
+            }
     }
 </style>
 
 <div class="login-container">
     <div class="login-card">
-        <div class="hotel-icon"></div>
-        
-        <h1 class="welcome-title">Welcome Back</h1>
-        
+        <div class="hotel-logo">
+            <img src="/img/logo.png" alt="Hotel Logo" />
+        </div>
+
+        <h1 class="welcome-title">Chào mừng trở lại!</h1>
+        <p class="welcome-subtitle">Đăng nhập để quản lý đặt phòng của bạn một cách dễ dàng.</p>
+
         <form method="post" id="loginForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            
+
             <div class="alert alert-danger d-none" id="errorMessage"></div>
-            
+
             <div class="form-floating">
-                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
-                <label for="email">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Nhập địa chỉ email của bạn" required>
+                <label for="email">Địa chỉ Email</label>
             </div>
-            
+
             <div class="form-floating">
-                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
-                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu của bạn" required>
+                <label for="password">Mật khẩu</label>
             </div>
-            
+
             <button type="submit" class="btn btn-login" id="loginBtn">
-                Sign In
+                Đăng nhập
             </button>
         </form>
     </div>
@@ -350,49 +376,58 @@
 
 <script>
     // Enhanced form interactions
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('loginForm');
         const loginBtn = document.getElementById('loginBtn');
         const inputs = document.querySelectorAll('.form-control');
-        
+
         // Add floating label effect
         inputs.forEach(input => {
-            input.addEventListener('focus', function() {
+            input.addEventListener('focus', function () {
                 this.parentElement.classList.add('focused');
             });
-            
-            input.addEventListener('blur', function() {
+
+            input.addEventListener('blur', function () {
                 if (!this.value) {
                     this.parentElement.classList.remove('focused');
                 }
             });
-            
+
             // Check if input has value on page load
             if (input.value) {
                 input.parentElement.classList.add('focused');
             }
         });
-        
+
         // Form submission with loading animation
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
+            // Prevent default submission for demonstration, remove in production if using standard form post
+            // e.preventDefault();
+
             loginBtn.classList.add('loading');
-            loginBtn.innerHTML = 'Signing In...';
-            
-            // Remove loading state after 3 seconds (adjust based on your backend response time)
+            loginBtn.innerHTML = 'Đang đăng nhập...';
+
+            // Simulate API call or backend processing
+            // In a real application, remove this setTimeout and handle loading state
+            // based on the actual async operation (e.g., fetch, axios)
             setTimeout(() => {
                 loginBtn.classList.remove('loading');
-                loginBtn.innerHTML = 'Sign In';
-            }, 3000);
+                loginBtn.innerHTML = 'Đăng nhập';
+                // You might also display an error message here if login fails
+                // const errorMessageDiv = document.getElementById('errorMessage');
+                // errorMessageDiv.classList.remove('d-none');
+                // errorMessageDiv.innerHTML = 'Tên đăng nhập hoặc mật khẩu không đúng.';
+            }, 3000); // Adjust this timeout based on your actual backend response time
         });
-        
-        // Add smooth hover effects
+
+        // Add smooth hover effects (already present and good)
         const card = document.querySelector('.login-card');
-        
-        card.addEventListener('mouseenter', function() {
+
+        card.addEventListener('mouseenter', function () {
             this.style.transform = 'translateY(-5px)';
         });
-        
-        card.addEventListener('mouseleave', function() {
+
+        card.addEventListener('mouseleave', function () {
             this.style.transform = 'translateY(0)';
         });
     });
@@ -400,4 +435,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 }

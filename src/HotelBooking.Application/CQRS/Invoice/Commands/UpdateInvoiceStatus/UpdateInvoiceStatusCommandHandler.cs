@@ -1,10 +1,6 @@
-using HotelBooking.Application.Common.Base;
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Domain.AggregateModels.InvoiceAggregate;
 using HotelBooking.Domain.Common;
 using HotelBooking.Domain.Exceptions;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
 
 namespace HotelBooking.Application.CQRS.Invoice.Commands.UpdateInvoiceStatus
 {
@@ -25,14 +21,11 @@ namespace HotelBooking.Application.CQRS.Invoice.Commands.UpdateInvoiceStatus
         {
             try
             {
-                var invoice = await _invoiceRepository.GetByIdWithItemsAsync(request.Id);
+                var invoice = await _invoiceRepository.GetByIdAsync(request.Id);
                 if (invoice == null)
                     return Result.Failure("Invoice not found");
 
-                if (!Enum.TryParse<InvoiceStatus>(request.Status, out var newStatus))
-                    return Result.Failure("Invalid invoice status");
-
-                invoice.UpdateStatus(newStatus, request.PaidAmount, request.PaymentMethod, request.Notes);
+                invoice.UpdateStatus(request.Status);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 

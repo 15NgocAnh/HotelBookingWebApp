@@ -8,10 +8,16 @@ namespace HotelBooking.Infrastructure.Repositories
         {
         }
 
-        public async Task<Invoice> GetByIdWithItemsAsync(int id)
+        public override async Task<IEnumerable<Invoice>> GetAllAsync()
+        {
+            return await _context.Invoices.ToListAsync();
+        }
+
+        public override async Task<Invoice?> GetByIdAsync(int id)
         {
             return await _context.Invoices
                 .Include(i => i.Items)
+                .Include(i => i.Payments)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
 

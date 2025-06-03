@@ -1,7 +1,3 @@
-using HotelBooking.Application.Common.Models;
-using HotelBooking.Domain.Interfaces.Repositories;
-using MediatR;
-
 namespace HotelBooking.Application.CQRS.Building.Commands
 {
     public class DeleteBuildingCommandHandler : IRequestHandler<DeleteBuildingCommand, Result>
@@ -23,6 +19,12 @@ namespace HotelBooking.Application.CQRS.Building.Commands
                 if (building == null)
                 {
                     return Result.Failure($"Building with ID {request.Id} not found");
+                }
+
+                // Kiểm tra quyền truy cập hotel
+                if (request.HotelIds != null && request.HotelIds.Any() && !request.HotelIds.Contains(building.HotelId))
+                {
+                    return Result.Failure("Access denied: You don't have permission to delete this building.");
                 }
                 
                 // Delete building

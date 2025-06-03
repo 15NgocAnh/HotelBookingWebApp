@@ -1,4 +1,7 @@
-﻿using HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
+﻿using HotelBooking.Application.CQRS.Invoice.Commands.AddPayment;
+using HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
+using HotelBooking.Application.CQRS.Invoice.Commands.DeleteInvoice;
+using HotelBooking.Application.CQRS.Invoice.Commands.GenerateInvoicePdf;
 using HotelBooking.Application.CQRS.Invoice.Commands.UpdateInvoiceStatus;
 using HotelBooking.Application.CQRS.Invoice.Queries;
 
@@ -22,6 +25,16 @@ namespace HotelBooking.API.Controllers
         public async Task<IActionResult> UpdateInvoiceStatus(int id, [FromBody] UpdateInvoiceStatusCommand command)
         {
             if (id != command.Id)
+                return BadRequest("ID mismatch");
+
+            var result = await _mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        [HttpPut("{id}/payment")]
+        public async Task<IActionResult> AddPayment(int id, [FromBody] AddPaymentCommand command)
+        {
+            if (id != command.InvoiceId)
                 return BadRequest("ID mismatch");
 
             var result = await _mediator.Send(command);
@@ -65,6 +78,22 @@ namespace HotelBooking.API.Controllers
         {
             var query = new GetOverdueInvoicesQuery { FromDate = fromDate, ToDate = toDate };
             var result = await _mediator.Send(query);
+            return HandleResult(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteInvoice(int id)
+        {
+            var command = new DeleteInvoiceCommand(id);
+            var result = await _mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        [HttpGet("{id}/pdf")]
+        public async Task<IActionResult> GeneratePdf(int id)
+        {
+            var command = new GenerateInvoicePdfCommand { InvoiceId = id };
+            var result = await _mediator.Send(command);
             return HandleResult(result);
         }
     }
