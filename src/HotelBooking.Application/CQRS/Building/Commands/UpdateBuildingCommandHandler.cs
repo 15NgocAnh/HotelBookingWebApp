@@ -25,6 +25,12 @@ namespace HotelBooking.Application.CQRS.Building.Commands
                     return Result.Failure($"Building with ID {request.Id} not found");
                 }
 
+                // Kiểm tra quyền truy cập hotel
+                if (request.HotelIds != null && request.HotelIds.Any() && !request.HotelIds.Contains(building.HotelId))
+                {
+                    return Result.Failure("Access denied: You don't have permission to update this building.");
+                }
+
                 // Check if the hotel ID matches
                 if (building.HotelId != request.HotelId)
                 {

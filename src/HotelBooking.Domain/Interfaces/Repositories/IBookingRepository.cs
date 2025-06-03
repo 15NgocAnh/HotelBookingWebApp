@@ -25,5 +25,7 @@ namespace HotelBooking.Domain.Interfaces.Repositories
         Task<decimal> GetWeeklyRevenueAsync(DateTime? startDate = null, DateTime? endDate = null);
         Task<IEnumerable<DailyRevenue>> GetDailyRevenueAsync(DateTime? startDate = null, DateTime? endDate = null);
         Task<IEnumerable<MonthlyRevenue>> GetMonthlyRevenueDataAsync(int months = 6);
+        Task<List<Booking>> GetBookingsByHotelIdsAsync(IEnumerable<int> hotelIds);
+        Task<Booking> GetBookingByIdWithHotelIdsAsync(IEnumerable<int> hotelIds, int bookingId);
     }
 }

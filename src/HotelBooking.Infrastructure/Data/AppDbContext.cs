@@ -67,6 +67,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Booking>().OwnsMany(b => b.ExtraUsages);
         modelBuilder.Entity<Booking>().OwnsMany(b => b.Guests);
         modelBuilder.Entity<Invoice>().OwnsMany(b => b.Items);
+        modelBuilder.Entity<Invoice>().OwnsMany(b => b.Payments);
         modelBuilder.Entity<RoomType>().OwnsMany(b => b.AmenitySetupDetails);
         modelBuilder.Entity<RoomType>().OwnsMany(b => b.BedTypeSetupDetails);
 

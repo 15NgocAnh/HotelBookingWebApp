@@ -237,12 +237,12 @@
     }
 
     .btn-edit {
-        background: #0dcaf0; 
+        background: #0dcaf0;
         color: white;
     }
 
     .btn-view:hover {
-        background: #5a67d8; 
+        background: #5a67d8;
         color: white;
     }
 
@@ -323,9 +323,11 @@
                     <div class="subtitle">Manage all your reservations</div>
                 </div>
                 <div class="d-none d-md-block">
-                    <a asp-page="Create" class="btn btn-light btn-sm">
-                        <i class="fas fa-plus me-1"></i>New Booking
-                    </a>
+                    <authorize-button module="Booking" action="create">
+                        <a asp-page="Create" class="btn btn-light btn-sm">
+                            <i class="fas fa-plus me-1"></i>New Booking
+                        </a>
+                    </authorize-button>
                 </div>
             </div>
         </div>
@@ -451,61 +453,64 @@
                                         </div>
                                         <div class="info-item">
                                             <div class="info-label">Duration</div>
-                                            <div class="info-value">@((booking.CheckOutDate-booking.CheckInDate).Days) nights</div>
+                                            <div class="info-value">@((booking.CheckOutDate - booking.CheckInDate).Days) nights</div>
                                         </div>
                                     </div>
 
                                     <div class="action-buttons">
-                                        <a asp-page="Details" asp-route-id="@booking.Id" class="btn-action btn-view">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </a>
-                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending || 
-                                             booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
+                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending ||
+                                            booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
                                         {
-                                            <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
-                                                <i class="fas fa-edit me-1"></i> Edit
-                                            </a>
-                                        }
-                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
-                                        {
-                                            <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
-                                                <i class="fas fa-edit me-1"></i> Add Services
-                                            </a>
+                                            <authorize-button module="Booking" action="edit">
+                                                <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
+                                                    <i class="fas fa-edit me-1"></i> Edit
+                                                </a>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending)
                                         {
-                                            <button type="submit" asp-page="Confirm" asp-route-id="@booking.Id" class="btn-action btn-confirm">
-                                                <i class="fas fa-circle-check me-1"></i> Confirm
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <a asp-page="Confirm" asp-route-id="@booking.Id" class="btn-action btn-confirm">
+                                                    <i class="fas fa-circle-check me-1"></i> Confirm
+                                                </a>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
                                         {
-                                            <button class="btn-action btn-checkin" data-bs-toggle="modal" data-bs-target="#checkInModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-sign-in-alt me-1"></i> Check In
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-checkin" data-bs-toggle="modal" data-bs-target="#checkInModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-sign-in-alt me-1"></i> Check In
+                                                </button>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
                                         {
-                                            <button class="btn-action btn-checkout" data-bs-toggle="modal" data-bs-target="#checkOutModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-sign-out-alt me-1"></i> Check Out
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-checkout" data-bs-toggle="modal" data-bs-target="#checkOutModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-sign-out-alt me-1"></i> Check Out
+                                                </button>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
                                         {
-                                            <button class="btn-action btn-invoice" data-bs-toggle="modal" data-bs-target="#createInvoiceModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-receipt me-1"></i> Create Invoice
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-invoice" data-bs-toggle="modal" data-bs-target="#createInvoiceModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-receipt me-1"></i> Create Invoice
+                                                </button>
+                                            </authorize-button>
                                         }
-                                        @if (booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.Cancelled && 
-                                             booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
+                                        @if (booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.Cancelled &&
+                                            booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
                                         {
-                                            <button class="btn-action btn-cancel" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-times me-1"></i> Cancel
-                                            </button>
+                                            <authorize-button module="Booking" action="delete">
+                                                <button class="btn-action btn-cancel" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-times me-1"></i> Cancel
+                                                </button>
+                                            </authorize-button>
                                         }
                                     </div>
                                 </div>
@@ -577,61 +582,64 @@
                                         </div>
                                         <div class="info-item">
                                             <div class="info-label">Duration</div>
-                                            <div class="info-value">@((booking.CheckOutDate-booking.CheckInDate).Days) nights</div>
+                                            <div class="info-value">@((booking.CheckOutDate - booking.CheckInDate).Days) nights</div>
                                         </div>
                                     </div>
 
                                     <div class="action-buttons">
-                                        <a asp-page="Details" asp-route-id="@booking.Id" class="btn-action btn-view">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </a>
-                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending || 
-                                             booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
+                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending ||
+                                            booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
                                         {
-                                            <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
-                                                <i class="fas fa-edit me-1"></i> Edit
-                                            </a>
-                                        }
-                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
-                                        {
-                                            <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
-                                                <i class="fas fa-edit me-1"></i> Add Services
-                                            </a>
+                                            <authorize-button module="Booking" action="edit">
+                                                <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
+                                                    <i class="fas fa-edit me-1"></i> Edit
+                                                </a>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending)
                                         {
-                                            <button type="submit" asp-page="Confirm" asp-route-id="@booking.Id" class="btn-action btn-confirm">
-                                                <i class="fas fa-circle-check me-1"></i> Confirm
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <a asp-page="Confirm" asp-route-id="@booking.Id" class="btn-action btn-confirm">
+                                                    <i class="fas fa-circle-check me-1"></i> Confirm
+                                                </a>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
                                         {
-                                            <button class="btn-action btn-checkin" data-bs-toggle="modal" data-bs-target="#checkInModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-sign-in-alt me-1"></i> Check In
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-checkin" data-bs-toggle="modal" data-bs-target="#checkInModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-sign-in-alt me-1"></i> Check In
+                                                </button>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
                                         {
-                                            <button class="btn-action btn-checkout" data-bs-toggle="modal" data-bs-target="#checkOutModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-sign-out-alt me-1"></i> Check Out
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-checkout" data-bs-toggle="modal" data-bs-target="#checkOutModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-sign-out-alt me-1"></i> Check Out
+                                                </button>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
                                         {
-                                            <button class="btn-action btn-invoice" data-bs-toggle="modal" data-bs-target="#createInvoiceModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-receipt me-1"></i> Create Invoice
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-invoice" data-bs-toggle="modal" data-bs-target="#createInvoiceModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-receipt me-1"></i> Create Invoice
+                                                </button>
+                                            </authorize-button>
                                         }
-                                        @if (booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.Cancelled && 
-                                             booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
+                                        @if (booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.Cancelled &&
+                                            booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
                                         {
-                                            <button class="btn-action btn-cancel" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-times me-1"></i> Cancel
-                                            </button>
+                                            <authorize-button module="Booking" action="delete">
+                                                <button class="btn-action btn-cancel" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-times me-1"></i> Cancel
+                                                </button>
+                                            </authorize-button>
                                         }
                                     </div>
                                 </div>
@@ -703,61 +711,64 @@
                                         </div>
                                         <div class="info-item">
                                             <div class="info-label">Duration</div>
-                                            <div class="info-value">@((booking.CheckOutDate-booking.CheckInDate).Days) nights</div>
+                                            <div class="info-value">@((booking.CheckOutDate - booking.CheckInDate).Days) nights</div>
                                         </div>
                                     </div>
 
                                     <div class="action-buttons">
-                                        <a asp-page="Details" asp-route-id="@booking.Id" class="btn-action btn-view">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </a>
-                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending || 
-                                             booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
+                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending ||
+                                            booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
                                         {
-                                            <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
-                                                <i class="fas fa-edit me-1"></i> Edit
-                                            </a>
-                                        }
-                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
-                                        {
-                                            <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
-                                                <i class="fas fa-edit me-1"></i> Add Services
-                                            </a>
+                                            <authorize-button module="Booking" action="edit">
+                                                <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
+                                                    <i class="fas fa-edit me-1"></i> Edit
+                                                </a>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending)
                                         {
-                                            <button type="submit" asp-page="Confirm" asp-route-id="@booking.Id" class="btn-action btn-confirm">
-                                                <i class="fas fa-circle-check me-1"></i> Confirm
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <a asp-page="Confirm" asp-route-id="@booking.Id" class="btn-action btn-confirm">
+                                                    <i class="fas fa-circle-check me-1"></i> Confirm
+                                                </a>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
                                         {
-                                            <button class="btn-action btn-checkin" data-bs-toggle="modal" data-bs-target="#checkInModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-sign-in-alt me-1"></i> Check In
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-checkin" data-bs-toggle="modal" data-bs-target="#checkInModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-sign-in-alt me-1"></i> Check In
+                                                </button>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
                                         {
-                                            <button class="btn-action btn-checkout" data-bs-toggle="modal" data-bs-target="#checkOutModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-sign-out-alt me-1"></i> Check Out
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-checkout" data-bs-toggle="modal" data-bs-target="#checkOutModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-sign-out-alt me-1"></i> Check Out
+                                                </button>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
                                         {
-                                            <button class="btn-action btn-invoice" data-bs-toggle="modal" data-bs-target="#createInvoiceModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-receipt me-1"></i> Create Invoice
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-invoice" data-bs-toggle="modal" data-bs-target="#createInvoiceModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-receipt me-1"></i> Create Invoice
+                                                </button>
+                                            </authorize-button>
                                         }
-                                        @if (booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.Cancelled && 
-                                             booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
+                                        @if (booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.Cancelled &&
+                                            booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
                                         {
-                                            <button class="btn-action btn-cancel" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-times me-1"></i> Cancel
-                                            </button>
+                                            <authorize-button module="Booking" action="delete">
+                                                <button class="btn-action btn-cancel" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-times me-1"></i> Cancel
+                                                </button>
+                                            </authorize-button>
                                         }
                                     </div>
                                 </div>
@@ -829,61 +840,64 @@
                                         </div>
                                         <div class="info-item">
                                             <div class="info-label">Duration</div>
-                                            <div class="info-value">@((booking.CheckOutDate-booking.CheckInDate).Days) nights</div>
+                                            <div class="info-value">@((booking.CheckOutDate - booking.CheckInDate).Days) nights</div>
                                         </div>
                                     </div>
 
                                     <div class="action-buttons">
-                                        <a asp-page="Details" asp-route-id="@booking.Id" class="btn-action btn-view">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </a>
-                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending || 
-                                             booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
+                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending ||
+                                   booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
                                         {
-                                            <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
-                                                <i class="fas fa-edit me-1"></i> Edit
-                                            </a>
-                                        }
-                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
-                                        {
-                                            <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
-                                                <i class="fas fa-edit me-1"></i> Add Services
-                                            </a>
+                                            <authorize-button module="Booking" action="edit">
+                                                <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
+                                                    <i class="fas fa-edit me-1"></i> Edit
+                                                </a>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending)
                                         {
-                                            <button type="submit" asp-page="Confirm" asp-route-id="@booking.Id" class="btn-action btn-confirm">
-                                                <i class="fas fa-circle-check me-1"></i> Confirm
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <a asp-page="Confirm" asp-route-id="@booking.Id" class="btn-action btn-confirm">
+                                                    <i class="fas fa-circle-check me-1"></i> Confirm
+                                                </a>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
                                         {
-                                            <button class="btn-action btn-checkin" data-bs-toggle="modal" data-bs-target="#checkInModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-sign-in-alt me-1"></i> Check In
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-checkin" data-bs-toggle="modal" data-bs-target="#checkInModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-sign-in-alt me-1"></i> Check In
+                                                </button>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
                                         {
-                                            <button class="btn-action btn-checkout" data-bs-toggle="modal" data-bs-target="#checkOutModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-sign-out-alt me-1"></i> Check Out
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-checkout" data-bs-toggle="modal" data-bs-target="#checkOutModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-sign-out-alt me-1"></i> Check Out
+                                                </button>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
                                         {
-                                            <button class="btn-action btn-invoice" data-bs-toggle="modal" data-bs-target="#createInvoiceModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-receipt me-1"></i> Create Invoice
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-invoice" data-bs-toggle="modal" data-bs-target="#createInvoiceModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-receipt me-1"></i> Create Invoice
+                                                </button>
+                                            </authorize-button>
                                         }
-                                        @if (booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.Cancelled && 
-                                             booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
+                                        @if (booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.Cancelled &&
+                                   booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
                                         {
-                                            <button class="btn-action btn-cancel" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-times me-1"></i> Cancel
-                                            </button>
+                                            <authorize-button module="Booking" action="delete">
+                                                <button class="btn-action btn-cancel" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-times me-1"></i> Cancel
+                                                </button>
+                                            </authorize-button>
                                         }
                                     </div>
                                 </div>
@@ -955,61 +969,64 @@
                                         </div>
                                         <div class="info-item">
                                             <div class="info-label">Duration</div>
-                                            <div class="info-value">@((booking.CheckOutDate-booking.CheckInDate).Days) nights</div>
+                                            <div class="info-value">@((booking.CheckOutDate - booking.CheckInDate).Days) nights</div>
                                         </div>
                                     </div>
 
                                     <div class="action-buttons">
-                                        <a asp-page="Details" asp-route-id="@booking.Id" class="btn-action btn-view">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </a>
-                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending || 
-                                             booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
+                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending ||
+                                   booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
                                         {
-                                            <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
-                                                <i class="fas fa-edit me-1"></i> Edit
-                                            </a>
-                                        }
-                                        @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
-                                        {
-                                            <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
-                                                <i class="fas fa-edit me-1"></i> Add Services
-                                            </a>
+                                            <authorize-button module="Booking" action="edit">
+                                                <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
+                                                    <i class="fas fa-edit me-1"></i> Edit
+                                                </a>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending)
                                         {
-                                            <button type="submit" asp-page="Confirm" asp-route-id="@booking.Id" class="btn-action btn-confirm">
-                                                <i class="fas fa-circle-check me-1"></i> Confirm
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <a asp-page="Confirm" asp-route-id="@booking.Id" class="btn-action btn-confirm">
+                                                    <i class="fas fa-circle-check me-1"></i> Confirm
+                                                </a>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
                                         {
-                                            <button class="btn-action btn-checkin" data-bs-toggle="modal" data-bs-target="#checkInModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-sign-in-alt me-1"></i> Check In
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-checkin" data-bs-toggle="modal" data-bs-target="#checkInModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-sign-in-alt me-1"></i> Check In
+                                                </button>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
                                         {
-                                            <button class="btn-action btn-checkout" data-bs-toggle="modal" data-bs-target="#checkOutModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-sign-out-alt me-1"></i> Check Out
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-checkout" data-bs-toggle="modal" data-bs-target="#checkOutModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-sign-out-alt me-1"></i> Check Out
+                                                </button>
+                                            </authorize-button>
                                         }
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
                                         {
-                                            <button class="btn-action btn-invoice" data-bs-toggle="modal" data-bs-target="#createInvoiceModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-receipt me-1"></i> Create Invoice
-                                            </button>
+                                            <authorize-button module="Booking" action="edit">
+                                                <button class="btn-action btn-invoice" data-bs-toggle="modal" data-bs-target="#createInvoiceModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-receipt me-1"></i> Create Invoice
+                                                </button>
+                                            </authorize-button>
                                         }
-                                        @if (booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.Cancelled && 
-                                             booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
+                                        @if (booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.Cancelled &&
+                                   booking.Status != Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedOut)
                                         {
-                                            <button class="btn-action btn-cancel" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                    data-id="@booking.Id" data-name="@booking.RoomName">
-                                                <i class="fas fa-times me-1"></i> Cancel
-                                            </button>
+                                            <authorize-button module="Booking" action="delete">
+                                                <button class="btn-action btn-cancel" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                        data-id="@booking.Id" data-name="@booking.RoomName">
+                                                    <i class="fas fa-times me-1"></i> Cancel
+                                                </button>
+                                            </authorize-button>
                                         }
                                     </div>
                                 </div>
@@ -1081,14 +1098,8 @@
                                         </div>
                                         <div class="info-item">
                                             <div class="info-label">Duration</div>
-                                            <div class="info-value">@((booking.CheckOutDate-booking.CheckInDate).Days) nights</div>
+                                            <div class="info-value">@((booking.CheckOutDate - booking.CheckInDate).Days) nights</div>
                                         </div>
-                                    </div>
-
-                                    <div class="action-buttons">
-                                        <a asp-page="Details" asp-route-id="@booking.Id" class="btn-action btn-view">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -1201,15 +1212,6 @@
             <div class="modal-body" style="padding: 24px;">
                 <p>Please confirm you want to create an invoice for this booking.</p>
                 <div class="mb-3">
-                    <label for="paymentMethod" class="form-label fw-semibold">Payment Method</label>
-                    <select class="form-select rounded-3 shadow-sm" id="paymentMethod" name="PaymentMethod" required>
-                        <option value="Credit Card">Credit Card</option>
-                        <option value="Cash">Cash</option>
-                        <option value="Bank Transfer">Bank Transfer</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
                     <label for="invoiceNotes" class="form-label fw-semibold">Notes</label>
                     <textarea class="form-control rounded-3 shadow-sm" id="invoiceNotes" name="Notes" rows="3" placeholder="Enter any additional notes..."></textarea>
                 </div>
@@ -1219,8 +1221,7 @@
                 <form method="post" class="d-inline">
                     <input type="hidden" id="createInvoiceBookingId" name="bookingId" />
                     <input type="hidden" id="invoiceNotesInput" name="notes" />
-                    <input type="hidden" id="createInvoicePaymentMethod" name="paymentMethod" />
-                    <button type="submit" asp-page-handler="CreateInvoice" class="btn btn-primary" style="border-radius: 12px;" onclick="setInvoiceNotesAndPaymentMethod()">
+                    <button type="submit" asp-page-handler="CreateInvoice" class="btn btn-primary" style="border-radius: 12px;" onclick="setInvoiceNotes()">
                         <i class="fas fa-plus me-1"> </i> Create Invoice
                     </button>
                 </form>
@@ -1329,11 +1330,9 @@
             document.getElementById('checkInNotesInput').value = notes;
         }
 
-        function setInvoiceNotesAndPaymentMethod() {
+        function setInvoiceNotes() {
             const notes = document.getElementById('invoiceNotes').value;
             document.getElementById('invoiceNotesInput').value = notes;
-            const userInput = document.getElementById("paymentMethod").value;
-            document.getElementById("createInvoicePaymentMethod").value = userInput;
         }
     </script>
 }

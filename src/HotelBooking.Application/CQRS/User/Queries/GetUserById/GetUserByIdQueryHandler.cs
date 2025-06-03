@@ -24,19 +24,37 @@ namespace HotelBooking.Application.CQRS.User.Queries.GetUserById
 
         public async Task<Result<UserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(request.Id);
-            if (user == null)
+            try
             {
-                return Result<UserDto>.Failure("User not found");
+                var user = await _userRepository.GetByIdAsync(request.Id);
+                if (user == null)
+                {
+                    return Result<UserDto>.Failure("User not found");
+                }
+
+                user.Role = await _roleRepository.GetByIdAsync(user.RoleId);
+
+                var userDto = _mapper.Map<UserDto>(user);
+
+                var userHotels = await _hotelRepository.GetAllByUserIdAsync(userDto.Id);
+                userDto.Hotels = _mapper.Map<List<HotelDto>>(userHotels);
+
+                // Kiểm tra quyền truy cập hotel
+                if (request.HotelIds != null && request.HotelIds.Any())
+                {
+                    // Nếu user không phải SuperAdmin, chỉ lấy các hotel mà user có quyền truy cập
+                    if (user.Role?.Name != "SuperAdmin")
+                    {
+                        userDto.Hotels = userDto.Hotels.Where(h => request.HotelIds.Contains(h.Id)).ToList();
+                    }
+                }
+
+                return Result<UserDto>.Success(userDto);
             }
-
-            user.Role = await _roleRepository.GetByIdAsync(user.RoleId);
-
-            var userDto = _mapper.Map<UserDto>(user);
-
-            userDto.Hotels = _mapper.Map<List<HotelDto>>(await _hotelRepository.GetAllByUserIdAsync(userDto.Id));
-
-            return Result<UserDto>.Success(userDto);
+            catch (Exception ex)
+            {
+                return Result<UserDto>.Failure($"Failed to get user: {ex.Message}");
+            }
         }
     }
 } 

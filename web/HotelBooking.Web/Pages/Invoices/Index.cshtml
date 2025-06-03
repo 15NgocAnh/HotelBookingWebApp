@@ -14,11 +14,6 @@
                         <i class="fas fa-file-invoice-dollar me-2"></i>Invoices
                     </h4>
                 </div>
-                <div class="col-auto">
-                    <a asp-page="Create" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i>New Invoice
-                    </a>
-                </div>
             </div>
         </div>
         <div class="card-body">
@@ -59,7 +54,7 @@
                             <tr>
                                 <td>@invoice.Id</td>
                                 <td>@invoice.BookingId</td>
-                                <td>@invoice.IssueDate.ToShortDateString()</td>
+                                <td>@invoice.CreatedAt.ToShortDateString()</td>
                                 <td>@invoice.DueDate.ToShortDateString()</td>
                                 <td>@invoice.TotalAmount.ToString("C")</td>
                                 <td>
@@ -84,11 +79,16 @@
                                                 <i class="fas fa-money-bill-wave"></i>
                                             </a>
                                         }
-                                        @if (invoice.Status != Domain.AggregateModels.InvoiceAggregate.InvoiceStatus.Paid && invoice.Status != Domain.AggregateModels.InvoiceAggregate.InvoiceStatus.Cancelled)
+                                        @if (invoice.Status != Domain.AggregateModels.InvoiceAggregate.InvoiceStatus.Paid && 
+                                             invoice.Status != Domain.AggregateModels.InvoiceAggregate.InvoiceStatus.Cancelled)
                                         {
-                                            <a asp-page="Cancel" asp-route-id="@invoice.Id" class="btn btn-sm btn-danger">
-                                                <i class="fas fa-times"></i>
-                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal"
+                                                    data-id="@invoice.Id"
+                                                    data-number="@invoice.Id">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         }
                                     </div>
                                 </td>

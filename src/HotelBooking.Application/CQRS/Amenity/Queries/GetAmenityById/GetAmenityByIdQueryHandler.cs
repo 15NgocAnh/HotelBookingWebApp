@@ -5,10 +5,14 @@ namespace HotelBooking.Application.CQRS.Amenity.Queries.GetAmenityById
     public class GetAmenityByIdQueryHandler : IRequestHandler<GetAmenityByIdQuery, Result<AmenityDto>>
     {
         private readonly IAmenityRepository _amenityRepository;
+        private readonly IHotelRepository _hotelRepository;
 
-        public GetAmenityByIdQueryHandler(IAmenityRepository amenityRepository)
+        public GetAmenityByIdQueryHandler(
+            IAmenityRepository amenityRepository,
+            IHotelRepository hotelRepository)
         {
             _amenityRepository = amenityRepository ?? throw new ArgumentNullException(nameof(amenityRepository));
+            _hotelRepository = hotelRepository;
         }
 
         public async Task<Result<AmenityDto>> Handle(GetAmenityByIdQuery request, CancellationToken cancellationToken)

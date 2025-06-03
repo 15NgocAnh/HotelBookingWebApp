@@ -7,6 +7,7 @@ using HotelBooking.Application.CQRS.Hotel.Queries.GetHotelById;
 namespace HotelBooking.API.Controllers
 {
     [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     public class HotelController : BaseController
     {
         public HotelController(IMediator mediator) : base(mediator)

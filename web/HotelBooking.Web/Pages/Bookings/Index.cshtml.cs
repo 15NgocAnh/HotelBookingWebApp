@@ -1,6 +1,7 @@
 using HotelBooking.Application.CQRS.Booking.DTOs;
 using HotelBooking.Application.Common.Models;
 using HotelBooking.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ using HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
 
 namespace HotelBooking.Web.Pages.Bookings;
 
+[Authorize(Roles = "SuperAdmin,HotelManager,FrontDesk")]
 public class IndexModel : PageModel
 {
     private readonly IApiService _apiService;
@@ -30,7 +32,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            var result = await _apiService.GetAsync<List<BookingDto>>("api/booking");
+            var result = await _apiService.GetAsync<List<BookingDto>>("api/booking") ?? new();
             if (result == null)
             {
                 ErrorMessage = "Failed to fetch bookings.";
@@ -55,6 +57,7 @@ public class IndexModel : PageModel
         }
     }
 
+    [Authorize(Roles = "SuperAdmin,HotelManager")]
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {
         try
@@ -107,7 +110,7 @@ public class IndexModel : PageModel
             {
                 TempData["ErrorMessage"] = result?.Messages.FirstOrDefault()?.Message ?? "Failed to checkin booking.";
                 return Page();
-            }
+        }
 
             TempData["SuccessMessage"] = "Booking has been checkin successfully!";
             return RedirectToPage("./Index");
@@ -162,6 +165,7 @@ public class IndexModel : PageModel
         }
     }
 
+    [Authorize(Roles = "SuperAdmin,HotelManager,FrontDesk")]
     public async Task<IActionResult> OnPostConfirmAsync(int id)
     {
         try
@@ -205,12 +209,13 @@ public class IndexModel : PageModel
         }
     }
 
-    public async Task<IActionResult> OnPostCreateInvoiceAsync(int bookingId, string paymentMethod, string? notes)
+    public async Task<IActionResult> OnPostCreateInvoiceAsync(int bookingId, string? notes)
     {
         var resultBookings = await _apiService.GetAsync<List<BookingDto>>("api/booking");
         if (resultBookings == null)
         {
             ErrorMessage = "Failed to fetch bookings.";
+            return Page();
         }
 
         if (resultBookings.IsSuccess && resultBookings.Data != null)
@@ -232,8 +237,7 @@ public class IndexModel : PageModel
             var createInvoice = new CreateInvoiceCommand()
             {
                 BookingId = bookingId,
-                Notes = notes,
-                PaymentMethod = paymentMethod
+                Notes = notes
             };
             var result = await _apiService.PostAsync<int>($"api/invoice", createInvoice);
 

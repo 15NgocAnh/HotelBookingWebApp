@@ -25,7 +25,15 @@ namespace HotelBooking.Application.CQRS.Booking.Queries.GetBookingById
         {
             try
             {
-                var booking = await _bookingRepository.GetByIdAsync(request.Id);
+                var booking = new Domain.AggregateModels.BookingAggregate.Booking();
+                if (request.HotelIds != null && request.HotelIds.Count > 0)
+                {
+                    booking = await _bookingRepository.GetBookingByIdWithHotelIdsAsync(request.HotelIds, request.Id);
+                }
+                else
+                {
+                    booking = await _bookingRepository.GetByIdAsync(request.Id);
+                }
                 if (booking == null)
                     return Result<BookingDto>.Failure("Booking not found");
 

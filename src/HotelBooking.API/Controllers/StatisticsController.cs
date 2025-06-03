@@ -4,8 +4,6 @@ using HotelBooking.Application.CQRS.Statistic.Queries.GetBookingStatistics;
 using HotelBooking.Application.CQRS.Statistic.Queries.GetRevenueStatistics;
 using HotelBooking.Application.CQRS.Statistic.Queries.GetRoomStatistics;
 using HotelBooking.Application.Services.Report;
-using OfficeOpenXml;
-using OfficeOpenXml.Style;
 using QuestPDF.Fluent;
 
 namespace HotelBooking.API.Controllers

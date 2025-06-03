@@ -1,7 +1,9 @@
-﻿using HotelBooking.Application.CQRS.Statistic.Dtos;
+﻿using HotelBooking.Application.CQRS.Booking.DTOs;
+using HotelBooking.Application.CQRS.Statistic.Dtos;
 using HotelBooking.Domain.AggregateModels.BookingAggregate;
 using HotelBooking.Domain.Interfaces.Repositories;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using static HotelBooking.Domain.Interfaces.Repositories.IBookingRepository;
 
@@ -309,4 +311,56 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
             .SqlQueryRaw<MonthlyRevenue>(query, parameters.ToArray())
             .ToListAsync();
     }
+
+    public async Task<List<Booking>> GetBookingsByHotelIdsAsync(IEnumerable<int> hotelIds)
+    {
+        if (hotelIds == null || !hotelIds.Any())
+            return new List<Booking>();
+
+        // Tạo danh sách tham số động: @p0, @p1, ...
+        var parameters = hotelIds
+            .Select((id, index) => new SqlParameter($"@p{index}", id))
+            .ToArray();
+
+        // Ghép chuỗi IN clause
+        var inClause = string.Join(", ", parameters.Select(p => p.ParameterName));
+
+        var sql = $@"
+        SELECT b.*
+        FROM Booking b
+        JOIN Room r     ON b.RoomId = r.Id
+        JOIN Floor f    ON r.FloorId = f.Id
+        JOIN Building bd ON f.BuildingId = bd.Id
+        WHERE bd.HotelId IN ({inClause})
+    ";
+
+        return await _context.Bookings
+            .FromSqlRaw(sql, parameters)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    public async Task<Booking> GetBookingByIdWithHotelIdsAsync(IEnumerable<int> hotelIds, int bookingId)
+    {
+        var sql = @"
+            SELECT 
+                b.*
+            FROM Booking b
+            JOIN Room r ON b.RoomId = r.Id
+            JOIN Floor f ON r.FloorId = f.Id
+            JOIN Building bd ON f.BuildingId = bd.Id
+            WHERE bd.HotelId IN @HotelIds
+            AND b.Id = @BookingId";
+
+        var parameters = new[]
+        {
+            new SqlParameter("@HotelIds", hotelIds),
+            new SqlParameter("@BookingId", bookingId),
+        };
+
+        return await _context.Database
+            .SqlQueryRaw<Booking>(sql, parameters.ToArray())
+            .FirstOrDefaultAsync();
+    }
+
 }

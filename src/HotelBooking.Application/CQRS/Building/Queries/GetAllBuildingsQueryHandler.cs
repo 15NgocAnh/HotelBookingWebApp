@@ -22,7 +22,15 @@ namespace HotelBooking.Application.CQRS.Building.Queries
         {
             try
             {
+                // Lấy danh sách building với filter theo hotelId
                 var buildings = await _buildingRepository.GetAllAsync();
+                
+                // Nếu có filter theo hotelIds
+                if (request.HotelIds != null && request.HotelIds.Any())
+                {
+                    buildings = buildings.Where(b => request.HotelIds.Contains(b.HotelId)).ToList();
+                }
+
                 var buildingDtos = _mapper.Map<List<BuildingDto>>(buildings);
                 
                 foreach (var buildingDto in buildingDtos)

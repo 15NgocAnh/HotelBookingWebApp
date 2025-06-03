@@ -1,0 +1,301 @@
+@page
+@model HotelBooking.Web.Pages.Statistics.RoomModel
+@{
+    ViewData["Title"] = "Room Statistics";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4><i class="fas fa-door-open me-2"></i> Room Statistics</h4>
+            <div class="subtitle">Analyze room performance and occupancy</div>
+        </div>
+        <div class="d-flex gap-2">
+            <select id="timeRange" class="form-select">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+                <option value="365">Last year</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Summary Cards -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Average Occupancy Rate</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="avgOccupancyRate">0%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Rooms</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRooms">0</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-door-open fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Available Rooms</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="availableRooms">0</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-door-closed fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Average Room Rate</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="avgRoomRate">$0</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Occupancy Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Occupancy Trend</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="occupancyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Type Distribution -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Room Type Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="roomTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Room Performance Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Room Performance</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="roomPerformanceTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Room</th>
+                            <th>Type</th>
+                            <th>Occupancy Rate</th>
+                            <th>Revenue</th>
+                            <th>Bookings</th>
+                            <th>Average Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let occupancyChart;
+        let roomTypeChart;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            
+            document.getElementById('timeRange').addEventListener('change', function() {
+                loadData();
+            });
+        });
+
+        function loadData() {
+            const days = document.getElementById('timeRange').value;
+            fetch(`/api/statistics/room?days=${days}`)
+                .then(response => response.json())
+                .then(data => {
+                    updateSummaryCards(data.summary);
+                    updateOccupancyChart(data.occupancyTrend);
+                    updateRoomTypeChart(data.roomTypeDistribution);
+                    updateRoomPerformanceTable(data.roomPerformance);
+                })
+                .catch(error => console.error('Error loading room statistics:', error));
+        }
+
+        function updateSummaryCards(summary) {
+            document.getElementById('avgOccupancyRate').textContent = summary.averageOccupancyRate + '%';
+            document.getElementById('totalRooms').textContent = summary.totalRooms;
+            document.getElementById('availableRooms').textContent = summary.availableRooms;
+            document.getElementById('avgRoomRate').textContent = formatCurrency(summary.averageRoomRate);
+        }
+
+        function updateOccupancyChart(data) {
+            const ctx = document.getElementById('occupancyChart').getContext('2d');
+            
+            if (occupancyChart) {
+                occupancyChart.destroy();
+            }
+
+            occupancyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Occupancy Rate',
+                        data: data.values,
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#4e73df',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: '#4e73df',
+                        pointHoverBorderColor: '#fff',
+                        fill: true
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRoomTypeChart(data) {
+            const ctx = document.getElementById('roomTypeChart').getContext('2d');
+            
+            if (roomTypeChart) {
+                roomTypeChart.destroy();
+            }
+
+            roomTypeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.values,
+                        backgroundColor: [
+                            '#4e73df',
+                            '#1cc88a',
+                            '#36b9cc',
+                            '#f6c23e',
+                            '#e74a3b'
+                        ],
+                        hoverBackgroundColor: [
+                            '#2e59d9',
+                            '#17a673',
+                            '#2c9faf',
+                            '#dda20a',
+                            '#be2617'
+                        ],
+                        hoverBorderColor: "rgba(234, 236, 244, 1)",
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function updateRoomPerformanceTable(data) {
+            const tbody = document.querySelector('#roomPerformanceTable tbody');
+            tbody.innerHTML = '';
+
+            data.forEach(room => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${room.name}</td>
+                    <td>${room.type}</td>
+                    <td>${room.occupancyRate}%</td>
+                    <td>${formatCurrency(room.revenue)}</td>
+                    <td>${room.bookings}</td>
+                    <td>${formatCurrency(room.averageRate)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(value);
+        }
+    </script>
+} 

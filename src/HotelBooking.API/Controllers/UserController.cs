@@ -16,7 +16,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Create([FromBody] CreateUserCommand command)
         {
             var result = await _mediator.Send(command);
@@ -24,7 +24,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserCommand command)
         {
             if (id != command.Id)
@@ -35,7 +35,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Delete(int id)
         {
             var command = new DeleteUserCommand { Id = id };
@@ -44,15 +44,16 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> GetById(int id)
         {
-            var query = new GetUserByIdQuery { Id = id };
+            var query = new GetUserByIdQuery(id);
             var result = await _mediator.Send(query);
             return HandleResult(result);
         }
 
         [HttpGet]
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllUsersQuery();

@@ -1,5 +1,4 @@
 ﻿using HotelBooking.Domain.AggregateModels.BuildingAggregate;
-using Microsoft.Data.SqlClient;
 
 namespace HotelBooking.Infrastructure.Repositories;
 
@@ -21,9 +20,9 @@ public class BuildingRepository : GenericRepository<Building>, IBuildingReposito
 
     public override async Task<Building?> GetByIdAsync(int id)
     {
-        return await _context.Set<Building>()
+        return await _context.Buildings
             .Include(b => b.Floors)
-            .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
+            .FirstOrDefaultAsync(b => b.Id == id);
     }
 
     public async Task<IEnumerable<Building>> GetBuildingsByHotelAsync(int hotelId)
@@ -50,22 +49,46 @@ public class BuildingRepository : GenericRepository<Building>, IBuildingReposito
         }
     }
 
+    public async Task<Floor?> GetFloorByIdAsync(int floorId)
+    {
+        var building = await _context.Buildings
+        .Include(b => b.Floors)
+        .FirstOrDefaultAsync(b => b.Floors.Any(f => f.Id == floorId));
+
+        return building?.Floors.FirstOrDefault(f => f.Id == floorId);
+    }
+
+    public async Task<List<int>> GetBuildingIdsByHotelIdsAsync(List<int> hotelIds)
+    {
+        return await _context.Buildings
+            .Where(b => hotelIds.Contains(b.HotelId))
+            .Select(b => b.Id)
+            .ToListAsync();
+    }
+
+    public async Task<List<int>> GetFloorIdsByBuildingIdsAsync(List<int> buildingIds)
+    {
+        return await _context.Buildings
+            .Include(b => b.Floors)
+            .Where(b => buildingIds.Contains(b.Id))
+            .SelectMany(b => b.Floors) 
+            .Select(f => f.Id)         
+            .ToListAsync();           
+    }
+
+    public async Task<Building> GetBuildingByFloorIdAsync(int floorId)
+    {
+        return await _context.Buildings
+        .Include(b => b.Floors)
+        .FirstOrDefaultAsync(b => b.Floors.Any(f => f.Id == floorId));
+    }
+
     public async Task<IEnumerable<Floor>> GetAllFloorsByBuildingIdAsync(int buildingId)
     {
         return await _context.Buildings
-                .Where(b => b.Id == buildingId)
-                .SelectMany(b => b.Floors
-                    .Where(f => !f.IsDeleted)
-                    .Select(f => new Floor(f.Id, f.Number, f.Name)))
-                .ToListAsync();
-    }
-
-    public async Task<Floor> GetFloorByIdAsync(int floorId)
-    {
-        var building = await _context.Buildings
-            .Include(b => b.Floors) 
-            .FirstOrDefaultAsync(b => b.Floors.Any(f => f.Id == floorId));
-
-        return building?.Floors.FirstOrDefault(f => f.Id == floorId);
+            .Include(b => b.Floors)
+            .Where(b => b.Id == buildingId)
+            .SelectMany(b => b.Floors)
+            .ToListAsync();
     }
 }

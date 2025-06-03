@@ -1,6 +1,8 @@
 using HotelBooking.Application.CQRS.Room.Commands;
-using HotelBooking.Application.CQRS.Room.Queries;
 using HotelBooking.Application.CQRS.Room.Queries.GetAllRoomAvailable;
+using HotelBooking.Application.CQRS.Room.Queries.GetAllRooms;
+using HotelBooking.Application.CQRS.Room.Queries.GetRoomById;
+using HotelBooking.Application.CQRS.Room.Queries.GetRoomsByBuilding;
 
 namespace HotelBooking.API.Controllers
 {
@@ -15,6 +17,16 @@ namespace HotelBooking.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllRoomsQuery();
+            if (!IsSuperAdmin)
+            {
+                var hotelIds = GetUserHotelIds();
+                if (hotelIds == null || hotelIds.Count == 0)
+                {
+                    return Unauthorized("User không có hotelId hợp lệ.");
+                }
+                query.HotelIds = hotelIds;
+            }
+
             var result = await _mediator.Send(query);
             return HandleResult(result);
         }
@@ -23,6 +35,16 @@ namespace HotelBooking.API.Controllers
         public async Task<IActionResult> GetAllAvailable()
         {
             var query = new GetAllRoomsAvailableQuery();
+            if (!IsSuperAdmin)
+            {
+                var hotelIds = GetUserHotelIds();
+                if (hotelIds == null || hotelIds.Count == 0)
+                {
+                    return Unauthorized("User không có hotelId hợp lệ.");
+                }
+                query.HotelIds = hotelIds;
+            }
+
             var result = await _mediator.Send(query);
             return HandleResult(result);
         }
@@ -44,7 +66,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Create(CreateRoomCommand command)
         {
             var result = await _mediator.Send(command);
@@ -52,7 +74,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Update(int id, UpdateRoomCommand command)
         {
             if (id != command.Id)
@@ -65,10 +87,21 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> Delete(int id)
         {
             var command = new DeleteRoomCommand(id);
+            var result = await _mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> ChangeStatus(int id, [FromBody] ChangeRoomStatusCommand command)
+        {
+            if (id != command.Id)
+            {
+                return BadRequest("ID mismatch");
+            }
             var result = await _mediator.Send(command);
             return HandleResult(result);
         }

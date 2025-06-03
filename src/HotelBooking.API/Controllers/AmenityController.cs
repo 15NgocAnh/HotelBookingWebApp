@@ -7,6 +7,7 @@ using HotelBooking.Application.CQRS.Amenity.Queries.GetAmenityById;
 namespace HotelBooking.API.Controllers
 {
     [Authorize]
+    [Authorize(Roles = "SuperAdmin,HotelManager")]
     public class AmenityController : BaseController
     {
         public AmenityController(IMediator mediator) : base(mediator)

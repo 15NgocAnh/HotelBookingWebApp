@@ -4,6 +4,9 @@ using HotelBooking.Infrastructure.Config;
 using HotelBooking.Infrastructure.Data;
 using OfficeOpenXml;
 using QuestPDF.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 /// <summary>
 /// Entry point for the Hotel Booking API application.
