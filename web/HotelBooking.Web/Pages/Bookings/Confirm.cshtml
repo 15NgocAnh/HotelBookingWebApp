@@ -9,7 +9,7 @@
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-primary text-white py-3 rounded-top-4">
             <h4 class="mb-0">
-                <i class="fas fa-check-circle me-2"></i>Confirm Booking Details
+                <i class="fas fa-check-circle me-2"></i> Confirm Booking Details
             </h4>
         </div>
         <div class="card-body p-4">
@@ -64,14 +64,14 @@
                 <form method="post" asp-page-handler="Confirm">
                     <input type="hidden" asp-for="Booking.Id" />
                     <button type="submit" class="btn btn-success">
-                        <i class="fas fa-check me-1"></i>Confirm Booking
+                        <i class="fas fa-check me-1"></i> Confirm Booking
                     </button>
                 </form>
                 <a asp-page="Create" asp-route-bookingId="@Model.Booking.Id" class="btn btn-outline-primary">
-                    <i class="fas fa-edit me-1"></i>Back to Edit
+                    <i class="fas fa-edit me-1"></i> Back to Edit
                 </a>
                 <a asp-page="Index" class="btn btn-outline-secondary">
-                    <i class="fas fa-times me-1"></i>Cancel
+                    <i class="fas fa-times me-1"></i> Cancel
                 </a>
             </div>
         </div>

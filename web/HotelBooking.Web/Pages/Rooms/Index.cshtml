@@ -11,13 +11,13 @@
             <div class="row justify-content-between align-items-center">
                 <div class="col">
                     <h4 class="mb-0 text-primary">
-                        <i class="fas fa-door-open me-2"></i>Rooms List
+                        <i class="fas fa-door-open me-2"></i> Rooms List
                     </h4>
                 </div>
                 <div class="col-auto">
                     <authorize-button module="Room" action="create">
                         <a asp-page="Create" class="btn btn-primary">
-                            <i class="fas fa-plus me-1"></i>Add New
+                            <i class="fas fa-plus me-1"></i> Add New
                         </a>
                     </authorize-button>
                 </div>
@@ -77,7 +77,7 @@
                                                 <div class="mt-2 d-flex justify-content-center gap-2">
                                                     <div class="dropdown">
                                                         <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-exchange-alt"></i>
+                                                            <i class="fas fa-exchange-alt"></i> 
                                                         </button>
                                                         <ul class="dropdown-menu">
                                                             <li><a class="dropdown-item" href="#" onclick="changeStatus('@room.Id', 'Available')">Available</a></li>
@@ -86,15 +86,15 @@
                                                         </ul>
                                                     </div>
                                                     <authorize-button module="Room" action="view">
-                                                        <a asp-page="Details" asp-route-id="@room.Id" class="btn btn-sm btn-light border"><i class="fas fa-eye"></i></a>
+                                                        <a asp-page="Details" asp-route-id="@room.Id" class="btn btn-sm btn-light border"><i class="fas fa-eye"></i> </a>
                                                     </authorize-button>
                                                     <authorize-button module="Room" action="edit">
-                                                        <a asp-page="Edit" asp-route-id="@room.Id" class="btn btn-sm btn-light border"><i class="fas fa-edit"></i></a>
+                                                        <a asp-page="Edit" asp-route-id="@room.Id" class="btn btn-sm btn-light border"><i class="fas fa-edit"></i> </a>
                                                     </authorize-button>
                                                     <authorize-button module="Room" action="delete">
                                                         <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
                                                                 data-bs-target="#deleteModal" data-id="@room.Id" data-name="@room.Name">
-                                                            <i class="fas fa-trash"></i>
+                                                            <i class="fas fa-trash"></i> 
                                                         </button>
                                                     </authorize-button>
                                                 </div>
@@ -144,17 +144,17 @@
     <ul class="list-unstyled mb-0">
         <li class="context-menu-item" id="bookRoomItem">
             <a href="#" class="text-decoration-none">
-                <i class="fas fa-calendar-plus me-2"></i>Đặt phòng
+                <i class="fas fa-calendar-plus me-2"></i> Đặt phòng
             </a>
         </li>
         <li class="context-menu-item" id="checkInItem">
             <a href="#" class="text-decoration-none">
-                <i class="fas fa-sign-in-alt me-2"></i>Check In
+                <i class="fas fa-sign-in-alt me-2"></i> Check In
             </a>
         </li>
         <li class="context-menu-item" id="checkOutItem">
             <a href="#" class="text-decoration-none">
-                <i class="fas fa-sign-out-alt me-2"></i>Check Out
+                <i class="fas fa-sign-out-alt me-2"></i> Check Out
             </a>
         </li>
     </ul>

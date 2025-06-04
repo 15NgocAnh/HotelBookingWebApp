@@ -1,6 +1,7 @@
 ﻿@page
 @using HotelBooking.Domain.AggregateModels.InvoiceAggregate
 @using HotelBooking.Domain.Utils.Enum
+@using HotelBooking.Web.Extensions
 @model HotelBooking.Web.Pages.Invoices.DetailsModel
 @{
     ViewData["Title"] = $"Hóa đơn #{Model.Invoice?.InvoiceNumber}";
@@ -80,7 +81,9 @@ else
         {
             var status = statuses[i];
             var isActive = status == Model.Invoice.Status;
-            var isCompleted = i < Array.IndexOf(statuses, Model.Invoice.Status);
+            var isCompleted = i < Array.IndexOf(statuses, Model.Invoice.Status) && 
+                             Model.Invoice.Status != InvoiceStatus.Overdue && 
+                             Model.Invoice.Status != InvoiceStatus.Cancelled;
             var badgeColor = isCompleted ? "bg-success" : isActive ? "bg-primary" : "bg-light border";
 
             <div class="text-center position-relative z-1" style="width: 20%;">
@@ -106,31 +109,31 @@ else
         <tr>
             <td>Tiền phòng</td>
             <td>@Model.Invoice.Items.First(i => i.Description == "Room").Quantity</td>
-            <td>@Model.Invoice.Items.First(i => i.Description == "Room").UnitPrice ₫</td>
-            <td>@Model.Invoice.Items.First(i => i.Description == "Room").TotalPrice ₫</td>
+            <td>@Model.Invoice.Items.First(i => i.Description == "Room").UnitPrice.ToVnd()</td>
+            <td>@Model.Invoice.Items.First(i => i.Description == "Room").TotalPrice.ToVnd()</td>
         </tr>
         @foreach (var item in Model.Invoice.Items.Where(i => i.Description != "Room"))
         {
             <tr>
                 <td>@item.Description</td>
                 <td>@item.Quantity</td>
-                <td>@item.UnitPrice ₫</td>
-                <td>@item.TotalPrice ₫</td>
+                <td>@item.UnitPrice.ToVnd()</td>
+                <td>@item.TotalPrice.ToVnd()</td>
             </tr>
         }
     </tbody>
     <tfoot>
         <tr>
             <th colspan="3" class="text-end">Tổng:</th>
-            <th>@Model.Invoice.TotalAmount ₫</th>
+            <th>@Model.Invoice.TotalAmount.ToVnd()</th>
         </tr>
         <tr>
             <th colspan="3" class="text-end">Đã thanh toán:</th>
-            <th>@Model.Invoice.PaidAmount ₫</th>
+            <th>@Model.Invoice.PaidAmount.ToVnd()</th>
         </tr>
         <tr>
             <th colspan="3" class="text-end">Còn lại:</th>
-            <th>@Model.Invoice.RemainingAmount ₫</th>
+            <th>@Model.Invoice.RemainingAmount.ToVnd()</th>
         </tr>
     </tfoot>
 </table>
@@ -152,7 +155,7 @@ else
             {
                 <tr>
                     <td>@payment.PaidAt</td>
-                    <td>@payment.Amount ₫</td>
+                    <td>@payment.Amount.ToVnd()</td>
                     <td>@payment.PaymentMethod.ToString()</td>
                 </tr>
             }
@@ -192,20 +195,20 @@ else if (Model.Invoice.Status != InvoiceStatus.Paid && Model.Invoice.Status != I
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="form-floating">
-                            <input type="number" class="form-control" id="Amount" name="Amount" min="0" max="@Model.Invoice.RemainingAmount" step="1000" required />
                             <label for="Amount">Số tiền thanh toán</label>
+                            <input type="text" class="form-control" id="Amount" name="Amount" data-currency required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating">
-                            <select class="form-select" id="PaymentMethod" name="PaymentMethod" required>
+                            <label for="PaymentMethod">Phương thức thanh toán</label>
+                            <select class="form-control" id="PaymentMethod" name="PaymentMethod" required>
                                 <option value="">-- Chọn phương thức --</option>
                                 @foreach (PaymentMethod method in Enum.GetValues(typeof(PaymentMethod)))
                                 {
                                     <option value="@method">@method</option>
                                 }
                             </select>
-                            <label for="PaymentMethod">Phương thức thanh toán</label>
                         </div>
                     </div>
                 </div>
@@ -217,17 +220,53 @@ else if (Model.Invoice.Status != InvoiceStatus.Paid && Model.Invoice.Status != I
             </form>
         </div>
     </div>
+
+    <!-- Thêm các nút chức năng mới -->
+    <div class="mt-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#addDamageModal">
+                    <i class="fas fa-exclamation-triangle me-1"></i> Thêm phí hư hỏng
+                </button>
+            </div>
+        </div>
+    </div>
 }
+
+<!-- Modal thêm phí hư hỏng -->
+<div class="modal fade" id="addDamageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm phí hư hỏng phòng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="AddDamage">
+                <div class="modal-body">
+                    <input type="hidden" name="InvoiceId" value="@Model.Invoice.Id" />
+                    <div class="mb-3">
+                        <label for="damageAmount" class="form-label">Số tiền</label>
+                        <input type="text" class="form-control" id="damageAmount" name="Amount" data-currency required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="damageDescription" class="form-label">Mô tả hư hỏng</label>
+                        <textarea class="form-control" id="damageDescription" name="Description" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger">Thêm phí</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- Nút chuyển tiếp trạng thái -->
 <div class="mt-4">
     <form method="post">
         <input type="hidden" name="InvoiceId" value="@Model.Invoice.Id" />
-        @if (Model.Invoice.Status == InvoiceStatus.Pending || Model.Invoice.Status == InvoiceStatus.PartiallyPaid)
-        {
-            <button class="btn btn-success" type="submit" asp-page-handler="MarkAsPaid">Đánh dấu đã thanh toán</button>
-        }
-        @if (Model.Invoice.Status != InvoiceStatus.Cancelled && Model.Invoice.Status != InvoiceStatus.Paid)
+        @if (Model.Invoice.Status == InvoiceStatus.Pending)
         {
             <button class="btn btn-danger" type="submit" asp-page-handler="Cancel">Hủy hóa đơn</button>
         }
@@ -244,4 +283,9 @@ else if (Model.Invoice.Status != InvoiceStatus.Paid && Model.Invoice.Status != I
         InvoiceStatus.Cancelled => "dark",
         _ => "secondary"
     };
+}
+
+@section Scripts {
+    <script src="~/js/currency-formatter.js"></script>
+    <script src="~/js/invoices/details.js"></script>
 }

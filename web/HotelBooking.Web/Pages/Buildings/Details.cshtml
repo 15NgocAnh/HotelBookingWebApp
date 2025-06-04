@@ -11,12 +11,12 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h4 class="mb-0 text-primary">
-                        <i class="fas fa-info-circle me-2"></i>Building Details
+                        <i class="fas fa-info-circle me-2"></i> Building Details
                     </h4>
                 </div>
                 <div class="col-auto">
                     <a href="@(Model.ReturnUrl ?? Url.Page("/Buildings/Index"))" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                        <i class="fas fa-arrow-left me-1"></i> Back to List
                     </a>
                 </div>
             </div>
@@ -46,12 +46,12 @@
                         <div class="row justify-content-between align-items-center">
                             <div class="col">
                                 <h4 class="mb-0 text-primary">
-                                    <i class="fas fa-building me-2"></i>Room List
+                                    <i class="fas fa-building me-2"></i> Room List
                                 </h4>
                             </div>
                             <div class="col-auto">
                                 <a asp-page="/Rooms/Create" asp-route-buildingId="@Model.Building.Id" asp-route-returnUrl="@Url.Page("/Buildings/Details", new { id = Model.Building.Id })" class="btn btn-primary">
-                                    <i class="fas fa-plus me-1"></i>Add New
+                                    <i class="fas fa-plus me-1"></i> Add New
                                 </a>
                             </div>
                         </div>
@@ -120,14 +120,14 @@
                                                                 <td class="text-end">
                                                                     <div class="btn-group">
                                                                         <a asp-page="/Rooms/Details" asp-route-id="@room.Id" asp-route-returnUrl="@Url.Page("/Buildings/Details", new { id = Model.Building.Id })" class="btn btn-sm btn-info">
-                                                                            <i class="fas fa-eye"></i>
+                                                                            <i class="fas fa-eye"></i> 
                                                                         </a>
                                                                         <a asp-page="/Rooms/Edit" asp-route-id="@room.Id" asp-route-returnUrl="@Url.Page("/Buildings/Details", new { id = Model.Building.Id })" class="btn btn-sm btn-primary">
-                                                                            <i class="fas fa-edit"></i>
+                                                                            <i class="fas fa-edit"></i> 
                                                                         </a>
                                                                         <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
                                                                                 data-bs-target="#deleteModal" data-id="@room.Id" data-name="@room.Name">
-                                                                            <i class="fas fa-trash"></i>
+                                                                            <i class="fas fa-trash"></i> 
                                                                         </button>
                                                                     </div>
                                                                 </td>

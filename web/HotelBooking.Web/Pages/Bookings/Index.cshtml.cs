@@ -57,18 +57,23 @@ public class IndexModel : PageModel
     }
 
     [Authorize(Roles = "SuperAdmin,HotelManager")]
-    public async Task<IActionResult> OnPostDeleteAsync(int id)
+    public async Task<IActionResult> OnPostCancelAsync(int id)
     {
         try
         {
-            var result = await _apiService.DeleteAsync($"api/booking/{id}");
+            var updateBooking = new UpdateBookingStatusCommand()
+            {
+                Id = id,
+                Status = BookingStatus.Cancelled
+            };
+            var result = await _apiService.PutAsync<Result>($"api/booking/{id}/status", updateBooking);
             if (result.IsSuccess)
             {
-                TempData["SuccessMessage"] = "Booking deleted successfully!";
+                TempData["SuccessMessage"] = "Booking canceled successfully!";
             }
             else
             {
-                TempData["ErrorMessage"] = result.Messages.FirstOrDefault()?.Message ?? "Failed to delete booking.";
+                TempData["ErrorMessage"] = result.Messages.FirstOrDefault()?.Message ?? "Failed to cancel booking.";
             }
         }
         catch (Exception ex)

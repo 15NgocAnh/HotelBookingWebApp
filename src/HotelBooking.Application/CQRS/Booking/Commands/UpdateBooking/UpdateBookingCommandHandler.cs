@@ -61,14 +61,28 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
                 if (!await _bookingRepository.IsRoomAvailableForBookingAsync(request.RoomId ?? 0, request.CheckInDate ?? DateTime.Now, request.CheckOutDate ?? DateTime.Now, request.Id))
                     return Result.Failure("Room is not available for the selected dates");
 
-                // Convert guest DTOs to domain entities
-                var guests = request.Guests.Select(g => new Guest(
-                    g.CitizenIdNumber,
-                    g.PassportNumber,
-                    g.FirstName,
-                    g.LastName,
-                    g.PhoneNumber
-                )).ToList();
+                // Process guests - check for existing guests and use their info if found
+                var guests = new List<Guest>();
+                foreach (var guestDto in request.Guests)
+                {
+                    var existingGuest = await _bookingRepository.FindExistingGuestAsync(guestDto.CitizenIdNumber, guestDto.PassportNumber);
+                    if (existingGuest != null)
+                    {
+                        // Use existing guest info
+                        guests.Add(existingGuest);
+                    }
+                    else
+                    {
+                        // Create new guest
+                        guests.Add(new Guest(
+                            guestDto.CitizenIdNumber,
+                            guestDto.PassportNumber,
+                            guestDto.FirstName,
+                            guestDto.LastName,
+                            guestDto.PhoneNumber
+                        ));
+                    }
+                }
 
                 // Update booking details
                 booking.Update(

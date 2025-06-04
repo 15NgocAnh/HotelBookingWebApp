@@ -11,12 +11,12 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h4 class="mb-0 text-primary">
-                        <i class="fas fa-info-circle me-2"></i>Hotel Details
+                        <i class="fas fa-info-circle me-2"></i> Hotel Details
                     </h4>
                 </div>
                 <div class="col-auto">
                     <a asp-page="Index" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                        <i class="fas fa-arrow-left me-1"></i> Back to List
                     </a>
                 </div>
             </div>
@@ -52,12 +52,12 @@
                         <div class="row justify-content-between align-items-center">
                             <div class="col">
                                 <h4 class="mb-0 text-primary">
-                                    <i class="fas fa-building me-2"></i>Buildings List
+                                    <i class="fas fa-building me-2"></i> Buildings List
                                 </h4>
                             </div>
                             <div class="col-auto">
                                 <a asp-page="/Buildings/Create" asp-route-hotelId="@Model.Hotel.Id" asp-route-returnUrl="@Url.Page("/Hotels/Details", new { id = Model.Hotel.Id })" class="btn btn-primary">
-                                    <i class="fas fa-plus me-1"></i>Add New
+                                    <i class="fas fa-plus me-1"></i> Add New
                                 </a>
                             </div>
                         </div>
@@ -99,14 +99,14 @@
                                             <td>
                                                 <div class="btn-group">
                                                     <a asp-page="/Buildings/Details" asp-route-id="@item.Id" asp-route-returnUrl="@Url.Page("/Hotels/Details", new { id = Model.Hotel.Id })" class="btn btn-sm btn-info">
-                                                        <i class="fas fa-eye"></i>
+                                                        <i class="fas fa-eye"></i> 
                                                     </a>
                                                     <a asp-page="/Buildings/Edit" asp-route-id="@item.Id" asp-route-returnUrl="@Url.Page("/Hotels/Details", new { id = Model.Hotel.Id })" class="btn btn-sm btn-primary">
-                                                        <i class="fas fa-edit"></i>
+                                                        <i class="fas fa-edit"></i> 
                                                     </a>
                                                     <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
                                                             data-bs-target="#deleteModal" data-id="@item.Id" data-name="@item.Name">
-                                                        <i class="fas fa-trash"></i>
+                                                        <i class="fas fa-trash"></i> 
                                                     </button>
                                                 </div>
                                             </td>

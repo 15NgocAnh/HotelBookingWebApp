@@ -6,6 +6,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using Unit = QuestPDF.Infrastructure.Unit;
+using System.Globalization;
 
 namespace HotelBooking.Application.CQRS.Invoice.Commands.GenerateInvoicePdf;
 
@@ -153,18 +154,18 @@ public class InvoicePdfDocument : IDocument
 
                 table.Cell().Text("Phí phòng");
                 table.Cell().AlignRight().Text("1");
-                table.Cell().AlignRight().Text(_invoice.Items.First(i => i.Description == "Room").UnitPrice.ToString("N0") + " VNĐ");
+                table.Cell().AlignRight().Text(_invoice.Items.First(i => i.Description == "Room").UnitPrice.ToString("N0", new CultureInfo("vi-VN")) + " VNĐ");
 
                 foreach (var service in _invoice.Items.Where(i => i.Description != "Room"))
                 {
                     table.Cell().Text(service.Description);
                     table.Cell().AlignRight().Text(service.Quantity.ToString());
-                    table.Cell().AlignRight().Text((service.UnitPrice * service.Quantity).ToString("N0") + " VNĐ");
+                    table.Cell().AlignRight().Text((service.UnitPrice * service.Quantity).ToString("N0", new CultureInfo("vi-VN")) + " VNĐ");
                 }
 
                 table.Cell().Text("Tổng cộng").Bold();
                 table.Cell().Text("").Bold();
-                table.Cell().AlignRight().Text(_invoice.TotalAmount.ToString("N0") + " VNĐ").Bold();
+                table.Cell().AlignRight().Text(_invoice.TotalAmount.ToString("N0", new CultureInfo("vi-VN")) + " VNĐ").Bold();
             });
 
             // Payment Information

@@ -33,7 +33,7 @@
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.TotalRooms</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-door-open fa-2x text-gray-300"></i>
+                            <i class="fas fa-door-open fa-2x text-gray-300"></i> 
                         </div>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.AvailableRooms</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-door-closed fa-2x text-gray-300"></i>
+                            <i class="fas fa-door-closed fa-2x text-gray-300"></i> 
                         </div>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.BookedRooms</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-bed fa-2x text-gray-300"></i>
+                            <i class="fas fa-bed fa-2x text-gray-300"></i> 
                         </div>
                     </div>
                 </div>
@@ -84,7 +84,7 @@
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.MaintenanceRooms</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-tools fa-2x text-gray-300"></i>
+                            <i class="fas fa-tools fa-2x text-gray-300"></i> 
                         </div>
                     </div>
                 </div>
@@ -161,97 +161,7 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        let roomTypeChart;
-        let roomStatusChart;
-
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeCharts();
-            
-            document.getElementById('timeRange').addEventListener('change', function() {
-                loadData();
-            });
-        });
-
-        function initializeCharts() {
-            // Initialize Room Type Chart
-            const typeCtx = document.getElementById('roomTypeChart').getContext('2d');
-            const typeData = @Html.Raw(Json.Serialize(Model.Statistics.RoomTypeStatistics));
-            
-            roomTypeChart = new Chart(typeCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: typeData.map(t => t.roomType),
-                    datasets: [{
-                        data: typeData.map(t => t.total),
-                        backgroundColor: [
-                            '#4e73df',
-                            '#1cc88a',
-                            '#36b9cc',
-                            '#f6c23e',
-                            '#e74a3b'
-                        ],
-                        hoverBackgroundColor: [
-                            '#2e59d9',
-                            '#17a673',
-                            '#2c9faf',
-                            '#dda20a',
-                            '#be2617'
-                        ],
-                        hoverBorderColor: "rgba(234, 236, 244, 1)",
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    cutout: '70%'
-                }
-            });
-
-            // Initialize Room Status Chart
-            const statusCtx = document.getElementById('roomStatusChart').getContext('2d');
-            const statusData = @Html.Raw(Json.Serialize(Model.Statistics.RoomStatusStatistics));
-            
-            roomStatusChart = new Chart(statusCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: statusData.map(s => s.status),
-                    datasets: [{
-                        data: statusData.map(s => s.count),
-                        backgroundColor: [
-                            '#1cc88a',  // Available
-                            '#4e73df',  // Booked
-                            '#36b9cc',  // Cleaning
-                            '#e74a3b'   // Maintenance
-                        ],
-                        hoverBackgroundColor: [
-                            '#17a673',
-                            '#2e59d9',
-                            '#2c9faf',
-                            '#be2617'
-                        ],
-                        hoverBorderColor: "rgba(234, 236, 244, 1)",
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    cutout: '70%'
-                }
-            });
-        }
-
-        function loadData() {
-            const days = document.getElementById('timeRange').value;
-            window.location.href = `?days=${days}`;
-        }
-    </script>
+    <script src="~/js/statistics/room.js"></script>
+    <input type="hidden" id="roomTypeData" value='@Html.Raw(Json.Serialize(Model.Statistics.RoomTypeStatistics))' />
+    <input type="hidden" id="roomStatusData" value='@Html.Raw(Json.Serialize(Model.Statistics.RoomStatusStatistics))' />
 } 

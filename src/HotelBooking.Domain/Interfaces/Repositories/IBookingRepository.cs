@@ -27,5 +27,6 @@ namespace HotelBooking.Domain.Interfaces.Repositories
         Task<IEnumerable<MonthlyRevenue>> GetMonthlyRevenueDataAsync(int months = 6);
         Task<List<Booking>> GetBookingsByHotelIdsAsync(IEnumerable<int> hotelIds);
         Task<Booking> GetBookingByIdWithHotelIdsAsync(IEnumerable<int> hotelIds, int bookingId);
+        Task<Guest?> FindExistingGuestAsync(string? citizenIdNumber, string? passportNumber);
     }
 }
