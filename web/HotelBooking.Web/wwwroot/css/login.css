@@ -1,0 +1,335 @@
+﻿body {
+    background: linear-gradient(135deg, #054f72 0%, #4698bb 100%); /* Sử dụng Sea Green và một màu sáng hơn */
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-container {
+    /* Removed min-height, display, align-items, justify-content as it's now on body */
+    padding: 20px;
+    width: 100%; /* Ensure it takes full width within body's flex */
+    display: flex; /* Added for centering the card itself */
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
+    max-width: 450px;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+    overflow: hidden; /* Important for shimmer effect */
+}
+
+    .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
+/* --- LOGO STYLES --- */
+.hotel-logo {
+    width: 120px; /* Increased size for prominence */
+    height: 120px; /* Increased size for prominence */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px; /* Increased margin-bottom */
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    transition: transform 0.3s ease;
+}
+
+    .hotel-logo:hover {
+        transform: scale(1.05); /* Slight zoom on hover */
+    }
+
+    .hotel-logo img {
+        max-width: 80%; /* Adjust as needed */
+        max-height: 80%; /* Adjust as needed */
+        object-fit: contain; /* Ensure the image fits well */
+        filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); /* Add a subtle shadow to the logo image */
+    }
+
+    /* Shimmer effect for the logo container (optional, depends on logo design) */
+    .hotel-logo::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+        transform: rotate(45deg);
+        animation: shimmer 3s infinite;
+        opacity: 0.8; /* Make shimmer slightly more visible */
+    }
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+/* --- END LOGO STYLES --- */
+
+.welcome-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #054f72, #4698bb); /* Cũng áp dụng gradient cho tiêu đề */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.welcome-subtitle {
+    color: #6c757d;
+    text-align: center;
+    margin-bottom: 40px; /* Increased margin-bottom */
+    font-size: 1.1rem; /* Slightly larger subtitle */
+    line-height: 1.5;
+}
+
+.form-floating {
+    position: relative;
+    margin-bottom: 25px; /* Increased margin-bottom */
+}
+
+    .form-floating label::after {
+        background-color: transparent !important;
+        content: none !important;
+    }
+
+.form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 16px;
+    padding: 20px 20px 8px 20px;
+    font-size: 16px;
+    background: rgba(248, 249, 250, 0.8);
+    transition: all 0.3s ease;
+    height: auto;
+}
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        background: white;
+        transform: translateY(-2px);
+    }
+
+.form-floating label {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    background: transparent;
+    background-color: transparent;
+    padding: 0;
+}
+
+.form-control:focus + label,
+.form-control:not(:placeholder-shown) + label {
+    top: 12px;
+    font-size: 12px;
+    color: #667eea;
+    transform: translateY(0);
+}
+
+
+
+.btn-login {
+    background: #054f72; /* Sử dụng Sea Green làm màu nền chính */
+    border: none;
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+    .btn-login:hover {
+        box-shadow: 0 10px 25px rgba(46, 139, 87, 0.5); /* Điều chỉnh bóng đổ cho phù hợp */
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-login:hover::before {
+        left: 100%;
+    }
+
+.alert-danger {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.forgot-password {
+    text-align: center;
+    margin-top: 20px;
+}
+
+    .forgot-password a {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.3s ease;
+    }
+
+        .forgot-password a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #e9ecef;
+    }
+
+    .divider span {
+        padding: 0 15px;
+    }
+
+.social-login {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-social {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    background: white;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+    .btn-social:hover {
+        border-color: #667eea;
+        color: #667eea;
+        transform: translateY(-2px);
+    }
+
+.signup-link {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+    .signup-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+        .signup-link a:hover {
+            color: #764ba2;
+        }
+
+/* Loading animation */
+.btn-login.loading {
+    pointer-events: none;
+}
+
+    .btn-login.loading::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+@keyframes spin {
+    0% {
+        transform: translateY(-50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translateY(-50%) rotate(360deg);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 30px 25px;
+        border-radius: 20px;
+    }
+
+    .welcome-title {
+        font-size: 2rem;
+    }
+
+    .hotel-logo {
+        width: 100px;
+        height: 100px;
+    }
+
+        .hotel-logo img {
+            max-width: 70%;
+            max-height: 70%;
+        }
+}

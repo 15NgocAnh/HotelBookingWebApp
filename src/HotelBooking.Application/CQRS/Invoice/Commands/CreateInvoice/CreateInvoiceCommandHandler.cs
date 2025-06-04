@@ -86,7 +86,35 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
                 new InvoiceItem("Room", 1, roomType.Price, room.Name)
             };
 
-            foreach ( var item in booking.ExtraUsages)
+            // Early Check-in
+            if (booking.CheckInTime.HasValue && booking.CheckInTime < booking.CheckInDate.AddHours(14)) // giả sử giờ quy định là 14h
+            {
+                var hoursEarly = (booking.CheckInDate.AddHours(14) - booking.CheckInTime.Value).TotalHours;
+                var earlyCheckInFee = roomType.Price * 0.5m * (decimal)(hoursEarly / 24);
+
+                invoiceItems.Add(new InvoiceItem(
+                    $"Early Check-in Fee ({Math.Round(hoursEarly, 1)} hours)",
+                    1,
+                    Math.Round(earlyCheckInFee),
+                    "Early Check-in"
+                ));
+            }
+
+            // Late Check-out
+            if (booking.CheckOutTime.HasValue && booking.CheckOutTime > booking.CheckOutDate.AddHours(12)) // giả sử giờ quy định là 12h
+            {
+                var hoursLate = (booking.CheckOutTime.Value - booking.CheckOutDate.AddHours(12)).TotalHours;
+                var lateCheckOutFee = roomType.Price * 0.5m * (decimal)(hoursLate / 24);
+
+                invoiceItems.Add(new InvoiceItem(
+                    $"Late Check-out Fee ({Math.Round(hoursLate, 1)} hours)",
+                    1,
+                    Math.Round(lateCheckOutFee),
+                    "Late Check-out"
+                ));
+            }
+
+            foreach (var item in booking.ExtraUsages)
             {
                 var extraItem = await _extraItemRepository.GetByIdAsync(item.ExtraItemId);
                 var extraCategory = await _extraCategoryRepository.GetByIdAsync(extraItem.ExtraCategoryId);

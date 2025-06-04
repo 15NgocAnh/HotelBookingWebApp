@@ -1,4 +1,5 @@
-﻿using HotelBooking.Web.Middleware;
+﻿using HotelBooking.Web.Configuration;
+using HotelBooking.Web.Middleware;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net.Http.Headers;
@@ -11,6 +12,9 @@ builder.Services.AddRazorPages();
 // Add ApiService
 builder.Services.AddScoped<IApiService, ApiService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Configure BankSettings
+builder.Services.Configure<BankSettings>(builder.Configuration.GetSection("BankSettings"));
 
 builder.Services.AddDistributedMemoryCache(); // Lưu trữ session trên RAM
 builder.Services.AddSession(options =>

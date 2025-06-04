@@ -4,315 +4,9 @@
     ViewData["Title"] = "Bookings";
     Layout = "_Layout";
 }
-
-<style>
-    .booking-tabs {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-    }
-
-    .tab-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 24px;
-        color: white;
-    }
-
-        .tab-header h4 {
-            margin: 0;
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-
-        .tab-header .subtitle {
-            opacity: 0.9;
-            margin-top: 4px;
-            font-size: 0.95rem;
-        }
-
-    .nav-tabs {
-        border: none;
-        background: #f8f9fa;
-        padding: 16px 24px 0;
-        margin: 0;
-    }
-
-        .nav-tabs .nav-link {
-            border: none;
-            border-radius: 12px 12px 0 0;
-            padding: 12px 20px;
-            margin-right: 8px;
-            color: #6c757d;
-            font-weight: 600;
-            background: transparent;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-            .nav-tabs .nav-link:hover {
-                color: #667eea;
-                background: rgba(102, 126, 234, 0.1);
-                transform: translateY(-2px);
-            }
-
-            .nav-tabs .nav-link.active {
-                color: #667eea;
-                background: white;
-                border-bottom: 3px solid #667eea;
-                transform: translateY(-2px);
-                box-shadow: 0 -2px 8px rgba(102, 126, 234, 0.15);
-            }
-
-    .tab-badge {
-        background: rgba(102, 126, 234, 0.15);
-        color: #667eea;
-        font-size: 0.75rem;
-        padding: 3px 8px;
-        border-radius: 12px;
-        margin-left: 8px;
-        font-weight: 700;
-    }
-
-    .nav-tabs .nav-link.active .tab-badge {
-        background: #667eea;
-        color: white;
-    }
-
-    .tab-content {
-        padding: 24px;
-        background: white;
-    }
-
-    .booking-card {
-        background: white;
-        border: 1px solid #e9ecef;
-        border-radius: 16px;
-        margin-bottom: 16px;
-        transition: all 0.3s ease;
-        overflow: hidden;
-    }
-
-        .booking-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            border-color: #667eea;
-        }
-
-    .booking-card-header {
-        padding: 20px;
-        border-bottom: 1px solid #f1f3f4;
-        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    }
-
-    .booking-id {
-        font-weight: 700;
-        color: #667eea;
-        font-size: 1.1rem;
-    }
-
-    .booking-guest {
-        color: #495057;
-        font-weight: 600;
-        margin-top: 4px;
-    }
-
-    .booking-card-body {
-        padding: 20px;
-    }
-
-    .booking-info {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 16px;
-        margin-bottom: 20px;
-    }
-
-    .info-item {
-        text-align: center;
-        padding: 12px;
-        background: #f8f9fa;
-        border-radius: 12px;
-    }
-
-    .info-label {
-        font-size: 0.8rem;
-        color: #6c757d;
-        text-transform: uppercase;
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-
-    .info-value {
-        font-weight: 700;
-        color: #495057;
-        font-size: 0.95rem;
-    }
-
-    .status-badge {
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        display: inline-block;
-    }
-
-    .status-pending {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .status-confirmed {
-        background: #d1edff;
-        color: #0c5460;
-    }
-
-    .status-checkedin {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .status-checkedout {
-        background: #e2e3e5;
-        color: #383d41;
-    }
-
-    .status-cancelled {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 8px;
-        justify-content: flex-end;
-    }
-
-    .btn-action {
-        padding: 8px 16px;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-    }
-
-        .btn-action:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-    .btn-view {
-        background: #667eea;
-        color: white;
-    }
-
-    .btn-confirm {
-        background: #28a745;
-        color: white;
-    }
-
-    .btn-checkin {
-        background: #20c997;
-        color: white;
-    }
-
-    .btn-checkout {
-        background: #ffc107;
-        color: #1a1e21;
-    }
-
-    .btn-cancel {
-        background: #dc3545;
-        color: white;
-    }
-
-    .btn-invoice {
-        background: #5FC1FA;
-        color: white;
-    }
-
-    .btn-edit {
-        background: #0dcaf0;
-        color: white;
-    }
-
-    .btn-view:hover {
-        background: #5a67d8;
-        color: white;
-    }
-
-    .btn-confirm:hover {
-        background: #218838;
-        color: white;
-    }
-
-    .btn-checkin:hover {
-        background: #1ab188;
-        color: white;
-    }
-
-    .btn-checkout:hover {
-        background: #e0a800;
-        color: #1a1e21;
-    }
-
-    .btn-cancel:hover {
-        background: #c82333;
-        color: white;
-    }
-
-    .btn-invoice:hover {
-        background: #4dabf7;
-        color: white;
-    }
-
-    .btn-edit:hover {
-        background: #0cb7e0;
-        color: white;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #6c757d;
-    }
-
-    .empty-state-icon {
-        font-size: 4rem;
-        margin-bottom: 20px;
-        opacity: 0.5;
-    }
-
-    .new-booking-btn {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        transition: all 0.3s ease;
-        z-index: 1000;
-    }
-
-        .new-booking-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
-        }
-
-    a:hover {
-        text-decoration: none;
-    }
-</style>
+@section Styles {
+    <link rel="stylesheet" href="~/css/booking.css" asp-append-version="true" />
+}
 
 <div class="container-fluid px-4 py-4">
     <div class="booking-tabs">
@@ -324,8 +18,8 @@
                 </div>
                 <div class="d-none d-md-block">
                     <authorize-button module="Booking" action="create">
-                        <a asp-page="Create" class="btn btn-light btn-sm">
-                            <i class="fas fa-plus me-1"></i>New Booking
+                        <a asp-page="Create" class="btn btn-light">
+                            <i class="fas fa-plus me-1"></i> New Booking
                         </a>
                     </authorize-button>
                 </div>
@@ -399,7 +93,7 @@
                     {
                         <div class="empty-state">
                             <div class="empty-state-icon">
-                                <i class="fas fa-calendar-times"></i>
+                                <i class="fas fa-calendar-times"></i> 
                             </div>
                             <h5>No bookings found</h5>
                             <p>There are no bookings yet.</p>
@@ -459,7 +153,8 @@
 
                                     <div class="action-buttons">
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending ||
-                                            booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
+                                            booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed ||
+                                            booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
                                         {
                                             <authorize-button module="Booking" action="edit">
                                                 <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
@@ -528,7 +223,7 @@
                     {
                         <div class="empty-state">
                             <div class="empty-state-icon">
-                                <i class="fas fa-calendar-times"></i>
+                                <i class="fas fa-calendar-times"></i> 
                             </div>
                             <h5>No pending bookings</h5>
                             <p>There are no pending bookings at the moment.</p>
@@ -588,7 +283,8 @@
 
                                     <div class="action-buttons">
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending ||
-                                            booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
+                                           booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed ||
+                                           booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
                                         {
                                             <authorize-button module="Booking" action="edit">
                                                 <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
@@ -657,7 +353,7 @@
                     {
                         <div class="empty-state">
                             <div class="empty-state-icon">
-                                <i class="fas fa-calendar-check"></i>
+                                <i class="fas fa-calendar-check"></i> 
                             </div>
                             <h5>No confirmed bookings</h5>
                             <p>There are no confirmed bookings at the moment.</p>
@@ -717,7 +413,8 @@
 
                                     <div class="action-buttons">
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending ||
-                                            booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
+                                           booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed ||
+                                           booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
                                         {
                                             <authorize-button module="Booking" action="edit">
                                                 <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
@@ -786,7 +483,7 @@
                     {
                         <div class="empty-state">
                             <div class="empty-state-icon">
-                                <i class="fas fa-door-open"></i>
+                                <i class="fas fa-door-open"></i> 
                             </div>
                             <h5>No checked-in guests</h5>
                             <p>There are no guests currently checked in.</p>
@@ -846,7 +543,8 @@
 
                                     <div class="action-buttons">
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending ||
-                                   booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
+                                           booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed ||
+                                           booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
                                         {
                                             <authorize-button module="Booking" action="edit">
                                                 <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
@@ -915,7 +613,7 @@
                     {
                         <div class="empty-state">
                             <div class="empty-state-icon">
-                                <i class="fas fa-door-closed"></i>
+                                <i class="fas fa-door-closed"></i> 
                             </div>
                             <h5>No completed stays</h5>
                             <p>There are no completed stays yet.</p>
@@ -975,7 +673,8 @@
 
                                     <div class="action-buttons">
                                         @if (booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Pending ||
-                                   booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed)
+                                           booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.Confirmed ||
+                                           booking.Status == Domain.AggregateModels.BookingAggregate.BookingStatus.CheckedIn)
                                         {
                                             <authorize-button module="Booking" action="edit">
                                                 <a asp-page="Edit" asp-route-id="@booking.Id" class="btn-action btn-edit">
@@ -1044,7 +743,7 @@
                     {
                         <div class="empty-state">
                             <div class="empty-state-icon">
-                                <i class="fas fa-ban"></i>
+                                <i class="fas fa-ban"></i> 
                             </div>
                             <h5>No cancelled bookings</h5>
                             <p>There are no cancelled bookings.</p>
@@ -1113,7 +812,7 @@
 
 <!-- Floating New Booking Button -->
 <button class="new-booking-btn d-md-none" onclick="window.location.href='@Url.Page("Create")'">
-    <i class="fas fa-plus"></i>
+    <i class="fas fa-plus"></i> 
 </button>
 
 <!-- Delete Confirmation Modal -->
@@ -1122,7 +821,7 @@
         <div class="modal-content" style="border-radius: 16px; border: none;">
             <div class="modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border-radius: 16px 16px 0 0;">
                 <h5 class="modal-title" id="deleteModalLabel">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Cancellation
+                    <i class="fas fa-exclamation-triangle me-2"></i> Confirm Cancellation
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -1133,8 +832,8 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 12px;">Keep Booking</button>
                 <form method="post" class="d-inline">
                     <input type="hidden" id="deleteId" name="id" />
-                    <button type="submit" asp-page-handler="Delete" class="btn btn-danger" style="border-radius: 12px;">
-                        <i class="fas fa-times me-1"></i>Cancel Booking
+                    <button type="submit" asp-page-handler="Cancel" class="btn btn-danger" style="border-radius: 12px;">
+                        <i class="fas fa-times me-1"></i> Cancel Booking
                     </button>
                 </form>
             </div>
@@ -1148,7 +847,7 @@
         <div class="modal-content" style="border-radius: 16px; border: none;">
             <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white; border-radius: 16px 16px 0 0;">
                 <h5 class="modal-title" id="checkInModalLabel">
-                    <i class="fas fa-sign-in-alt me-2"></i>Confirm Check In
+                    <i class="fas fa-sign-in-alt me-2"></i> Confirm Check In
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -1165,7 +864,7 @@
                     <input type="hidden" id="checkInId" name="id" />
                     <input type="hidden" id="checkInNotesInput" name="notes" />
                     <button type="submit" asp-page-handler="CheckIn" class="btn btn-success" style="border-radius: 12px;" onclick="setCheckInNotes()">
-                        <i class="fas fa-sign-in-alt me-1"></i>Confirm Check In
+                        <i class="fas fa-sign-in-alt me-1"></i> Confirm Check In
                     </button>
                 </form>
             </div>
@@ -1179,7 +878,7 @@
         <div class="modal-content" style="border-radius: 16px; border: none;">
             <div class="modal-header" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #212529; border-radius: 16px 16px 0 0;">
                 <h5 class="modal-title" id="checkOutModalLabel">
-                    <i class="fas fa-sign-out-alt me-2"></i>Confirm Check Out
+                    <i class="fas fa-sign-out-alt me-2"></i> Confirm Check Out
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -1191,7 +890,7 @@
                 <form method="post" class="d-inline">
                     <input type="hidden" id="checkOutId" name="id" />
                     <button type="submit" asp-page-handler="CheckOut" class="btn btn-warning" style="border-radius: 12px;">
-                        <i class="fas fa-sign-out-alt me-1"></i>Confirm Check Out
+                        <i class="fas fa-sign-out-alt me-1"></i> Confirm Check Out
                     </button>
                 </form>
             </div>
@@ -1205,7 +904,7 @@
         <div class="modal-content" style="border-radius: 16px; border: none;">
             <div class="modal-header" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border-radius: 16px 16px 0 0;">
                 <h5 class="modal-title" id="createInvoiceModalLabel">
-                    <i class="fas fa-file-invoice-dollar me-2"> </i>Confirm Invoice Creation
+                    <i class="fas fa-file-invoice-dollar me-2"> </i> Confirm Invoice Creation
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"> </button>
             </div>
@@ -1231,108 +930,5 @@
 </div>
 
 @section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Delete modal functionality
-            const deleteModal = document.getElementById('deleteModal');
-            if (deleteModal) {
-                deleteModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    const id = button.getAttribute('data-id');
-                    const name = button.getAttribute('data-name');
-
-                    const modalBody = deleteModal.querySelector('.modal-body p');
-                    const deleteIdInput = deleteModal.querySelector('#deleteId');
-
-                    modalBody.textContent = `Are you sure you want to cancel the booking for room "${name}"? This action cannot be undone.`;
-                    deleteIdInput.value = id;
-                });
-            }
-
-            // Check In modal functionality
-            const checkInModal = document.getElementById('checkInModal');
-            if (checkInModal) {
-                checkInModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    const id = button.getAttribute('data-id');
-                    const name = button.getAttribute('data-name');
-
-                    const modalBody = checkInModal.querySelector('.modal-body p');
-                    const checkInIdInput = checkInModal.querySelector('#checkInId');
-
-                    modalBody.textContent = `Are you sure you want to check in the room "${name}"?`;
-                    checkInIdInput.value = id;
-                });
-            }
-
-            // Check Out modal functionality
-            const checkOutModal = document.getElementById('checkOutModal');
-            if (checkOutModal) {
-                checkOutModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    const id = button.getAttribute('data-id');
-                    const name = button.getAttribute('data-name');
-
-                    const modalBody = checkOutModal.querySelector('.modal-body p');
-                    const checkOutIdInput = checkOutModal.querySelector('#checkOutId');
-
-                    modalBody.textContent = `Are you sure you want to check out the room "${name}"?`;
-                    checkOutIdInput.value = id;
-                });
-            }
-
-            // Create Invoice modal functionality
-            const createInvoiceModal = document.getElementById('createInvoiceModal');
-            if (createInvoiceModal) {
-                createInvoiceModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    const id = button.getAttribute('data-id');
-                    const name = button.getAttribute('data-name');
-
-                    const modalBody = createInvoiceModal.querySelector('.modal-body p');
-                    const createInvoiceBookingIdInput = createInvoiceModal.querySelector('#createInvoiceBookingId');
-
-                    modalBody.textContent = `Are you sure you want to create invoice for booking room "${name}"?`;
-                    createInvoiceBookingIdInput.value = id;
-                });
-            }
-
-            // Tab switching with smooth animation
-            const tabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
-            tabButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    // Add loading animation
-                    const targetPane = document.querySelector(this.getAttribute('data-bs-target'));
-                    if (targetPane) {
-                        targetPane.style.opacity = '0.5';
-                        setTimeout(() => {
-                            targetPane.style.opacity = '1';
-                        }, 150);
-                    }
-                });
-            });
-
-            // Add smooth hover effects to booking cards
-            const bookingCards = document.querySelectorAll('.booking-card');
-            bookingCards.forEach(card => {
-                card.addEventListener('mouseenter', function () {
-                    this.style.transform = 'translateY(-2px)';
-                });
-
-                card.addEventListener('mouseleave', function () {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-        });
-
-        function setCheckInNotes() {
-            const notes = document.getElementById('checkInNotes').value;
-            document.getElementById('checkInNotesInput').value = notes;
-        }
-
-        function setInvoiceNotes() {
-            const notes = document.getElementById('invoiceNotes').value;
-            document.getElementById('invoiceNotesInput').value = notes;
-        }
-    </script>
+    <script src="~/js/bookings/index.js"></script>
 }

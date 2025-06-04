@@ -397,4 +397,22 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
             .FirstOrDefaultAsync();
     }
 
+    public async Task<Guest?> FindExistingGuestAsync(string? citizenIdNumber, string? passportNumber)
+    {
+        if (string.IsNullOrEmpty(citizenIdNumber) && string.IsNullOrEmpty(passportNumber))
+            return null;
+
+        var query = _context.Bookings
+            .Include(b => b.Guests)
+            .Where(b => !b.IsDeleted)
+            .SelectMany(b => b.Guests);
+
+        if (!string.IsNullOrEmpty(citizenIdNumber))
+            query = query.Where(g => g.CitizenIdNumber == citizenIdNumber);
+        else if (!string.IsNullOrEmpty(passportNumber))
+            query = query.Where(g => g.PassportNumber == passportNumber);
+
+        return await query.FirstOrDefaultAsync();
+    }
+
 }

@@ -1,11 +1,8 @@
 using HotelBooking.Application.CQRS.ExtraCategory.DTOs;
-using HotelBooking.Application.CQRS.ExtraItem.DTOs;
-using HotelBooking.Application.Common.Models;
+using HotelBooking.Application.CQRS.ExtraItem.Commands;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using HotelBooking.Application.CQRS.ExtraItem.Commands;
 
 namespace HotelBooking.Web.Pages.ExtraItems;
 
@@ -21,13 +18,7 @@ public class CreateModel : PageModel
     }
 
     [BindProperty]
-    public string Name { get; set; }
-
-    [BindProperty]
-    public decimal Price { get; set; }
-
-    [BindProperty]
-    public int CategoryId { get; set; }
+    public CreateExtraItemCommand ExtraItem { get; set; }
 
     public List<ExtraCategoryDto> Categories { get; set; } = new();
 
@@ -73,14 +64,7 @@ public class CreateModel : PageModel
 
         try
         {
-            var extraItem = new CreateExtraItemCommand 
-            { 
-                Name = Name, 
-                Price = Price,
-                ExtraCategoryId = CategoryId
-            };
-            
-            var result = await _apiService.PostAsync<int>("api/extraitem", extraItem);
+            var result = await _apiService.PostAsync<int>("api/extraitem", ExtraItem);
             
             if (result == null)
             {

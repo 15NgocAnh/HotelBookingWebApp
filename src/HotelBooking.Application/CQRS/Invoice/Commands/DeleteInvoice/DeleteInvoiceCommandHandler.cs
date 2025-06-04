@@ -29,7 +29,7 @@ public class DeleteInvoiceCommandHandler : IRequestHandler<DeleteInvoiceCommand,
                 return Result.Failure("Cannot delete a paid invoice.");
             }
 
-            await _invoiceRepository.SoftDeleteAsync(invoice);
+            await _invoiceRepository.RemoveAsync(invoice);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result.Success();

@@ -11,7 +11,7 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h4 class="mb-0 text-primary">
-                        <i class="fas fa-plus me-2"></i>Edit New Room Type
+                        <i class="fas fa-plus me-2"></i> Edit New Room Type
                     </h4>
                 </div>
             </div>
@@ -39,8 +39,13 @@
 
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label asp-for="RoomType.Price" class="form-label">Price ($)</label>
-                            <input type="number" asp-for="RoomType.Price" class="form-control" min="0" />
+                            <label asp-for="RoomType.Price" class="form-label">Price (VNĐ)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-money-bill"></i>
+                                </span>
+                                <input asp-for="RoomType.Price" class="form-control" data-currency placeholder="Enter price" required />
+                            </div>
                             <span asp-validation-for="RoomType.Price" class="text-danger"></span>
                         </div>
                     </div>
@@ -84,10 +89,10 @@
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-1"></i>Update
+                        <i class="fas fa-save me-1"></i> Update
                     </button>
                     <a asp-page="Index" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                        <i class="fas fa-arrow-left me-1"></i> Back to List
                     </a>
                 </div>
             </form>
@@ -99,4 +104,18 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script src="~/js/currency-formatter.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const priceInput = document.querySelector('input[data-currency]');
+                if (priceInput) {
+                    // Remove all non-digit characters
+                    const numericValue = priceInput.value.replace(/[.,]/g, '');
+                    priceInput.value = numericValue;
+                }
+            });
+        });
+    </script>
 } 

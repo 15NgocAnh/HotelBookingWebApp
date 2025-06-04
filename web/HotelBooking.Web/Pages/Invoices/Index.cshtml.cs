@@ -1,9 +1,7 @@
 using HotelBooking.Application.CQRS.Invoice.DTOs;
-using HotelBooking.Application.CQRS.Invoice.Queries;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
 
 namespace HotelBooking.Web.Pages.Invoices;
 

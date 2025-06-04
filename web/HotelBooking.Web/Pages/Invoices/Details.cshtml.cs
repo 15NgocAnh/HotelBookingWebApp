@@ -1,12 +1,15 @@
 ﻿using HotelBooking.Application.Common.Models;
 using HotelBooking.Application.CQRS.Invoice.Commands.AddPayment;
+using HotelBooking.Application.CQRS.Invoice.Commands.AddRoomDamage;
 using HotelBooking.Application.CQRS.Invoice.Commands.UpdateInvoiceStatus;
 using HotelBooking.Application.CQRS.Invoice.DTOs;
 using HotelBooking.Domain.AggregateModels.InvoiceAggregate;
 using HotelBooking.Domain.Utils.Enum;
+using HotelBooking.Web.Configuration;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 using QRCoder;
 
 namespace HotelBooking.Web.Pages.Invoices
@@ -15,11 +18,16 @@ namespace HotelBooking.Web.Pages.Invoices
     {
         private readonly IApiService _apiService;
         private readonly ILogger<DetailsModel> _logger;
+        private readonly BankSettings _bankSettings;
 
-        public DetailsModel(IApiService apiService, ILogger<DetailsModel> logger)
+        public DetailsModel(
+            IApiService apiService, 
+            ILogger<DetailsModel> logger,
+            IOptions<BankSettings> bankSettings)
         {
             _apiService = apiService;
             _logger = logger;
+            _bankSettings = bankSettings.Value;
         }
 
         public InvoiceDto? Invoice { get; set; }
@@ -132,6 +140,35 @@ namespace HotelBooking.Web.Pages.Invoices
             }
         }
 
+        public async Task<IActionResult> OnPostAddDamageAsync(int invoiceId, decimal amount, string description)
+        {
+            try
+            {
+                var command = new AddRoomDamageCommand
+                {
+                    InvoiceId = invoiceId,
+                    Amount = amount,
+                    Description = description
+                };
+
+                var result = await _apiService.PutAsync<Result>($"api/invoice/{invoiceId}/damage", command);
+                if (result == null || !result.IsSuccess)
+                {
+                    TempData["ErrorMessage"] = result?.Messages.FirstOrDefault()?.Message ?? "Failed to add room damage.";
+                    return RedirectToPage(new { id = invoiceId });
+                }
+
+                TempData["SuccessMessage"] = "Room damage added successfully!";
+                return RedirectToPage(new { id = invoiceId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding room damage");
+                TempData["ErrorMessage"] = "An error occurred while adding room damage.";
+                return RedirectToPage(new { id = invoiceId });
+            }
+        }
+
         public async Task<IActionResult> OnPostPreviewQrAsync(int invoiceId, string invoiceNumber, decimal amount, PaymentMethod paymentMethod)
         {
             if (paymentMethod != PaymentMethod.BankTransfer)
@@ -140,13 +177,9 @@ namespace HotelBooking.Web.Pages.Invoices
                 return RedirectToPage(new { id = invoiceId });
             }
 
-            // Thông tin ngân hàng nhận tiền (cập nhật theo đơn vị của bạn)
-            var bankBin = "970418"; // BIDV
-            var accountNumber = "53210000921986";
-
             var description = $"Thanh toan HD {invoiceNumber}";
-            var paymentUrl = $"https://img.vietqr.io/image/{bankBin}-{accountNumber}-compact2.jpg" +
-                             $"?amount={(int)amount}&addInfo={Uri.EscapeDataString(description)}";
+            var paymentUrl = $"https://img.vietqr.io/image/{_bankSettings.BankBin}-{_bankSettings.AccountNumber}-compact2.jpg" +
+                             $"?amount={amount}&addInfo={Uri.EscapeDataString(description)}";
 
             using var qrGen = new QRCodeGenerator();
             var qrData = qrGen.CreateQrCode(paymentUrl, QRCodeGenerator.ECCLevel.Q);

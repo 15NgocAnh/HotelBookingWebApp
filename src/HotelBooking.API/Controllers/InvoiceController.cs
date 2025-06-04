@@ -1,4 +1,5 @@
 ﻿using HotelBooking.Application.CQRS.Invoice.Commands.AddPayment;
+using HotelBooking.Application.CQRS.Invoice.Commands.AddRoomDamage;
 using HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
 using HotelBooking.Application.CQRS.Invoice.Commands.DeleteInvoice;
 using HotelBooking.Application.CQRS.Invoice.Commands.GenerateInvoicePdf;
@@ -33,6 +34,16 @@ namespace HotelBooking.API.Controllers
 
         [HttpPut("{id}/payment")]
         public async Task<IActionResult> AddPayment(int id, [FromBody] AddPaymentCommand command)
+        {
+            if (id != command.InvoiceId)
+                return BadRequest("ID mismatch");
+
+            var result = await _mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        [HttpPut("{id}/damage")]
+        public async Task<IActionResult> AddRoomDamage(int id, [FromBody] AddRoomDamageCommand command)
         {
             if (id != command.InvoiceId)
                 return BadRequest("ID mismatch");
