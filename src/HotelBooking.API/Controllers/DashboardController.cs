@@ -2,7 +2,7 @@ using HotelBooking.Application.CQRS.Dashboard.Queries;
 
 namespace HotelBooking.API.Controllers
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin,HotelManager")]
     public class DashboardController : BaseController
     {
         public DashboardController(IMediator mediator) : base(mediator)

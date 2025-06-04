@@ -7,7 +7,6 @@ using HotelBooking.Application.CQRS.Hotel.Queries.GetHotelById;
 namespace HotelBooking.API.Controllers
 {
     [Authorize]
-    [Authorize(Roles = "SuperAdmin")]
     public class HotelController : BaseController
     {
         public HotelController(IMediator mediator) : base(mediator)
@@ -15,6 +14,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllHotelsQuery();
@@ -23,6 +23,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetHotelByIdQuery(id);
@@ -31,6 +32,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Create([FromBody] CreateHotelCommand command)
         {
             var result = await _mediator.Send(command);
@@ -38,6 +40,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateHotelCommand command)
         {
             if (id != command.Id)
@@ -50,6 +53,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Delete(int id)
         {
             var command = new DeleteHotelCommand(id);

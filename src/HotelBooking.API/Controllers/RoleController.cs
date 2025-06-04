@@ -6,7 +6,6 @@ using HotelBooking.Application.CQRS.Role.Queries.GetRoleById;
 
 namespace HotelBooking.API.Controllers
 {
-    [Authorize(Roles = "SuperAdmin")]
     public class RoleController : BaseController
     {
         public RoleController(IMediator mediator) : base(mediator)
@@ -14,6 +13,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Create([FromBody] CreateRoleCommand command)
         {
             var result = await _mediator.Send(command);
@@ -21,6 +21,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateRoleCommand command)
         {
             if (id != command.Id)
@@ -31,6 +32,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Delete(int id)
         {
             var command = new DeleteRoleCommand { Id = id };
@@ -39,6 +41,7 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetRoleByIdQuery { Id = id };
@@ -47,10 +50,11 @@ namespace HotelBooking.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
         public async Task<IActionResult> GetAll([FromQuery] GetAllRolesQuery query)
         {
             var result = await _mediator.Send(query);
             return HandleResult(result);
         }
     }
-} 
+}

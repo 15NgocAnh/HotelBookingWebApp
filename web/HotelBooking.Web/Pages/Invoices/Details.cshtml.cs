@@ -137,6 +137,7 @@ namespace HotelBooking.Web.Pages.Invoices
             if (paymentMethod != PaymentMethod.BankTransfer)
             {
                 await OnPostAddPaymentAsync(invoiceId, amount, paymentMethod);
+                return RedirectToPage(new { id = invoiceId });
             }
 
             // Thông tin ngân hàng nhận tiền (cập nhật theo đơn vị của bạn)

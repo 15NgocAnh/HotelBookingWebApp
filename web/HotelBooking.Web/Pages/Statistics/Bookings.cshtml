@@ -30,7 +30,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Total Bookings</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalBookings">0</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.TotalBookings</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
@@ -46,11 +46,11 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Confirmation Rate</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="confirmationRate">0%</div>
+                                Completed Bookings</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.CompletedBookings</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -63,8 +63,8 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Average Stay Duration</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="avgStayDuration">0 days</div>
+                                Pending Bookings</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.PendingBookings</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-clock fa-2x text-gray-300"></i>
@@ -80,8 +80,8 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Cancellation Rate</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="cancellationRate">0%</div>
+                                Cancelled Bookings</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.CancelledBookings</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-ban fa-2x text-gray-300"></i>
@@ -134,15 +134,22 @@
                         <tr>
                             <th>Date</th>
                             <th>Total Bookings</th>
-                            <th>Confirmed</th>
+                            <th>Completed</th>
+                            <th>Pending</th>
                             <th>Cancelled</th>
-                            <th>Check-ins</th>
-                            <th>Check-outs</th>
-                            <th>Revenue</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Data will be populated dynamically -->
+                        @foreach (var daily in Model.Statistics.DailyBookings)
+                        {
+                            <tr>
+                                <td>@daily.Date.ToString("yyyy-MM-dd")</td>
+                                <td>@daily.Count</td>
+                                <td>@daily.CompletedCount</td>
+                                <td>@daily.PendingCount</td>
+                                <td>@daily.CancelledCount</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -157,47 +164,25 @@
         let bookingStatusChart;
 
         document.addEventListener('DOMContentLoaded', function() {
-            loadData();
+            initializeCharts();
             
             document.getElementById('timeRange').addEventListener('change', function() {
                 loadData();
             });
         });
 
-        function loadData() {
-            const days = document.getElementById('timeRange').value;
-            fetch(`/api/statistics/bookings?days=${days}`)
-                .then(response => response.json())
-                .then(data => {
-                    updateSummaryCards(data.summary);
-                    updateBookingTrendChart(data.bookingTrend);
-                    updateBookingStatusChart(data.bookingStatus);
-                    updateBookingAnalysisTable(data.bookingAnalysis);
-                })
-                .catch(error => console.error('Error loading booking statistics:', error));
-        }
-
-        function updateSummaryCards(summary) {
-            document.getElementById('totalBookings').textContent = summary.totalBookings;
-            document.getElementById('confirmationRate').textContent = summary.confirmationRate + '%';
-            document.getElementById('avgStayDuration').textContent = summary.averageStayDuration + ' days';
-            document.getElementById('cancellationRate').textContent = summary.cancellationRate + '%';
-        }
-
-        function updateBookingTrendChart(data) {
-            const ctx = document.getElementById('bookingTrendChart').getContext('2d');
+        function initializeCharts() {
+            // Initialize Booking Trend Chart
+            const trendCtx = document.getElementById('bookingTrendChart').getContext('2d');
+            const dailyData = @Html.Raw(Json.Serialize(Model.Statistics.DailyBookings));
             
-            if (bookingTrendChart) {
-                bookingTrendChart.destroy();
-            }
-
-            bookingTrendChart = new Chart(ctx, {
+            bookingTrendChart = new Chart(trendCtx, {
                 type: 'line',
                 data: {
-                    labels: data.labels,
+                    labels: dailyData.map(d => d.date),
                     datasets: [{
                         label: 'Daily Bookings',
-                        data: data.values,
+                        data: dailyData.map(d => d.count),
                         borderColor: '#4e73df',
                         backgroundColor: 'rgba(78, 115, 223, 0.05)',
                         borderWidth: 2,
@@ -227,33 +212,32 @@
                     }
                 }
             });
-        }
 
-        function updateBookingStatusChart(data) {
-            const ctx = document.getElementById('bookingStatusChart').getContext('2d');
+            // Initialize Booking Status Chart
+            const statusCtx = document.getElementById('bookingStatusChart').getContext('2d');
+            const statusData = {
+                labels: ['Completed', 'Pending', 'Cancelled'],
+                values: [
+                    @Model.Statistics.CompletedBookings,
+                    @Model.Statistics.PendingBookings,
+                    @Model.Statistics.CancelledBookings
+                ]
+            };
             
-            if (bookingStatusChart) {
-                bookingStatusChart.destroy();
-            }
-
-            bookingStatusChart = new Chart(ctx, {
+            bookingStatusChart = new Chart(statusCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: data.labels,
+                    labels: statusData.labels,
                     datasets: [{
-                        data: data.values,
+                        data: statusData.values,
                         backgroundColor: [
+                            '#1cc88a',  // Completed
                             '#4e73df',  // Pending
-                            '#1cc88a',  // Confirmed
-                            '#36b9cc',  // Checked-in
-                            '#f6c23e',  // Checked-out
                             '#e74a3b'   // Cancelled
                         ],
                         hoverBackgroundColor: [
-                            '#2e59d9',
                             '#17a673',
-                            '#2c9faf',
-                            '#dda20a',
+                            '#2e59d9',
                             '#be2617'
                         ],
                         hoverBorderColor: "rgba(234, 236, 244, 1)",
@@ -271,30 +255,9 @@
             });
         }
 
-        function updateBookingAnalysisTable(data) {
-            const tbody = document.querySelector('#bookingAnalysisTable tbody');
-            tbody.innerHTML = '';
-
-            data.forEach(day => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${day.date}</td>
-                    <td>${day.totalBookings}</td>
-                    <td>${day.confirmed}</td>
-                    <td>${day.cancelled}</td>
-                    <td>${day.checkIns}</td>
-                    <td>${day.checkOuts}</td>
-                    <td>${formatCurrency(day.revenue)}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function formatCurrency(value) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(value);
+        function loadData() {
+            const days = document.getElementById('timeRange').value;
+            window.location.href = `?days=${days}`;
         }
     </script>
 } 

@@ -49,6 +49,11 @@ namespace HotelBooking.Web.Helpers
             return user.IsInRole("SuperAdmin") || user.IsInRole("HotelManager");
         }
 
+        public static bool CanAccessToleManagement(ClaimsPrincipal user)
+        {
+            return user.IsInRole("SuperAdmin");
+        }
+
         public static bool CanAccessStatistics(ClaimsPrincipal user)
         {
             return user.IsInRole("SuperAdmin") || user.IsInRole("HotelManager");

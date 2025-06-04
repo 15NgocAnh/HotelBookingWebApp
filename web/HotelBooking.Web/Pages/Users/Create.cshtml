@@ -40,14 +40,6 @@
                             <span asp-validation-for="UserInput.Email" class="text-danger"></span>
                         </div>
                     </div>
-
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="UserInput.Password" class="form-label">Password</label>
-                            <input asp-for="UserInput.Password" class="form-control" type="password" />
-                            <span asp-validation-for="UserInput.Password" class="text-danger"></span>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="row">
@@ -70,7 +62,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="UserInput.HotelIds" class="control-label">Hotel</label>
+                            <label asp-for="UserInput.HotelIds" class="control-label">Hotels</label>
                             <select multiple asp-for="UserInput.HotelIds" class="form-control">
                                 @foreach (var hotel in Model.Hotels)
                                 {
@@ -83,14 +75,14 @@
 
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="UserInput.RoleId" class="control-label">Hotel</label>
+                            <label asp-for="UserInput.RoleId" class="control-label">Role</label>
                             <select asp-for="UserInput.RoleId" class="form-control">
                                 @foreach (var role in Model.Roles)
                                 {
                                     <option value="@role.Id">@role.Name</option>
                                 }
                             </select>
-                            <span asp-validation-for="UserInput.RoleId" class="text-danger"></span>
+                            <span asp-validation-for="UserInput.RoleId" value="@Model.UserInput.RoleId" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -113,4 +105,16 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Add any client-side validation or UI enhancements here
+        $(document).ready(function() {
+            // If user is not super admin, disable role selection
+            @if (!Model.IsSuperAdmin)
+            {
+                <text>
+                $('#UserInput_RoleId').prop('disabled', true);
+                </text>
+            }
+        });
+    </script>
 } 

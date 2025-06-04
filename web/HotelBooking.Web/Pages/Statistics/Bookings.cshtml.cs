@@ -12,6 +12,8 @@ public class BookingsModel : PageModel
     private readonly IApiService _apiService;
     private readonly ILogger<BookingsModel> _logger;
 
+    public BookingStatisticsDto Statistics { get; set; } = new();
+
     public BookingsModel(IApiService apiService, ILogger<BookingsModel> logger)
     {
         _apiService = apiService;
@@ -22,7 +24,7 @@ public class BookingsModel : PageModel
     {
         try
         {
-            var result = await _apiService.GetAsync<BookingStatisticsDto>("api/statistics/bookings") ?? new();
+            var result = await _apiService.GetAsync<BookingStatisticsDto>("api/statistics/booking") ?? new();
             if (!result.IsSuccess)
             {
                 _logger.LogError("Failed to fetch booking statistics: {Message}", 
@@ -30,6 +32,7 @@ public class BookingsModel : PageModel
                 return Page();
             }
 
+            Statistics = result.Data;
             return Page();
         }
         catch (Exception ex)

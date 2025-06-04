@@ -60,7 +60,9 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
             var existingInvoice = await _invoiceRepository.GetByBookingIdAsync(request.BookingId);
             if (existingInvoice != null)
             {
-                throw new DomainException($"An invoice already exists for booking {request.BookingId}");
+                _logger.LogInformation("Invoice {InvoiceId} already exists for booking {BookingId}, returning existing invoice",
+                    existingInvoice.Id, request.BookingId);
+                return Result<int>.Success(existingInvoice.Id);
             }
 
             // Create the invoice

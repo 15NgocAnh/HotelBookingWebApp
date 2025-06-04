@@ -1,5 +1,7 @@
 using HotelBooking.Application.CQRS.Hotel.DTOs;
 using HotelBooking.Application.CQRS.User.DTOs;
+using HotelBooking.Application.Services.User;
+using HotelBooking.Domain.Utils.Enum;
 
 namespace HotelBooking.Application.CQRS.User.Queries.GetUserById
 {
@@ -9,17 +11,20 @@ namespace HotelBooking.Application.CQRS.User.Queries.GetUserById
         private readonly IRoleRepository _roleRepository;
         private readonly IHotelRepository _hotelRepository;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
         public GetUserByIdQueryHandler(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
             IHotelRepository hotelRepository,
-            IMapper mapper)
+            IMapper mapper,
+            ICurrentUserService currentUserService)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _roleRepository = roleRepository;
             _hotelRepository = hotelRepository;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         }
 
         public async Task<Result<UserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
@@ -30,6 +35,12 @@ namespace HotelBooking.Application.CQRS.User.Queries.GetUserById
                 if (user == null)
                 {
                     return Result<UserDto>.Failure("User not found");
+                }
+
+                // Check if current user has permission to view this user
+                if (_currentUserService.Role != Domain.Utils.Enum.Role.SuperAdmin.ToString() && user.CreatedBy != _currentUserService.UserId.ToString())
+                {
+                    return Result<UserDto>.Failure("You don't have permission to view this user");
                 }
 
                 user.Role = await _roleRepository.GetByIdAsync(user.RoleId);
@@ -53,7 +64,7 @@ namespace HotelBooking.Application.CQRS.User.Queries.GetUserById
             }
             catch (Exception ex)
             {
-                return Result<UserDto>.Failure($"Failed to get user: {ex.Message}");
+                return Result<UserDto>.Failure("Something went wrong");
             }
         }
     }

@@ -1,5 +1,4 @@
 using HotelBooking.Application.CQRS.User.DTOs;
-using HotelBooking.Application.Common.Models;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HotelBooking.Web.Pages.Users
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin,HotelManager")]
     public class IndexModel : PageModel
     {
         private readonly IApiService _apiService;
