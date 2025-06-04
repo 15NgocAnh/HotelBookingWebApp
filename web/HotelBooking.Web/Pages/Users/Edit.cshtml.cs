@@ -10,7 +10,7 @@ using HotelBooking.Application.CQRS.Role.DTOs;
 
 namespace HotelBooking.Web.Pages.Users
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin,HotelManager")]
     public class EditModel : PageModel
     {
         private readonly IApiService _apiService;

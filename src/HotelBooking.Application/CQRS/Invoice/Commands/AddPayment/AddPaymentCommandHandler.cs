@@ -1,16 +1,23 @@
 using HotelBooking.Domain.AggregateModels.InvoiceAggregate;
 using HotelBooking.Domain.Common;
+using HotelBooking.Domain.AggregateModels.BookingAggregate;
+using HotelBooking.Domain.Interfaces.Repositories;
 
 namespace HotelBooking.Application.CQRS.Invoice.Commands.AddPayment;
 
 public class AddPaymentCommandHandler : IRequestHandler<AddPaymentCommand, Result>
 {
     private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IBookingRepository _bookingRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AddPaymentCommandHandler(IInvoiceRepository invoiceRepository, IUnitOfWork unitOfWork)
+    public AddPaymentCommandHandler(
+        IInvoiceRepository invoiceRepository, 
+        IBookingRepository bookingRepository,
+        IUnitOfWork unitOfWork)
     {
         _invoiceRepository = invoiceRepository;
+        _bookingRepository = bookingRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -45,6 +52,17 @@ public class AddPaymentCommandHandler : IRequestHandler<AddPaymentCommand, Resul
             }
 
             invoice.AddPayment(request.Amount, request.PaymentMethod);
+            
+            // If the invoice is now fully paid, update the booking status to completed
+            if (invoice.Status == InvoiceStatus.Paid)
+            {
+                var booking = await _bookingRepository.GetByIdAsync(invoice.BookingId);
+                if (booking != null)
+                {
+                    booking.UpdateStatus(BookingStatus.Completed);
+                }
+            }
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result.Success();

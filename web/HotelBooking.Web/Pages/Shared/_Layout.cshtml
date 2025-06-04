@@ -92,14 +92,14 @@
                 </a>
                 <div id="collapseRoom" class="collapse" aria-labelledby="headingRoom" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        @if (MenuAuthorizationHelper.CanAccessRoomManagement(User))
-                        {
-                            <a class="collapse-item" asp-page="/RoomTypes/Index">Danh sách loại phòng</a>
-                        }
                         <a class="collapse-item" asp-page="/Rooms/Index">Danh sách phòng</a>
                         @if (MenuAuthorizationHelper.CanAccessRoomManagement(User))
                         {
                             <a class="collapse-item" asp-page="/Rooms/Create">Thêm mới phòng</a>
+                        }
+                        @if (MenuAuthorizationHelper.CanAccessRoomManagement(User))
+                        {
+                            <a class="collapse-item" asp-page="/RoomTypes/Index">Danh sách loại phòng</a>
                         }
                     </div>
                 </div>
@@ -115,9 +115,9 @@
                     </a>
                     <div id="collapseExtra" class="collapse" aria-labelledby="headingExtra" data-parent="#accordionSidebar">
                         <div class="bg-white py-2 collapse-inner rounded">
-                            <a class="collapse-item" asp-page="/ExtraCategories/Index">Danh mục dịch vụ</a>
                             <a class="collapse-item" asp-page="/ExtraItems/Index">Danh sách dịch vụ</a>
                             <a class="collapse-item" asp-page="/ExtraItems/Create">Thêm mới dịch vụ </a>
+                            <a class="collapse-item" asp-page="/ExtraCategories/Index">Danh mục dịch vụ</a>
                         </div>
                     </div>
                 </li>
@@ -209,7 +209,10 @@
                         <div class="bg-white py-2 collapse-inner rounded">
                             <a class="collapse-item" asp-page="/Users/Index">Danh sách người dùng</a>
                             <a class="collapse-item" asp-page="/Users/Create">Thêm mới người dùng</a>
-                            <a class="collapse-item" asp-page="/Roles/Index">Quản lý vai trò</a>
+                            @if (MenuAuthorizationHelper.CanAccessToleManagement(User))
+                            {
+                                <a class="collapse-item" asp-page="/Roles/Index">Quản lý vai trò</a>
+                            }
                         </div>
                     </div>
                 </li>

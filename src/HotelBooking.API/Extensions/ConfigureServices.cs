@@ -1,6 +1,6 @@
+using HotelBooking.Application.Services.User;
 using HotelBooking.Infrastructure.Authentication;
 using HotelBooking.Infrastructure.Email;
-using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace HotelBooking.API.Extensions;
 
@@ -11,7 +11,8 @@ public static class ConfigureServices
         services.AddHttpContextAccessor();
         services.AddSingleton<IJWTHelper, JWTHelper>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
-        services.AddTransient<IEmailSender, EmailSenderServices>();
+        services.AddTransient<ICurrentUserService, CurrentUserService>();
+        services.AddTransient<IEmailService, EmailSenderServices>();
 
         return services;
     }

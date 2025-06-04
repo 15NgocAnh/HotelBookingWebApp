@@ -12,6 +12,8 @@ public class RoomModel : PageModel
     private readonly IApiService _apiService;
     private readonly ILogger<RoomModel> _logger;
 
+    public RoomStatisticsDto Statistics { get; set; } = new();
+
     public RoomModel(IApiService apiService, ILogger<RoomModel> logger)
     {
         _apiService = apiService;
@@ -30,6 +32,7 @@ public class RoomModel : PageModel
                 return Page();
             }
 
+            Statistics = result.Data;
             return Page();
         }
         catch (Exception ex)

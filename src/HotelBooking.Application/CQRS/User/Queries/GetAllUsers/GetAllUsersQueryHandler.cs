@@ -1,5 +1,7 @@
 using HotelBooking.Application.CQRS.Hotel.DTOs;
 using HotelBooking.Application.CQRS.User.DTOs;
+using HotelBooking.Application.Services.User;
+using HotelBooking.Domain.Utils.Enum;
 
 namespace HotelBooking.Application.CQRS.User.Queries.GetAllUsers
 {
@@ -9,17 +11,20 @@ namespace HotelBooking.Application.CQRS.User.Queries.GetAllUsers
         private readonly IRoleRepository _roleRepository;
         private readonly IHotelRepository _hotelRepository;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
         public GetAllUsersQueryHandler(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
             IHotelRepository hotelRepository,
-            IMapper mapper)
+            IMapper mapper,
+            ICurrentUserService currentUserService)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _roleRepository = roleRepository;
             _hotelRepository = hotelRepository;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         }
 
         public async Task<Result<List<UserDto>>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
@@ -32,6 +37,13 @@ namespace HotelBooking.Application.CQRS.User.Queries.GetAllUsers
                 if (!request.IncludeInactive)
                 {
                     users = users.Where(u => !u.IsDeleted).ToList();
+                }
+
+                // Filter users based on role
+                if (_currentUserService.Role != Domain.Utils.Enum.Role.SuperAdmin.ToString())
+                {
+                    // If not SuperAdmin, only show users created by the current user
+                    users = users.Where(u => u.CreatedBy == _currentUserService.UserId.ToString()).ToList();
                 }
 
                 if (!string.IsNullOrWhiteSpace(request.SearchTerm))
@@ -88,7 +100,7 @@ namespace HotelBooking.Application.CQRS.User.Queries.GetAllUsers
             }
             catch (Exception ex) 
             {
-                return Result<List<UserDto>>.Failure("Some thing went wrong");
+                return Result<List<UserDto>>.Failure("Something went wrong");
             }
         }
     }

@@ -30,7 +30,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Total Revenue</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRevenue">$0</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.TotalRevenue.ToString("C")</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -46,11 +46,11 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Average Daily Revenue</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="avgDailyRevenue">$0</div>
+                                Average Daily Revenue
+                            </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                            <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -63,11 +63,11 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Total Bookings</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalBookings">0</div>
+                                Total Bookings
+                            </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -80,11 +80,11 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Average Booking Value</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="avgBookingValue">$0</div>
+                                Average Booking Value
+                            </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-tag fa-2x text-gray-300"></i>
+                            <i class="fas fa-receipt fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -93,7 +93,7 @@
     </div>
 
     <div class="row">
-        <!-- Revenue Chart -->
+        <!-- Revenue Trend Chart -->
         <div class="col-xl-8 col-lg-7">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
@@ -121,6 +121,34 @@
             </div>
         </div>
     </div>
+
+    <!-- Daily Revenue Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Daily Revenue Analysis</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="revenueTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var daily in Model.Statistics.DailyRevenue)
+                        {
+                            <tr>
+                                <td>@daily.Date.ToString("MMM dd, yyyy")</td>
+                                <td>@daily.Revenue.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -130,46 +158,25 @@
         let roomTypeChart;
 
         document.addEventListener('DOMContentLoaded', function() {
-            loadData();
+            initializeCharts();
             
             document.getElementById('timeRange').addEventListener('change', function() {
                 loadData();
             });
         });
 
-        function loadData() {
-            const days = document.getElementById('timeRange').value;
-            fetch(`/api/statistics/revenue?days=${days}`)
-                .then(response => response.json())
-                .then(data => {
-                    updateSummaryCards(data.summary);
-                    updateRevenueChart(data.revenueTrend);
-                    updateRoomTypeChart(data.revenueByRoomType);
-                })
-                .catch(error => console.error('Error loading revenue data:', error));
-        }
-
-        function updateSummaryCards(summary) {
-            document.getElementById('totalRevenue').textContent = formatCurrency(summary.totalRevenue);
-            document.getElementById('avgDailyRevenue').textContent = formatCurrency(summary.averageDailyRevenue);
-            document.getElementById('totalBookings').textContent = summary.totalBookings;
-            document.getElementById('avgBookingValue').textContent = formatCurrency(summary.averageBookingValue);
-        }
-
-        function updateRevenueChart(data) {
-            const ctx = document.getElementById('revenueChart').getContext('2d');
+        function initializeCharts() {
+            // Initialize Revenue Trend Chart
+            const trendCtx = document.getElementById('revenueChart').getContext('2d');
+            const trendData = @Html.Raw(Json.Serialize(Model.Statistics.DailyRevenue));
             
-            if (revenueChart) {
-                revenueChart.destroy();
-            }
-
-            revenueChart = new Chart(ctx, {
+            revenueChart = new Chart(trendCtx, {
                 type: 'line',
                 data: {
-                    labels: data.labels,
+                    labels: trendData.map(d => d.date),
                     datasets: [{
                         label: 'Daily Revenue',
-                        data: data.values,
+                        data: trendData.map(d => d.revenue),
                         borderColor: '#4e73df',
                         backgroundColor: 'rgba(78, 115, 223, 0.05)',
                         borderWidth: 2,
@@ -194,62 +201,19 @@
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return formatCurrency(value);
+                                    return '$' + value.toLocaleString();
                                 }
                             }
                         }
                     }
                 }
             });
+
         }
 
-        function updateRoomTypeChart(data) {
-            const ctx = document.getElementById('roomTypeChart').getContext('2d');
-            
-            if (roomTypeChart) {
-                roomTypeChart.destroy();
-            }
-
-            roomTypeChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: data.labels,
-                    datasets: [{
-                        data: data.values,
-                        backgroundColor: [
-                            '#4e73df',
-                            '#1cc88a',
-                            '#36b9cc',
-                            '#f6c23e',
-                            '#e74a3b'
-                        ],
-                        hoverBackgroundColor: [
-                            '#2e59d9',
-                            '#17a673',
-                            '#2c9faf',
-                            '#dda20a',
-                            '#be2617'
-                        ],
-                        hoverBorderColor: "rgba(234, 236, 244, 1)",
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    cutout: '70%'
-                }
-            });
-        }
-
-        function formatCurrency(value) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(value);
+        function loadData() {
+            const days = document.getElementById('timeRange').value;
+            window.location.href = `?days=${days}`;
         }
     </script>
 } 

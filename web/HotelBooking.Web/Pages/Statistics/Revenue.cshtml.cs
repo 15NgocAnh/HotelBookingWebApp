@@ -12,6 +12,8 @@ public class RevenueModel : PageModel
     private readonly IApiService _apiService;
     private readonly ILogger<RevenueModel> _logger;
 
+    public RevenueStatisticsDto Statistics { get; set; } = new();
+
     public RevenueModel(IApiService apiService, ILogger<RevenueModel> logger)
     {
         _apiService = apiService;
@@ -30,6 +32,7 @@ public class RevenueModel : PageModel
                 return Page();
             }
 
+            Statistics = result.Data;
             return Page();
         }
         catch (Exception ex)

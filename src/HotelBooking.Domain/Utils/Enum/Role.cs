@@ -2,13 +2,9 @@
 {
     public enum Role
     {
-        SuperAdmin,
-        HotelManager,
-        FrontDesk,
-        Housekeeping,
-        Maintenance,
-        Accountant,
-        Guest
+        SuperAdmin = 1,
+        HotelManager = 2,
+        FrontDesk = 3
     }
 
 }

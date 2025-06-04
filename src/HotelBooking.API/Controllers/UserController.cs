@@ -1,3 +1,4 @@
+using HotelBooking.Application.CQRS.Hotel.Queries.GetAllHotels;
 using HotelBooking.Application.CQRS.User.Commands.ChangePassword;
 using HotelBooking.Application.CQRS.User.Commands.CreateUser;
 using HotelBooking.Application.CQRS.User.Commands.DeleteUser;
@@ -57,6 +58,15 @@ namespace HotelBooking.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllUsersQuery();
+            var result = await _mediator.Send(query);
+            return HandleResult(result);
+        }
+
+        [HttpGet("{id}/hotels")]
+        [Authorize(Roles = "SuperAdmin,HotelManager")]
+        public async Task<IActionResult> GetAllHotelsByUser(int id)
+        {
+            var query = new GetAllHotelsByUserQuery(id);
             var result = await _mediator.Send(query);
             return HandleResult(result);
         }

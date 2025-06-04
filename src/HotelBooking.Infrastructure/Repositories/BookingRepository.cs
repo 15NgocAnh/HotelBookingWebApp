@@ -101,66 +101,103 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
 
     public async Task<int> GetTotalBookingsAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
-        var query = _context.Bookings.AsQueryable();
-        if (startDate.HasValue)
-            query = query.Where(b => b.CheckInDate >= startDate.Value);
-        if (endDate.HasValue)
-            query = query.Where(b => b.CheckInDate <= endDate.Value);
-        return await query.CountAsync();
+        var query = @"SELECT COUNT(*) AS Value 
+                    FROM Booking b 
+                    WHERE (@StartDate IS NULL OR b.CheckInDate >= @StartDate)
+                    AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)";
+
+        var parameters = new[]
+        {
+            new SqlParameter("@StartDate", (object?)startDate ?? DBNull.Value),
+            new SqlParameter("@EndDate", (object?)endDate ?? DBNull.Value)
+        };
+
+        return await _context.Database
+            .SqlQueryRaw<int>(query, parameters)
+            .SingleOrDefaultAsync();
     }
 
     public async Task<int> GetCompletedBookingsAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
-        var query = _context.Bookings.Where(b => b.Status == BookingStatus.Completed);
-        if (startDate.HasValue)
-            query = query.Where(b => b.CheckInDate >= startDate.Value);
-        if (endDate.HasValue)
-            query = query.Where(b => b.CheckInDate <= endDate.Value);
-        return await query.CountAsync();
+        var query = @"SELECT COUNT(*) AS Value 
+                    FROM Booking b 
+                    WHERE b.Status = 'Completed'
+                    AND (@StartDate IS NULL OR b.CheckInDate >= @StartDate)
+                    AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)";
+
+        var parameters = new[]
+        {
+            new SqlParameter("@StartDate", (object?)startDate ?? DBNull.Value),
+            new SqlParameter("@EndDate", (object?)endDate ?? DBNull.Value)
+        };
+
+        return await _context.Database
+            .SqlQueryRaw<int>(query, parameters)
+            .SingleOrDefaultAsync();
     }
 
     public async Task<int> GetCancelledBookingsAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
-        var query = _context.Bookings.Where(b => b.Status == BookingStatus.Cancelled);
-        if (startDate.HasValue)
-            query = query.Where(b => b.CheckInDate >= startDate.Value);
-        if (endDate.HasValue)
-            query = query.Where(b => b.CheckInDate <= endDate.Value);
-        return await query.CountAsync();
+        var query = @"SELECT COUNT(*) AS Value 
+                    FROM Booking b 
+                    WHERE b.Status = 'Cancelled'
+                    AND (@StartDate IS NULL OR b.CheckInDate >= @StartDate)
+                    AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)";
+
+        var parameters = new[]
+        {
+            new SqlParameter("@StartDate", (object?)startDate ?? DBNull.Value),
+            new SqlParameter("@EndDate", (object?)endDate ?? DBNull.Value)
+        };
+
+        return await _context.Database
+            .SqlQueryRaw<int>(query, parameters)
+            .SingleOrDefaultAsync();
     }
 
     public async Task<int> GetPendingBookingsAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
-        var query = _context.Bookings.Where(b => b.Status == BookingStatus.Pending);
-        if (startDate.HasValue)
-            query = query.Where(b => b.CheckInDate >= startDate.Value);
-        if (endDate.HasValue)
-            query = query.Where(b => b.CheckInDate <= endDate.Value);
-        return await query.CountAsync();
+        var query = @"SELECT COUNT(*) AS Value 
+                    FROM Booking b 
+                    WHERE b.Status = 'Pending'
+                    AND (@StartDate IS NULL OR b.CheckInDate >= @StartDate)
+                    AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)";
+
+        var parameters = new[]
+        {
+            new SqlParameter("@StartDate", (object?)startDate ?? DBNull.Value),
+            new SqlParameter("@EndDate", (object?)endDate ?? DBNull.Value)
+        };
+
+        return await _context.Database
+            .SqlQueryRaw<int>(query, parameters)
+            .SingleOrDefaultAsync();
     }
 
     public async Task<IEnumerable<dynamic>> GetDailyBookingsAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
-        var query = _context.Bookings.AsQueryable();
-        if (startDate.HasValue)
-            query = query.Where(b => b.CheckInDate >= startDate.Value);
-        if (endDate.HasValue)
-            query = query.Where(b => b.CheckInDate <= endDate.Value);
+        var query = @"
+            SELECT 
+                CAST(b.CheckInDate AS DATE) AS Date,
+                COUNT(*) AS Count,
+                SUM(CASE WHEN b.Status = 'Completed' THEN 1 ELSE 0 END) AS CompletedCount,
+                SUM(CASE WHEN b.Status = 'Pending' THEN 1 ELSE 0 END) AS PendingCount,
+                SUM(CASE WHEN b.Status = 'Cancelled' THEN 1 ELSE 0 END) AS CancelledCount
+            FROM Booking b
+            WHERE (@StartDate IS NULL OR b.CheckInDate >= @StartDate)
+                AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)
+            GROUP BY CAST(b.CheckInDate AS DATE)
+            ORDER BY Date";
 
-        var result = await query
-            .GroupBy(b => b.CheckInDate.Date)
-            .Select(g => new DailyBookingDto
-            {
-                Date = g.Key,
-                Count = g.Count(),
-                CompletedCount = g.Count(b => b.Status == BookingStatus.Completed),
-                PendingCount = g.Count(b => b.Status == BookingStatus.Pending),
-                CancelledCount = g.Count(b => b.Status == BookingStatus.Cancelled)
-            })
-            .OrderBy(x => x.Date)
+        var parameters = new[]
+        {
+            new SqlParameter("@StartDate", (object?)startDate ?? DBNull.Value),
+            new SqlParameter("@EndDate", (object?)endDate ?? DBNull.Value)
+        };
+
+        return await _context.Database
+            .SqlQueryRaw<DailyBookingDto>(query, parameters)
             .ToListAsync();
-
-        return result;
     }
 
     public async Task<IEnumerable<RoomTypeBooking>> GetRoomTypeBookingsAsync(DateTime? startDate = null, DateTime? endDate = null)
@@ -173,7 +210,7 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
             FROM Booking b
                 INNER JOIN Room r ON b.RoomId = r.Id
                 INNER JOIN RoomType rt ON r.RoomTypeId = rt.Id
-                LEFT JOIN Invoices i ON b.Id = i.BookingId
+                LEFT JOIN Invoice i ON b.Id = i.BookingId
             WHERE (@StartDate IS NULL OR b.CheckInDate >= @StartDate)
                 AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)
             GROUP BY rt.Name";
@@ -192,9 +229,9 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
     public async Task<decimal> GetTotalRevenueAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
         var query = @"
-            SELECT SUM(i.TotalAmount) AS Value
+            SELECT ISNULL(SUM(i.TotalAmount), 0) AS Value
             FROM Booking b
-            INNER JOIN Invoices i ON b.Id = i.Id
+            INNER JOIN Invoice i ON b.Id = i.BookingId
             WHERE b.Status = 'Completed'
             AND (@StartDate IS NULL OR b.CheckInDate >= @StartDate)
             AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)";
@@ -206,21 +243,22 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
         };
 
         var result = await _context.Database
-            .SqlQueryRaw<decimal?>(query, parameters.ToArray())
+            .SqlQueryRaw<decimal>(query, parameters)
             .SingleOrDefaultAsync();
 
-        return result ?? 0m;
+        return result;
     }
 
     public async Task<decimal> GetMonthlyRevenueAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
         var query = @"
-            SELECT SUM(i.TotalAmount) AS VALUE
+            SELECT ISNULL(SUM(i.TotalAmount), 0) AS Value
             FROM Booking b
-            INNER JOIN Invoices i ON b.Id = i.Id
+            INNER JOIN Invoice i ON b.Id = i.BookingId
             WHERE b.Status = 'Completed'
             AND (@StartDate IS NULL OR b.CheckInDate >= @StartDate)
-            AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)";
+            AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)
+            AND b.CheckInDate >= DATEADD(MONTH, -1, GETDATE())";
 
         var parameters = new[]
         {
@@ -229,21 +267,22 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
         };
 
         var result = await _context.Database
-            .SqlQueryRaw<decimal?>(query, parameters.ToArray())
+            .SqlQueryRaw<decimal>(query, parameters)
             .SingleOrDefaultAsync();
 
-        return result ?? 0m;
+        return result;
     }
 
     public async Task<decimal> GetWeeklyRevenueAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
         var query = @"
-            SELECT SUM(i.TotalAmount) AS VALUE
+            SELECT ISNULL(SUM(i.TotalAmount), 0) AS Value
             FROM Booking b
-            INNER JOIN Invoices i ON b.Id = i.Id
+            INNER JOIN Invoice i ON b.Id = i.BookingId
             WHERE b.Status = 'Completed'
             AND (@StartDate IS NULL OR b.CheckInDate >= @StartDate)
-            AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)";
+            AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)
+            AND b.CheckInDate >= DATEADD(WEEK, -1, GETDATE())";
 
         var parameters = new[]
         {
@@ -252,10 +291,10 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
         };
 
         var result = await _context.Database
-            .SqlQueryRaw<decimal?>(query, parameters.ToArray())
+            .SqlQueryRaw<decimal>(query, parameters)
             .SingleOrDefaultAsync();
 
-        return result ?? 0m;
+        return result;
     }
 
     public async Task<IEnumerable<DailyRevenue>> GetDailyRevenueAsync(DateTime? startDate = null, DateTime? endDate = null)
@@ -263,14 +302,14 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
         var query = @"
             SELECT 
                 CAST(b.CheckInDate AS DATE) AS Date,
-                SUM(i.TotalAmount) AS Revenue
+                ISNULL(SUM(i.TotalAmount), 0) AS Revenue
             FROM Booking b
-            INNER JOIN Invoices i ON b.Id = i.Id
+            INNER JOIN Invoice i ON b.Id = i.BookingId
             WHERE b.Status = 'Completed'
             AND (@StartDate IS NULL OR b.CheckInDate >= @StartDate)
             AND (@EndDate IS NULL OR b.CheckInDate <= @EndDate)
             GROUP BY CAST(b.CheckInDate AS DATE)
-            ORDER BY CAST(b.CheckInDate AS DATE)";
+            ORDER BY Date";
 
         var parameters = new[]
         {
@@ -279,36 +318,31 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
         };
 
         return await _context.Database
-            .SqlQueryRaw<DailyRevenue>(query, parameters.ToArray())
+            .SqlQueryRaw<DailyRevenue>(query, parameters)
             .ToListAsync();
     }
 
     public async Task<IEnumerable<MonthlyRevenue>> GetMonthlyRevenueDataAsync(int months = 6)
     {
-        var endDate = DateTime.Today;
-        var startDate = endDate.AddMonths(-months);
-
         var query = @"
             SELECT 
-                CONCAT(YEAR(b.CheckInDate), '-', FORMAT(MONTH(b.CheckInDate), '00')) AS Month,
+                FORMAT(b.CheckInDate, 'yyyy-MM') AS Month,
                 COUNT(b.Id) AS BookingCount,
-                SUM(i.TotalAmount) AS Revenue
+                ISNULL(SUM(i.TotalAmount), 0) AS Revenue
             FROM Booking b
-            INNER JOIN Invoices i ON b.Id = i.Id
+            INNER JOIN Invoice i ON b.Id = i.BookingId
             WHERE b.Status = 'Completed'
-            AND b.CheckInDate >= @StartDate
-            AND b.CheckInDate <= @EndDate
-            GROUP BY YEAR(b.CheckInDate), MONTH(b.CheckInDate)
-            ORDER BY YEAR(b.CheckInDate), MONTH(b.CheckInDate)";
+            AND b.CheckInDate >= DATEADD(MONTH, -@Months, GETDATE())
+            GROUP BY FORMAT(b.CheckInDate, 'yyyy-MM')
+            ORDER BY Month";
 
         var parameters = new[]
         {
-            new SqlParameter("@StartDate", startDate),
-            new SqlParameter("@EndDate", endDate)
+            new SqlParameter("@Months", months)
         };
 
         return await _context.Database
-            .SqlQueryRaw<MonthlyRevenue>(query, parameters.ToArray())
+            .SqlQueryRaw<MonthlyRevenue>(query, parameters)
             .ToListAsync();
     }
 

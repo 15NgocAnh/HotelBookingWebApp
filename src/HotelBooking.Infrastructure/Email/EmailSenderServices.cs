@@ -1,12 +1,11 @@
 ﻿using HotelBooking.Infrastructure.Config;
 using MailKit.Net.Smtp;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace HotelBooking.Infrastructure.Email
 {
-    public class EmailSenderServices : IEmailSender
+    public class EmailSenderServices : IEmailService
     {
         private readonly MailSettings _mailSettings;
 
@@ -14,9 +13,9 @@ namespace HotelBooking.Infrastructure.Email
         {
             _mailSettings = mailSettings.Value;
         }
+
         public async Task SendEmailAsync(string email, string subject, string html)
         {
-
             try
             {
                 using (MimeMessage emailMessage = new MimeMessage())

@@ -1,15 +1,14 @@
-using HotelBooking.Application.CQRS.Booking.DTOs;
 using HotelBooking.Application.Common.Models;
+using HotelBooking.Application.CQRS.Booking.Commands.CheckIn;
+using HotelBooking.Application.CQRS.Booking.Commands.CheckOut;
+using HotelBooking.Application.CQRS.Booking.Commands.UpdateBookingStatus;
+using HotelBooking.Application.CQRS.Booking.DTOs;
+using HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
+using HotelBooking.Domain.AggregateModels.BookingAggregate;
 using HotelBooking.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using HotelBooking.Application.CQRS.Booking.Commands.UpdateBookingStatus;
-using HotelBooking.Domain.AggregateModels.BookingAggregate;
-using HotelBooking.Application.CQRS.Booking.Commands.CheckOut;
-using HotelBooking.Application.CQRS.Booking.Commands.CheckIn;
-using HotelBooking.Application.CQRS.Invoice.Commands.CreateInvoice;
 
 namespace HotelBooking.Web.Pages.Bookings;
 
@@ -211,27 +210,6 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostCreateInvoiceAsync(int bookingId, string? notes)
     {
-        var resultBookings = await _apiService.GetAsync<List<BookingDto>>("api/booking");
-        if (resultBookings == null)
-        {
-            ErrorMessage = "Failed to fetch bookings.";
-            return Page();
-        }
-
-        if (resultBookings.IsSuccess && resultBookings.Data != null)
-        {
-            Bookings = resultBookings.Data;
-        }
-        else
-        {
-            ErrorMessage = resultBookings.Messages.FirstOrDefault()?.Message ?? "Failed to fetch bookings.";
-        }
-
-        if (!ModelState.IsValid)
-        {
-            return Page();
-        }
-
         try
         {
             var createInvoice = new CreateInvoiceCommand()
@@ -243,18 +221,17 @@ public class IndexModel : PageModel
 
             if (result == null || !result.IsSuccess)
             {
-                TempData["ErrorMessage"] = result?.Messages.FirstOrDefault()?.Message ?? "Failed to create invoice booking.";
-                return Page();
+                TempData["ErrorMessage"] = result?.Messages.FirstOrDefault()?.Message ?? "Failed to create invoice.";
+                return RedirectToPage();
             }
 
-            TempData["SuccessMessage"] = "Booking has been create invoice successfully!"; 
             return RedirectToPage("/Invoices/Details", new { id = result.Data });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error create invoice booking");
-            TempData["ErrorMessage"] = "An error occurred while create invoice the booking.";
-            return Page();
+            _logger.LogError(ex, "Error creating invoice for booking {BookingId}", bookingId);
+            TempData["ErrorMessage"] = "An error occurred while creating the invoice.";
+            return RedirectToPage();
         }
     }
 } 

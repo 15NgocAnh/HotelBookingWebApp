@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace HotelBooking.Application.Services.User
 {
@@ -24,5 +25,27 @@ namespace HotelBooking.Application.Services.User
                 return claims ?? Enumerable.Empty<int>();
             }
         }
+
+        public int UserId
+        {
+            get
+            {
+                var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId))
+                {
+                    return userId;
+                }
+                return 0;
+            }
+        }
+
+        public string Role
+        {
+            get
+            {
+                return _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role).ToString();
+            }
+        }
+
     }
 }
